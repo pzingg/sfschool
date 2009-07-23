@@ -1,0 +1,235 @@
+/* $Id: ie.css,v 1.4 2008/09/20 20:57:27 johnalbin Exp $ */
+
+/*
+ * IE CSS
+ *
+ * CSS targeted specifically for Internet Explorer for Windows.
+ *
+ * Properties starting with an underscore _ are for IE 5 and 6 only.
+ * Properties starting with head:first-child+body are for IE7 only.
+ * Properties with a child selector (>) or sibling selector (+) are for IE7 only.
+ *
+ */
+
+/*
+ * Layout CSS
+ */
+
+/** body **/
+  body
+  {
+    _text-align: center; /* 1st part of IE5/IE6quirks centering hack */
+  }
+
+  #page
+  {
+    _text-align: left; /* 2nd part of IE5/IE6quirks centering hack */
+    _width: 799px;
+  }
+
+/** main (container for everything else) **/
+  #main
+  {
+    _zoom: 1; /* Otherwise with a liquid layout, sidebars disappear when resizing the windows in IE6 */
+    _overflow: visible; /* Reduce amount of damage done by extremely wide content */
+  }
+
+/** floating divs **/
+  #content,
+  #navbar,
+  #sidebar-left,
+  #sidebar-right
+  {
+    _display: inline; /* display inline or double your floated margin! [1] */
+    _overflow: hidden; /* in ie6, overflow auto is broken [2] and so is overflow visible [3] */
+    _overflow-y: visible;
+  }
+
+
+/*
+ * Tabs CSS - IE 5 and 6 don't support PNGs with alpha transparency.
+ */
+
+  ul.primary li a,
+  ul.primary li a .tab,
+  ul.secondary li a,
+  ul.secondary li a .tab
+  {
+    _display: inline; /* Otherwise the blocks mistakenly get 100% width in IE5 */
+    _display: inline-block; /* Otherwise the blocks mistakenly get 100% width in IE6 */
+    cursor: pointer;
+  }
+
+  ul.primary,
+  ul.secondary
+  {
+    _width: 100%; /* Otherwise IE5 treats the ul as floated */
+    _width: auto; /* Reset to auto width for IE6 */
+  }
+
+  ul.primary li a
+  {
+    _background: url(../zen/images/tab-left-ie6.png) no-repeat left -38px;
+  }
+
+  ul.primary li a .tab
+  {
+    _background: url(../zen/images/tab-right-ie6.png) no-repeat right -38px;
+  }
+
+  ul.primary li a:hover
+  {
+    _background: url(../zen/images/tab-left-ie6.png) no-repeat left -76px;
+  }
+
+  ul.primary li a:hover .tab
+  {
+    _background: url(../zen/images/tab-right-ie6.png) no-repeat right -76px;
+  }
+
+  ul.primary li.active a,
+  ul.primary li.active a:hover
+  {
+    _background: url(../zen/images/tab-left-ie6.png) no-repeat left 0;
+  }
+
+  ul.primary li.active a .tab,
+  ul.primary li.active a:hover .tab
+  {
+    _background: url(../zen/images/tab-right-ie6.png) no-repeat right 0;
+  }
+
+/** Drupal nodes **/
+  .node-unpublished .node-inner>*
+  {
+    position: relative; /* Otherwise these elements will appear below the "Unpublished" text. */
+  }
+
+/** Drupal admin tables **/
+  .section-admin #content tr.even th,
+  .section-admin #content tr.even td,
+  .section-admin #content tr.odd th,
+  .section-admin #content tr.odd td
+  {
+    border-bottom: 1px solid #ccc; /* IE doesn't display borders on table rows */
+  }
+
+/*
+ * REFERECES
+ *
+
+1. http://www.positioniseverything.net/explorer/doubled-margin.html
+2. http://browservulsel.blogspot.com/2005/04/ie-overflow-auto-scrollbar-overlap.html
+3. http://www.howtocreate.co.uk/wrongWithIE/?chapter=overflow%3Avisible%3B
+
+ *
+ */
+
+#logo {
+width:188px;
+height:150px;
+
+}
+
+
+  div.block.with-block-editing {
+   margin-bottom: 15px;
+   padding-bottom: 0px;
+  }
+  .block ul { 
+    padding: 0px;
+  }
+ 
+  .block ul li{      
+    padding-left: 10px;
+    text-indent: -16px;
+  }
+
+  .block h2.title {
+    padding-top: 15px;
+  }
+
+  #squeeze
+  {
+    width: 405px;    
+  }
+
+  body.sidebar-left #squeeze, body.two-sidebars #squeeze {
+	padding-top: 40px;
+  }
+
+
+  #container #sidebar-right
+  {
+    margin-top: 0px; /* added */
+    padding-left: 0px;  /* added */
+    padding-top: 40px;  /* added */
+    position: relative; /* added */
+    width: 196px; /* If you change this value, change the values
+                     of margin-right for #main and #squeeze. */
+  }
+ 
+  #sidebar-right .block {       
+    padding-bottom: 0px;
+    margin-bottom: 20px;
+  }
+
+  #sidebar-right .block .content {
+    padding-right: 20px;    
+    padding-bottom: 25px;
+  }
+
+  #container #sidebar-left {
+    padding-top: 6px;
+  }
+
+  #sidebar-left .block {
+    position: relative;
+  }
+ 
+  #sidebar-left .block .content {    
+	padding-top: -20px;    
+  }
+
+  #sidebar-left ul.menu li.leaf,
+  #sidebar-left ul.menu li.collapsed,
+  #sidebar-left ul.menu li.expanded {
+     list-style-image: none;
+	
+  }
+
+  /*.content #crm-event-block { 
+    position: relative;    
+    padding: 10px;
+    background-color: #E5ECF9;  
+    border: 10px solid #C3D9FF;
+    height: 178px
+    overflow-y: auto;
+    display: table;
+    width: 80%;
+    font-weight:bold;
+  }
+ 
+  .content #crm-event-block p {    
+    padding-left: 10px;
+    line-height: 23px;
+  }
+  
+  .content #crm-event-block a {    
+    background: #FFFFFF;
+    border: 1px solid #C3D9FF;
+    display: list-item;
+    list-style-image: none;
+    list-style-position: outside;
+    list-style-type: none;  
+    padding-right: 10px;
+    text-indent: 10px;
+    width: 100%;
+    font-weight: normal;
+  }
+
+  .content #crm-event-block br, .content #crm-event-block em {
+    display: none;
+  }  */
+
+ 
