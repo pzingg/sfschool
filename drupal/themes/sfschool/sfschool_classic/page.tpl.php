@@ -115,7 +115,7 @@
       </div> <!-- /navigation -->
       </td></tr>
       
-      <tr><td width="611px"><?php  global $base_url; ?><img src="<?php print $base_url?>/sites/all/themes/sfschool/sfschool_classic/families.jpg">
+      <tr><td width="611px"><?php  global $base_url; ?><img src="<?php echo $base_path . $directory; ?>/families.jpg">
       </td><td width="188px">
       <div id="logo-title">
 
