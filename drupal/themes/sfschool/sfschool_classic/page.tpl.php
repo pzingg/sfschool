@@ -150,11 +150,11 @@
     </div> <!-- /header -->
    </td></tr></table>
 
-   <table><tr><td colspan="2" valign="top">
+   <table><tr><td colspan="2" valign="top" >
     <div id="container" class="clear-block">
      <table><tr>
       <?php if (!empty($left)): ?>
-        <td valign="top" width="184px">
+        <td valign="top" width="184px" bgcolor="#f9f3d9">
         <div id="sidebar-left" class="column sidebar">
           <?php print $left; ?>
         </div> <!-- /sidebar-left -->

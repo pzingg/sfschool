@@ -77,6 +77,7 @@
     /*margin-left: 183px; //commented modified from 210px to 183px */
     padding-left: 1em;
     padding-top: 55px; /* added */
+    width: 398px;
   }
 
   /* Then we adjust the #main container to make room for the right sidebar */
