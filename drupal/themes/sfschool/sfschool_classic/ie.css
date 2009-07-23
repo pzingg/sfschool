@@ -132,10 +132,36 @@ height:150px;
 }
 
 
-  div.block.with-block-editing {
-   margin-bottom: 15px;
-   padding-bottom: 0px;
+
+  div.block {
+    background-color: #FFFFFF;
+  }   
+
+  
+  .block h2.title {
+    padding-top: 5px;
   }
+
+  #content-bottom .block  
+     padding-top: 10px;
+  }
+
+  #content-bottom .block-inner {
+    background-color: #770632;
+    margin-bottom: 0px;
+    padding-bottom: 0px;
+    padding-top: 10px;
+  }
+  
+  #content-bottom .block h2.title {   
+    margin-top: 0px; 
+    margin-bottom: 2px; 
+    padding-top: 0px;
+    padding-bottom: 0px;
+  }
+
+
+
   .block ul { 
     padding: 0px;
   }
@@ -145,33 +171,25 @@ height:150px;
     text-indent: -16px;
   }
 
-  .block h2.title {
-    padding-top: 15px;
-  }
-
   #squeeze
   {
-    width: 405px;    
+    width: 395px;   
   }
 
   body.sidebar-left #squeeze, body.two-sidebars #squeeze {
-	padding-top: 40px;
+     padding-top: 45px;
+
   }
 
 
   #container #sidebar-right
   {
-    margin-top: 0px; /* added */
-    padding-left: 0px;  /* added */
-    padding-top: 40px;  /* added */
+    margin-top: 0px; /* added */   
+    padding-left: 10px;  /* added */
+    padding-top: 45px;  /* added */
     position: relative; /* added */
     width: 196px; /* If you change this value, change the values
                      of margin-right for #main and #squeeze. */
-  }
- 
-  #sidebar-right .block {       
-    padding-bottom: 0px;
-    margin-bottom: 20px;
   }
 
   #sidebar-right .block .content {
@@ -179,8 +197,15 @@ height:150px;
     padding-bottom: 25px;
   }
 
+   
+  #sidebar-right .block-inner {       
+    padding-bottom: 0px;
+    margin-bottom: -6px;
+  }
+
+
   #container #sidebar-left {
-    padding-top: 6px;
+    padding-top: 7px;
   }
 
   #sidebar-left .block {
@@ -195,7 +220,8 @@ height:150px;
   #sidebar-left ul.menu li.collapsed,
   #sidebar-left ul.menu li.expanded {
      list-style-image: none;
-	
+     padding-left: 0px;
+     text-indent: 0px;
   }
 
   /*.content #crm-event-block { 

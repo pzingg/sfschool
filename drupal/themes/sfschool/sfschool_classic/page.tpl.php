@@ -146,19 +146,11 @@
 
       </div> <!-- /logo-title -->      
       </td></tr>
-      <tr><td colspan="2">
-      <?php if (!empty($header) || !empty($breadcrumb)): ?>
-        <div id="header-region">
-          <?php print $breadcrumb; ?>
-        <?php //print $header; ?>
-        </div> <!-- /header-region -->
-      <?php endif; ?>
-
-     </td></tr></table>
+      </table>
     </div> <!-- /header -->
    </td></tr></table>
 
-   <table><tr><td colspan="2">
+   <table><tr><td colspan="2" valign="top">
     <div id="container" class="clear-block">
      <table><tr>
       <?php if (!empty($left)): ?>
@@ -201,7 +193,7 @@
        <!-- /squeeze -->
 
       <?php if (!empty($right)): ?>
-      <td>
+      <td valign="top">
         <div id="sidebar-right" class="column sidebar">
           <?php print $right; ?>
         </div></td></tr></table> <!-- /sidebar-right -->

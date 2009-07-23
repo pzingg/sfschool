@@ -710,21 +710,18 @@
 
   .block-user li.expanded ul.menu li {
     background-color: #F9F3D9;
+    border-bottom: none;
   }
 
   .block-user li.expanded, .block-user ul.menu li.expanded {
     background-color:#C5C6C8;   
-    border-bottom:1px solid #FFFFFF;
+    /* border-bottom:1px solid #FFFFFF; //comment temporarily */
     list-style: none;
     padding:0px;;
     line-height:25px;
     padding-left: 0px;
     text-indent: 5px;
-  }
-
- .block-user li.expanded ul li {
-    border-bottom: 
-  }
+  } 
 
   ul.menu li {
     margin:0px;
@@ -770,10 +767,8 @@
     background-color: #E1E3E5;   
   }
 
-  .block-user li.expanded ul.menu li.leaf, 
-  .block-user li.expanded ul.menu li.collapsed, 
-  .block-user ul.menu li.expanded ul.menu li.leaf, 
-  .block-user ul.menu li.expanded ul.menu li.collapsed {     
+  .block-user li ul.menu li
+  {     
     border-bottom:1px solid #FFFFFF;    
     list-style: none;
     padding:0px;
