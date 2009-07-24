@@ -69,34 +69,34 @@
 
   ul.primary li a
   {
-    _background: url(../zen/images/tab-left-ie6.png) no-repeat left -38px;
+    _background: url(../sfschool/images/tab-left-ie6.png) no-repeat left -38px;
   }
 
   ul.primary li a .tab
   {
-    _background: url(../zen/images/tab-right-ie6.png) no-repeat right -38px;
+    _background: url(../sfschool/images/tab-right-ie6.png) no-repeat right -38px;
   }
 
   ul.primary li a:hover
   {
-    _background: url(../zen/images/tab-left-ie6.png) no-repeat left -76px;
+    _background: url(../sfschool/images/tab-left-ie6.png) no-repeat left -76px;
   }
 
   ul.primary li a:hover .tab
   {
-    _background: url(../zen/images/tab-right-ie6.png) no-repeat right -76px;
+    _background: url(../sfschool/images/tab-right-ie6.png) no-repeat right -76px;
   }
 
   ul.primary li.active a,
   ul.primary li.active a:hover
   {
-    _background: url(../zen/images/tab-left-ie6.png) no-repeat left 0;
+    _background: url(../sfschool/images/tab-left-ie6.png) no-repeat left 0;
   }
 
   ul.primary li.active a .tab,
   ul.primary li.active a:hover .tab
   {
-    _background: url(../zen/images/tab-right-ie6.png) no-repeat right 0;
+    _background: url(../sfschool/images/tab-right-ie6.png) no-repeat right 0;
   }
 
 /** Drupal nodes **/
@@ -127,39 +127,44 @@
 
 #logo {
 width:188px;
-height:150px;
-
+height:145px;
+margin-top:5px;
 }
-
-
 
   div.block {
     background-color: #FFFFFF;
   }   
-
   
   .block h2.title {
     padding-top: 5px;
   }
 
-  #content-bottom .block  
-     padding-top: 10px;
+  #content-bottom .block,
+  #content-top .block
+   { 
+     padding-top: 15px;
+     margin-bottom: 0px;
   }
 
-  #content-bottom .block-inner {
+  .page-admin-build-block #content-top .block, .page-admin-build-block #content-bottom .block {
+	margin-bottom: -37px;
+  }
+
+  #content-bottom .block-inner,
+  #content-top .block-inner {
     background-color: #770632;
-    margin-bottom: 0px;
+    margin-bottom: 10px;
     padding-bottom: 0px;
     padding-top: 10px;
   }
   
-  #content-bottom .block h2.title {   
+  #content-bottom .block h2.title,
+  #content-top .block h2.title {   
     margin-top: 0px; 
     margin-bottom: 2px; 
     padding-top: 0px;
     padding-bottom: 0px;
   }
-
 
 
   .block ul { 
@@ -175,20 +180,20 @@ height:150px;
     color:#669933;
   }
 
-  #squeeze
-  {
-    width: 395px;   
+  #squeeze {
+    margin-right: 8px;
   }
+
 
   body.sidebar-left #squeeze, body.two-sidebars #squeeze {
      padding-top: 45px;
-
+     padding-left: -5px;
   }
 
   #container #sidebar-right
   {
     margin-top: 0px; /* added */   
-    padding-left: 10px;  /* added */
+    padding-left: 5px;  /* added */
     padding-top: 45px;  /* added */
     position: relative; /* added */
     width: 196px; /* If you change this value, change the values
@@ -199,13 +204,11 @@ height:150px;
     padding-right: 20px;    
     padding-bottom: 25px;
   }
-
    
   #sidebar-right .block-inner {       
     padding-bottom: 0px;
     margin-bottom: -6px;
   }
-
 
   #container #sidebar-left {
     padding-top: 7px;
@@ -216,15 +219,47 @@ height:150px;
   }
  
   #sidebar-left .block .content {    
-	padding-top: -20px;    
+    padding-top: -20px;    
+  }
+ 
+  #sidebar-left ul.menu {
+    padding-top: -10px; 
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+ 
+  #sidebar-left ul.menu li.first {
+    padding-top: 1px;  
+  }
+
+  #sidebar-left ul.menu li{   
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-bottom: 1px solid #FFFFFF;
   }
 
   #sidebar-left ul.menu li.leaf,
   #sidebar-left ul.menu li.collapsed,
-  #sidebar-left ul.menu li.expanded {
-     list-style-image: none;
-     padding-left: 0px;
+  {
+     list-style-image: none;     
      text-indent: 0px;
+  }
+
+  #sidebar-left ul.menu li.expanded { 
+     list-style-image: none;        
+     text-indent: 5px;
+  }
+
+  #sidebar-left ul.menu a {            
+     margin-left: 0px;
+     text-indent: -5px;
+     display: block;
+  }
+
+  #sidebar-left li.expanded li, #sidebar-left ul.menu li.expanded li {
+    border-bottom: 1px solid #f9f3d9;
   }
 
   /*.content #crm-event-block { 
@@ -249,4 +284,23 @@ height:150px;
     display: none;
   }  */
 
+/* .block ul.menu li.expanded li a:hover {
+   display: inline;
+   text-decoration: underline;
+   background-color: #f9f3d9;
+
+ } */
+
  
+ .block-user li.leaf a:hover, .block-user ul.menu li.leaf a:hover, 
+ .block-user li.collapsed a:hover, .block-user ul.menu li.collapsed a:hover, 
+ .block-user li.expanded a:hover, .block-user ul.menu li.expanded a:hover {
+    background-color: #E1E3E5; 
+ }
+
+ .block-user li.expanded li a:hover, .block-user ul.menu li.expanded li a:hover {
+   position: relative;  
+   text-decoration: underline;
+   background-color: #f9f3d9; 
+ }
+
