@@ -86,6 +86,9 @@
 <!--[if lte IE 6]>
 <link rel="stylesheet" href="<?php echo $base_path . $directory; ?>/ie.css" type="text/css" />
 <![endif]-->
+<!--[if lte IE 7]>
+<link rel="stylesheet" href="<?php echo $base_path . $directory; ?>/ie7.css" type="text/css" />
+<![endif]-->
 
 </head>
 <body class="<?php print $body_classes; ?>">
@@ -163,7 +166,15 @@
         
       <td width="615px">  
       <div id="main" class="column">
+
+      <?php if (!empty($right)): ?>    
+
       <table><tr><td width="427px" valign="top">
+      <?php endif; if(empty($right)): ?>
+     
+       <table width="100%"><tr><td valign="top">
+      <?php endif; ?>
+                                     
       <div id="squeeze" class="clear-block">
         <?php if (!empty($mission)): ?>
           <div id="mission"><?php print $mission; ?></div>

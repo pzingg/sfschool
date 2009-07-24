@@ -527,7 +527,7 @@
   {
     text-align: left;    
     background-color: none;  /* added */
-    margin-left:184px;  /* added */
+    margin-left: 184px;  /* added */
   }
 
   /* added */
@@ -753,6 +753,7 @@
   }
 
   #sidebar-right .block h2.title {
+    color: #FFFFFF;
     font-size: 12px;
     font-weight: normal;
     padding-bottom: 0px;
@@ -769,6 +770,12 @@
     background-color: #E1E3E5;   
   }
 
+  .block-user li.expanded li:hover, .block-user ul.menu li.expanded li:hover {
+   background-color: #f9f3d9;
+   text-decoration: underline;
+  }
+  
+
   .block-user li ul.menu li
   {     
     border-bottom:1px solid #FFFFFF;    
@@ -776,7 +783,7 @@
     padding:0px;
     background-color: #F9F3D9;
     text-indent: 5px;
-  }
+  }    
 
   h1.title {
     color: #770632;
@@ -1033,11 +1040,15 @@
   }
 
   .block h2.title {
-    color:#FFFFFF;
     font-size:15px;
     font-weight:bold;
     line-height:17px;
     padding:7px 17px 0px;
+  }
+
+  #content-bottom .block h2.title,
+  #content-top .block h2.title {
+     color: #FFFFFF;
   }
 
 

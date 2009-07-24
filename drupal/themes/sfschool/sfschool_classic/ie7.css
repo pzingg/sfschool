@@ -1,0 +1,17 @@
+/*
+ * IE CSS
+ *
+ * CSS targeted specifically for Internet Explorer 7 for Windows.
+ *
+ *
+ */
+
+  #content-bottom .block{  
+     padding-top: 10px;
+  }
+
+  #content-bottom .block-inner {   
+   margin-bottom: -15px;
+   position: relative;
+  }
+  
