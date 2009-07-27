@@ -125,11 +125,17 @@
  *
  */
 
-#logo {
-width:188px;
-height:145px;
-margin-top:5px;
-}
+  #logo-title
+  {
+    /*margin: 10px 20px 0 20px; //comment */
+    margin-top:-5px;
+  }
+
+  #logo {
+    width:188px;
+    height:145px;
+    margin-top:6px;
+  }
 
   div.block {
     background-color: #FFFFFF;
@@ -139,10 +145,15 @@ margin-top:5px;
     padding-top: 5px;
   }
 
+  body.sidebar-right #main, body.two-sidebars #main {layout-g...and.css?B (line 90)
+    margin-right: 0px;
+  }
+
   #content-bottom .block,
   #content-top .block
    { 
      padding-top: 15px;
+     padding-bottom: 15px;
      margin-bottom: 0px;
   }
 
@@ -153,13 +164,13 @@ margin-top:5px;
   #content-bottom .block-inner,
   #content-top .block-inner {
     background-color: #770632;
-    margin-bottom: 10px;
+    margin-bottom: -15px;
     padding-bottom: 0px;
-    padding-top: 10px;
+    padding-top: 5px;
   }
   
   #content-bottom .block h2.title,
-  #content-top .block h2.title {   
+  #content-top .block h2.title {    
     margin-top: 0px; 
     margin-bottom: 2px; 
     padding-top: 0px;
@@ -180,8 +191,13 @@ margin-top:5px;
     color:#669933;
   }
 
-  #squeeze {
-    margin-right: 8px;
+  body.sidebar-right #squeeze,
+  body.two-sidebars #squeeze
+  {
+   /* margin-right: 210px; //comment */
+     margin-right: 5px;      
+     overflow-x: auto;
+     overflow-y: hidden;
   }
 
 
@@ -193,11 +209,12 @@ margin-top:5px;
   #container #sidebar-right
   {
     margin-top: 0px; /* added */   
-    padding-left: 5px;  /* added */
+    padding-left: 3px;  /* added */
     padding-top: 45px;  /* added */
     position: relative; /* added */
     width: 196px; /* If you change this value, change the values
                      of margin-right for #main and #squeeze. */
+    float: left;
   }
 
   #sidebar-right .block .content {
@@ -211,7 +228,8 @@ margin-top:5px;
   }
 
   #container #sidebar-left {
-    padding-top: 7px;
+    padding-top: 0px;
+    margin-top: 15px;
   }
 
   #sidebar-left .block {
@@ -219,9 +237,10 @@ margin-top:5px;
   }
  
   #sidebar-left .block .content {    
-    padding-top: -20px;    
+    padding-top: -25px;    
   }
  
+
   #sidebar-left ul.menu {
     padding-top: -10px; 
     list-style: none;
@@ -262,6 +281,11 @@ margin-top:5px;
     border-bottom: 1px solid #f9f3d9;
   }
 
+  #sidebar-left li.expanded li a:hover, #sidebar-left ul.menu li.expanded li a:hover {
+    background-color: #F9F3D9; 
+    text-decoration: underline;
+  }
+ 
   /*.content #crm-event-block { 
     padding-left: 0px;
     padding-right: 0px;    
@@ -298,9 +322,4 @@ margin-top:5px;
     background-color: #E1E3E5; 
  }
 
- .block-user li.expanded li a:hover, .block-user ul.menu li.expanded li a:hover {
-   position: relative;  
-   text-decoration: underline;
-   background-color: #f9f3d9; 
- }
 

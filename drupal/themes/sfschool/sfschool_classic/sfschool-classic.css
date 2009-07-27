@@ -11,18 +11,20 @@
 
   #page
   {
-    color: #111;
+    color: #333333;
     background-color: #fff;    
     /* padding-left:240px;  added, no need */
     /* padding-right:240px;  added, no need */
     padding-top:0;   /* added*/
     width:799px;  /* added*/
+    font-family: Arial,Helvetica,sans-serif;
   }
 
   #container
   {
     /* margin: 0 10px 10px 10px; //comment */    
     margin-top: -21px;  /* added */
+    
   }
 
   #header {
@@ -61,7 +63,7 @@
   }
 
   div.block.with-block-editing {
-    margin-bottom: 15px;
+    margin-bottom: 25px;
   }
 
   .block h3
@@ -82,7 +84,7 @@
   #logo-title
   {
     /*margin: 10px 20px 0 20px; //comment */
-    margin-top:-5px;
+    margin-top: 0px;
     position: relative;
     height: 145px;  /* added */
   }
@@ -91,8 +93,7 @@
   {
     height: 145px;
     vertical-align: baseline;
-    float: right;  /* added */
-    
+    float: right;  /* added */    
   }
 
   #name-and-slogan
@@ -256,17 +257,12 @@
     /* font-weight: bold; //commented */
     display: block;
     float: left;
-    padding: 0px 14px 0px 14px;
-    margin: 0 1px 0 0;
+    padding: 0px 8px 0px 8px;    
     border-left: solid #000000 1px; /* added */
-    text-transform:uppercase; /* added */
+    text-transform:uppercase; /* added */    
     /* border-width: 1px 1px 0 1px; // comment */
   }
 
-  #primary a
-  {
-    background-position: 0% 0;
-  }
 
   #primary a:hover
   {
@@ -384,7 +380,7 @@
 
   input, textarea, textfield
   {
-    margin: 0;
+    margin: 0px;
     color: #000;
     font-family: Arial, Helvetica, "Bitstream Vera Sans", sans-serif;
     padding: 1px;
@@ -430,6 +426,12 @@
     padding-bottom: 0;
   }
 
+  /* added */
+
+  #sidebar-left .form-item .form-text {
+    width: 150px;
+  }
+
 /*
  * OpenID
  *
@@ -441,8 +443,8 @@
   {
     margin-top: 1em;
     margin-left: 0;
-  	padding-left: 1.5em;
-  	background-position: left center;
+    padding-left: 1.5em;
+    background-position: left center;
   }
 
   #user-login-form li.user-link, /* The "Cancel OpenID login" links. */
@@ -503,6 +505,7 @@
   #footer *
   {
     color: #000000; /* modified #ffffff to #000000 */
+    font-size: 9px; /* added */
   }
 
   #footer a
@@ -690,7 +693,8 @@
   }
 
   /* added */
-   .block-user li.leaf, .block-user ul.menu li.leaf {
+   .block-user li.leaf, .block-user ul.menu li.leaf,
+   .block-user li.collapsed, .block-user ul.menu li.collapsed {
     list-style: none; 
     background-color:#C5C6C8;
     border-bottom:1px solid #FFFFFF;
@@ -698,21 +702,11 @@
     padding-left: 5px;
     text-indent: 0px;
   }
-  
-  /* added */
-  .block-user li.collapsed, .block-user ul.menu li.collapsed {
-    list-style: none;  
-    background-color:#C5C6C8;  
-    border-bottom:1px solid #FFFFFF;   
-    line-height:25px;
-    padding-left: 5px;
-    text-indent: 0px;
-
-  }
 
   .block-user li.expanded ul.menu li {
     background-color: #F9F3D9;
     border-bottom: none;
+    text-decoration: none;
   }
 
   .block-user li.expanded, .block-user ul.menu li.expanded {
@@ -742,12 +736,12 @@
    color: #770632;   
   }
 
-  #sidebar-left .block-user li a.active {
+  #sidebar-left .block li a.active {
     color: #770632;
     font-weight: bold;     
   }
 
-  #sidebar-left .block-user li a:link, #sidebar-left .block-user li a:visited {
+  #sidebar-left .block li a:link, #sidebar-left .block li a:visited {
     color:#770632;
     text-decoration:none;
   }
@@ -760,7 +754,8 @@
   }
 
   #sidebar-left .block-user h2.title {
-    font-size: 0px;    
+    font-size: 0px;
+    color: #f9f3d9;    
     padding-bottom: 0px;
   } 
 
@@ -770,12 +765,12 @@
     background-color: #E1E3E5;   
   }
 
-  .block-user li.expanded li:hover, .block-user ul.menu li.expanded li:hover {
+  .block-user li.expanded li:hover, .block-user ul.menu li.expanded li:hover,
+  #sidebar-left .block-civicrm li a:hover {
    background-color: #f9f3d9;
    text-decoration: underline;
   }
   
-
   .block-user li ul.menu li
   {     
     border-bottom:1px solid #FFFFFF;    
@@ -857,7 +852,7 @@
 
   .node h2.title a
   {
-    color: #555;
+    color: #82A320; /* changed */
     font-size: 129%;
     font-weight: normal;
     font-family: Verdana, Tahoma, Arial, Helvetica, "Bitstream Vera Sans", sans-serif;
@@ -970,7 +965,7 @@
     text-decoration: underline;
   }
   
-  #sidebar-right .two .content a:hover, #sidebar-right .three .content a:hover {    
+  #sidebar-right .one .content a:hover, #sidebar-right .two .content a:hover, #sidebar-right .three .content a:hover {    
     color: #770632;
   }  
 
@@ -1044,6 +1039,11 @@
     font-weight:bold;
     line-height:17px;
     padding:7px 17px 0px;
+  }
+
+  #content-bottom .block-inner,
+  #content-top .block-inner {
+     margin-bottom: 15px;
   }
 
   #content-bottom .block h2.title,
