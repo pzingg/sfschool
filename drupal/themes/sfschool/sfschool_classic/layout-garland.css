@@ -39,7 +39,7 @@
     width:799px;
   }
 
-  div#crm_container {
+  body.two-sidebars #crm-container {
     width: 400px;
   }
 
@@ -107,7 +107,7 @@
     float: left;
     position: absolute; /* modified */;
     z-index: 2; /* We ensure the sidebars are still clickable using z-index */
-    margin: 0;  
+    margin: 0;      
   }
 
   #container #sidebar-left
@@ -117,7 +117,7 @@
                      of margin-left for #main and #squeeze. ; modified */ 
     padding-top: 15px; /* added */
     background-color: #F9F3D9;
-    margin-top: 23px;
+    margin-top: 27px;
   }
 
   #container #sidebar-right
@@ -130,11 +130,6 @@
                      of margin-right for #main and #squeeze. */
   }
 
-  /* added */
-  #container tr, #container td {
-	padding: 0px;
-  }
- 
 
 /* Laout the footer */
   #footer

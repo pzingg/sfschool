@@ -229,7 +229,7 @@
 
   #container #sidebar-left {
     padding-top: 0px;
-    margin-top: 15px;
+    margin-top: 20px;
   }
 
   #sidebar-left .block {
@@ -252,29 +252,28 @@
     padding-top: 1px;  
   }
 
-  #sidebar-left ul.menu li{   
+  #sidebar-left ul.menu li {   
     list-style: none;
     margin: 0;
     padding: 0;
     border-bottom: 1px solid #FFFFFF;
   }
 
-  #sidebar-left ul.menu li.leaf,
-  #sidebar-left ul.menu li.collapsed,
+  #sidebar-left ul.menu li
   {
      list-style-image: none;     
      text-indent: 0px;
   }
 
-  #sidebar-left ul.menu li.expanded { 
-     list-style-image: none;        
-     text-indent: 5px;
+  #sidebar-left ul.menu li a { 
+     list-style-image: none; 
+     text-decoration: underline;    
   }
 
   #sidebar-left ul.menu a {            
      margin-left: 0px;
      text-indent: -5px;
-     display: block;
+     display: block;    
   }
 
   #sidebar-left li.expanded li, #sidebar-left ul.menu li.expanded li {
@@ -284,6 +283,12 @@
   #sidebar-left li.expanded li a:hover, #sidebar-left ul.menu li.expanded li a:hover {
     background-color: #F9F3D9; 
     text-decoration: underline;
+  }
+
+  #sidebar-left ul.menu li ul { 
+    padding-top: 1px;
+    margin-top: -2px;
+    background-color: #F9F3D9;
   }
  
   /*.content #crm-event-block { 
@@ -314,12 +319,13 @@
    background-color: #f9f3d9;
 
  } */
-
  
- .block-user li.leaf a:hover, .block-user ul.menu li.leaf a:hover, 
- .block-user li.collapsed a:hover, .block-user ul.menu li.collapsed a:hover, 
- .block-user li.expanded a:hover, .block-user ul.menu li.expanded a:hover {
+ #sidebar-left .block ul.menu li a:hover {
     background-color: #E1E3E5; 
  }
 
+ #sidebar-left .block ul.menu li ul li ul li a {
+    text-indent: 5px;
+ }
+ 
 

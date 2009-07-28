@@ -133,6 +133,21 @@
     right: 0;
   }
 
+  /* added */
+  #crm-container #search {
+    position: relative;    
+  }
+
+  /* added */
+  #crm-container #search .button,
+  #crm-container #search .form-submit {
+    border: none;
+  }
+
+  #crm-container tr {
+    font-size: 11px;
+  }
+
   #mission
   {
     color: #666;
@@ -693,8 +708,7 @@
   }
 
   /* added */
-   .block-user li.leaf, .block-user ul.menu li.leaf,
-   .block-user li.collapsed, .block-user ul.menu li.collapsed {
+   #sidebar-left .block ul.menu li {
     list-style: none; 
     background-color:#C5C6C8;
     border-bottom:1px solid #FFFFFF;
@@ -703,13 +717,13 @@
     text-indent: 0px;
   }
 
-  .block-user li.expanded ul.menu li {
+  #sidebar-left .block li ul.menu li {
     background-color: #F9F3D9;
     border-bottom: none;
     text-decoration: none;
   }
 
-  .block-user li.expanded, .block-user ul.menu li.expanded {
+  #sidebar-left .block ul.menu li{
     background-color:#C5C6C8;   
     /* border-bottom:1px solid #FFFFFF; //comment temporarily */
     list-style: none;
@@ -753,32 +767,47 @@
     padding-bottom: 0px;
   }
 
-  #sidebar-left .block-user h2.title {
+  #sidebar-left .block-user h2.title,
+  #sidebar-left .block-menu h2.title {
     font-size: 0px;
     color: #f9f3d9;    
     padding-bottom: 0px;
   } 
 
-  .block-user li.leaf:hover, .block-user ul.menu li.leaf:hover, 
-  .block-user li.collapsed:hover, .block-user ul.menu li.collapsed:hover, 
-  .block-user li.expanded:hover, .block-user ul.menu li.expanded:hover {
+  #sidebar-left .block ul.menu li:hover {
     background-color: #E1E3E5;   
   }
 
-  .block-user li.expanded li:hover, .block-user ul.menu li.expanded li:hover,
+  #sidebar-left .block ul.menu li ul,
+  #sidebar-left .block ul.menu li ul.menu li {
+    background-color: #f9f3d9;
+  }
+
+  #sidebar-left .block ul.menu li ul li ul li {
+    background-color: #f9f3d9;
+    text-decoration: none;
+    text-indent: 13px;
+  }
+ 
+  #sidebar-left .block ul.menu li ul.menu li a:hover,
+    #sidebar-left .block ul.menu li ul.menu li ul li a:hover {
+    text-decoration: underline;
+  }
+ 
   #sidebar-left .block-civicrm li a:hover {
    background-color: #f9f3d9;
    text-decoration: underline;
   }
   
-  .block-user li ul.menu li
-  {     
-    border-bottom:1px solid #FFFFFF;    
+  #sidebar-left .block li ul.menu li
+  {      
     list-style: none;
     padding:0px;
     background-color: #F9F3D9;
     text-indent: 5px;
   }    
+
+
 
   h1.title {
     color: #770632;
@@ -914,6 +943,13 @@
   #sidebar-right .block ul {
     padding: 0px;
     text-indent: 5px;
+  }
+
+  #sidebar-left .block ul li,
+  #sidebar-right .block ul li {
+    padding: 0px;
+    text-indent: 5px;
+    list-style: none;
   }
 
 

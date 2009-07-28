@@ -89,6 +89,8 @@
   {
     padding: 0 0 0.5em 0;
     margin: 0;
+    font-size:13px; /* added */
+    line-height:17px; /* added */
   }
 
   ol, ul, dl
@@ -139,12 +141,12 @@
   table
   {
     font-size: 100%; /* Forces font size inheritance in IE5 */
-    f\ont-size: inherit;
+    font-size: inherit;
   }
 
   tr, td
   {
-    padding: .25em;
+    /* padding: .25em; //comment */
   }
 
 /** abbreviations **/
