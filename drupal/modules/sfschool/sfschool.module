@@ -1,0 +1,83 @@
+<?php
+
+function sfschool_help( $section, $args = array() ) {
+    switch ($section) { 
+    case 'admin/modules#description': 
+        return t('Implements hooks for CiviCRM to customize the SFSchool site');
+    default :
+        return;
+    } 
+}
+
+function _sfschool_initialize( ) {
+    $template = CRM_Core_Smarty::singleton( );
+
+    $sfschoolDir = 
+        dirname( __FILE__ ) . DIRECTORY_SEPARATOR .
+        '..'                . DIRECTORY_SEPARATOR .
+        '..'                . DIRECTORY_SEPARATOR .
+        'templates';
+
+    if ( is_array( $template->template_dir ) ) {
+        $template->template_dir = array( $sfschoolDir ) + $template->template_dir;                            
+    } else {
+        $template->template_dir = array( $sfschoolDir, $template->template_dir );
+    }
+
+}
+
+function sfschool_civicrm_pageRun( &$page ) {
+    if ( $page->getVar( '_name' ) != 'CRM_Profile_Page_Dynamic' ) {
+        return;
+    }
+
+    $gid = $page->getVar( '_gid' );
+    if ( ! in_array( $page->getVar( '_gid' ),
+                     array( 3, 4 ) ) ) {
+        return;
+    }
+
+    if ( $gid == 3 ) {
+        // get all permissioned children only
+        $query = "
+SELECT     c.id, c.display_name, r.is_permission_b_a, sis.subtype_1, sis.grade_2
+FROM       civicrm_contact c
+INNER JOIN civicrm_relationship r ON r.contact_id_a = c.id
+LEFT JOIN  civicrm_value_school_information_1 sis ON sis.entity_id = c.id
+WHERE      r.relationship_type_id = 1
+AND        r.is_active    = 1
+AND        r.is_permission_b_a = 1
+AND        r.contact_id_b = %1
+AND        r.contact_id_a = c.id
+AND        sis.entity_id = c.id
+";
+        $varName = 'childrenInfo';
+    } else {
+        // get all parents (permissioned or not)
+        $query = "
+SELECT     p.id, p.display_name, r.is_permission_b_a, sis.subtype_1, sis.grade_2
+FROM       civicrm_contact p
+INNER JOIN civicrm_relationship r ON r.contact_id_b = p.id
+LEFT  JOIN civicrm_value_school_information_1 sis ON sis.entity_id = %1
+WHERE      r.relationship_type_id = 1
+AND        r.is_active    = 1
+AND        r.contact_id_a = %1
+";
+        $varName = 'parentInfo';
+    }
+
+    $params = array( 1 => array( $page->getVar( '_id' ), 'Integer' ) );
+    $dao = CRM_Core_DAO::executeQuery( $query, $params );
+    $values = array( );
+    while ( $dao->fetch( ) ) {
+        $values[] = array( 'id'              => $dao->id,
+                           'name'            => $dao->display_name,
+                           'is_permissioned' => $dao->is_permission_b_a,
+                           'sub_type'        => $dao->sub_type_1,
+                           'grade'           => $dao->grade_2 );
+    }
+
+    $page->assign( $varName, $values );
+
+}
+
