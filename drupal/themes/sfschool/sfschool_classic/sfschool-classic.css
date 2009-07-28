@@ -473,6 +473,11 @@
     margin-left: 0;
   }
 
+  /* added */
+  .item-list ul li { 
+    margin-left: -5px;
+  }
+
 /*
  * ALERTS, STATUS, HELP MESSAGE STYLES
  */
@@ -798,6 +803,11 @@
    background-color: #f9f3d9;
    text-decoration: underline;
   }
+
+  #sidebar-left .block-civicrm .menu li.no-display {
+    padding-left:10px;
+  }
+  
   
   #sidebar-left .block li ul.menu li
   {      
@@ -947,6 +957,7 @@
 
   #sidebar-left .block ul li,
   #sidebar-right .block ul li {
+    line-height:25px;
     padding: 0px;
     text-indent: 5px;
     list-style: none;
@@ -1060,6 +1071,7 @@
     /* padding-left: 20px; // comment temporaliry */
     padding-right: 5px;
     text-indent: -13px;
+    line-height: 20px;
   }
   
   .block ul li a {

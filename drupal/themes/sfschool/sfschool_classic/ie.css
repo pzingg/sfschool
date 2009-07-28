@@ -137,6 +137,10 @@
     margin-top:6px;
   }
 
+  .item-list ul li {
+    margin-left: 2px;
+  } 
+
   div.block {
     background-color: #FFFFFF;
   }   
@@ -195,9 +199,8 @@
   body.two-sidebars #squeeze
   {
    /* margin-right: 210px; //comment */
-     margin-right: 5px;      
-     overflow-x: auto;
-     overflow-y: hidden;
+     margin-right: 5px;     
+
   }
 
 
@@ -240,6 +243,9 @@
     padding-top: -25px;    
   }
  
+  #sidebar-left .block-civicrm ul.indented li {
+    list-style: none;
+  }
 
   #sidebar-left ul.menu {
     padding-top: -10px; 
