@@ -138,7 +138,7 @@
   }
 
   .item-list ul li {
-    margin-left: 2px;
+    margin-left: -20px;
   } 
 
   div.block {
@@ -199,14 +199,21 @@
   body.two-sidebars #squeeze
   {
    /* margin-right: 210px; //comment */
-     margin-right: 5px;     
-
+     margin-right: 5px;    
+     overfly-y: hidden;
   }
 
 
-  body.sidebar-left #squeeze, body.two-sidebars #squeeze {
+  body.sidebar-left #squeeze, 
+  body.two-sidebars #squeeze {
      padding-top: 45px;
      padding-left: -5px;
+     float: left;
+     overflow-x: auto;
+  }
+ 
+  body.two-sidebars #crm-container {
+    width: auto;
   }
 
   #container #sidebar-right
@@ -333,5 +340,17 @@
  #sidebar-left .block ul.menu li ul li ul li a {
     text-indent: 5px;
  }
+
+  #sidebar-left .block-civicrm ul li {
+    list-style-image: none;
+    list-style-position: outside;
+    list-style-type: none;
+  }
+ 
+  #sidebar-left .block-civicrm .menu li.indented {
+    padding-top: -15px;
+  }
+ 
+
  
 

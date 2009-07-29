@@ -83,7 +83,8 @@
   {
     /*margin-left: 183px; //commented modified from 210px to 183px */
     padding-left: 1em;
-    padding-top: 55px; /* added */    
+    padding-top: 55px; /* added */        
+    width:595px; /* added */
   }
 
   /* Then we adjust the #main container to make room for the right sidebar */
@@ -136,7 +137,7 @@
   {
     float: none;
     clear: both;
-    margin: 4em 0 -3em;
+    margin: 4em 0 -3em;    
   }
 
 /* Ensure long text or wide images don't break IE6 layout. */

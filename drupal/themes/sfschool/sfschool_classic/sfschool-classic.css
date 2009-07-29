@@ -136,6 +136,7 @@
   /* added */
   #crm-container #search {
     position: relative;    
+    width: auto;
   }
 
   /* added */
@@ -516,8 +517,7 @@
     /* background-color: #2763A5; //comment 
     border: solid 1px #004969; */
     color: #FFFFFF;
-    text-align: center;
-    margin: 0;
+    text-align: center;    
     font-size: 85%;
     padding: 1em;
   }
@@ -806,8 +806,7 @@
 
   #sidebar-left .block-civicrm .menu li.no-display {
     padding-left:10px;
-  }
-  
+  }  
   
   #sidebar-left .block li ul.menu li
   {      
@@ -816,8 +815,6 @@
     background-color: #F9F3D9;
     text-indent: 5px;
   }    
-
-
 
   h1.title {
     color: #770632;
