@@ -55,10 +55,11 @@ AND        sis.entity_id = c.id
     } else {
         // get all parents (permissioned or not)
         $query = "
-SELECT     p.id, p.display_name, r.is_permission_b_a, sis.subtype_1, sis.grade_2
+SELECT     p.id, p.display_name, r.is_permission_b_a, ph.phone, e.email
 FROM       civicrm_contact p
 INNER JOIN civicrm_relationship r ON r.contact_id_b = p.id
-LEFT  JOIN civicrm_value_school_information_1 sis ON sis.entity_id = %1
+LEFT  JOIN civicrm_email e  ON e.contact_id  = p.id
+LEFT  JOIN civicrm_phone ph ON ph.contact_id = p.id
 WHERE      r.relationship_type_id = 1
 AND        r.is_active    = 1
 AND        r.contact_id_a = %1
@@ -70,11 +71,19 @@ AND        r.contact_id_a = %1
     $dao = CRM_Core_DAO::executeQuery( $query, $params );
     $values = array( );
     while ( $dao->fetch( ) ) {
-        $values[] = array( 'id'              => $dao->id,
-                           'name'            => $dao->display_name,
-                           'is_permissioned' => $dao->is_permission_b_a,
-                           'sub_type'        => $dao->sub_type_1,
-                           'grade'           => $dao->grade_2 );
+        $value = array( 'id'              => $dao->id,
+                        'name'            => $dao->display_name,
+                        'is_permissioned' => $dao->is_permission_b_a );
+
+        if ( $gid == 3 ) {
+            $value['sub_type'] = $dao->sub_type_1;
+            $value['grade']    = $dao->grade_2;
+        } else {
+            $value['phone'] = $dao->phone;
+            $value['email'] = $dao->email;
+        }
+
+        $values[] = $value;
     }
 
     $page->assign( $varName, $values );

@@ -5,7 +5,7 @@
 <table class="form-layout-compressed">
 {assign var=fName value="First Name"}
 {assign var=lName value="Last Name"}
-  <tr id="contact_name"><td class="label">Name</td><td class="view-value">{$row.$fName}&nbsp;{$row.$lName}</td></tr>
+  <tr id="contact_name"><td class="label">Parent Name</td><td class="view-value">{$row.$fName}&nbsp;{$row.$lName}</td></tr>
   <tr id="contact_email"><td class="label">Email</td><td class="view-value">{$row.Email}</td></tr> 
   <tr id="contact_phone"><td class="label">Phone</td><td class="view-value">{$row.Phone}</td></tr> 
 </table>
@@ -14,7 +14,7 @@
 <fieldset>
 <legend>Child Information</legend>
 <table class="form-layout-compressed">
-  <tr><th>Name</th><th>Grade</th></tr>
+  <tr><th>Child Name</th><th>Grade</th></tr>
   {foreach from=$childrenInfo key=dontCare item=child}
   <tr>
      <td><a href="{crmURL p='civicrm/profile/view' q="reset=1&gid=4&id=`$child.id`"}">{$child.name}</a></td>
