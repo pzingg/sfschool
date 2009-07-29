@@ -84,33 +84,16 @@
   <?php print $head; ?>
   <?php print $styles; ?>
   <?php print $scripts; ?>
+
 <!--[if lte IE 6]>
 <link rel="stylesheet" href="<?php echo $base_path . $directory; ?>/ie.css" type="text/css" />
 <![endif]-->
 <!--[if lte IE 7]>
 <link rel="stylesheet" href="<?php echo $base_path . $directory; ?>/ie7.css" type="text/css" />
 <![endif]-->
-<script type = "text/javascript">
-window.onload= function(){
-    var container = document.getElementById('container');
 
-    var squeeze = document.getElementById('squeeze').offsetHeight; 
-    var sidebar_left = document.getElementById('sidebar-left').offsetHeight;
-
-    var bodyHeight = document.body.clientHeight;
-    var footer = document.getElementById('footer');
-
-    if( sidebar_left > squeeze ) {
-        var height=sidebar_left;
-    } else {
-        var height=squeeze;
-    } 
-    container.style.height = height + 'px';
-    footer.style.margin-top = height + 'px';
-}
-</script>
 </head>
-<body   class="<?php print $body_classes; ?>">
+<body onload="loadPage()" class="<?php print $body_classes; ?>">
 <table align="center">
 <tr>
 <td>

@@ -32,6 +32,8 @@
     min-width: 760px;
   }
 
+
+  /* added */
   #container
   {
     margin: 0 auto;
@@ -39,8 +41,9 @@
     width:799px;
   }
 
+  /* added */
   body.two-sidebars #crm-container {
-    width: 400px;
+    width: 615px;
   }
 
   /* added */
@@ -84,7 +87,7 @@
     /*margin-left: 183px; //commented modified from 210px to 183px */
     padding-left: 1em;
     padding-top: 55px; /* added */        
-    width:595px; /* added */
+    width: auto; /* added */
   }
 
   /* Then we adjust the #main container to make room for the right sidebar */
@@ -114,7 +117,7 @@
   #container #sidebar-left
   {
  
-    width: 184px; /* If you change this value, change the values
+    width: 183px; /* If you change this value, change the values
                      of margin-left for #main and #squeeze. ; modified */ 
     padding-top: 15px; /* added */
     background-color: #F9F3D9;
