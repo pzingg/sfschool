@@ -42,11 +42,6 @@
   }
 
   /* added */
-  body.two-sidebars #crm-container {
-    width: 615px;
-  }
-
-  /* added */
   /* admin section */
   div.admin .left { 
     margin-left:0px;    
@@ -68,7 +63,9 @@
   }
 
   #squeeze
-  {
+  {    
+    width: 600px;
+    padding-left: 1em;
     position: relative;
     overflow-x: auto;
     overflow-y: hidden;
@@ -84,10 +81,9 @@
   body.sidebar-left #squeeze,
   body.two-sidebars #squeeze
   {
-    /*margin-left: 183px; //commented modified from 210px to 183px */
+    /*margin-left: 183px; //commented modified from 210px to 183px */  
     padding-left: 1em;
-    padding-top: 55px; /* added */        
-    width: auto; /* added */
+    padding-top: 55px; /* added */    
   }
 
   /* Then we adjust the #main container to make room for the right sidebar */
@@ -117,7 +113,7 @@
   #container #sidebar-left
   {
  
-    width: 183px; /* If you change this value, change the values
+    width: 181px; /* If you change this value, change the values
                      of margin-left for #main and #squeeze. ; modified */ 
     padding-top: 15px; /* added */
     background-color: #F9F3D9;
@@ -133,7 +129,6 @@
     /* If you change this value, change the values
                      of margin-right for #main and #squeeze. */
   }
-
 
 /* Laout the footer */
   #footer
