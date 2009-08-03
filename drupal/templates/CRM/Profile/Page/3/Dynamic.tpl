@@ -14,11 +14,12 @@
 <fieldset>
 <legend>Child Information</legend>
 <table class="form-layout-compressed">
-  <tr><th>Child Name</th><th>Grade</th></tr>
+ <tr><th>Child Name</th><th>Grade</th><th>Parent Teacher Meetings</tr>
   {foreach from=$childrenInfo key=dontCare item=child}
   <tr>
      <td><a href="{crmURL p='civicrm/profile/view' q="reset=1&gid=4&id=`$child.id`"}">{$child.name}</a></td>
      <td>{$child.grade}</td>
+     <td>{$child.meeting}</td>
   </tr>
   {/foreach}
 </table>
