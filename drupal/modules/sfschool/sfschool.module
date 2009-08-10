@@ -53,7 +53,7 @@ AND        r.contact_id_b = %1
 AND        r.contact_id_a = c.id
 AND        sis.entity_id = c.id
 ";
-    $varName = 'childrenInfo';
+    $params  = array( 1 => array( $page->getVar( '_id' ), 'Integer' ) );
 
     $dao = CRM_Core_DAO::executeQuery( $query, $params );
     $values = $childrenIDs = array( );
@@ -71,9 +71,10 @@ AND        sis.entity_id = c.id
 
     _sfschool_getMeetingInfo( $childrenIDs, $values );
 
-    _sfschool_getExtendedCareInfo( $childrenIDs, $values );
+    require_once 'Utils/ExtendedCare.php';
+    sfschool_Utils_ExtendedCare::getValues( $childrenIDs, $values );
 
-    $page->assign( $varName, $values );
+    $page->assign( 'childrenInfo', $values );
 }
 
 
@@ -138,42 +139,7 @@ GROUP BY r.contact_id_b
     
 }
 
-function _sfschool_getExtendedCareInfo( $childrenIDs, &$values ) {
-    if ( empty( $childrenIDs ) ) {
-        return;
-    }
-
-    $childrenIDString = implode( ',', array_keys( $childrenIDs ) );
-    $term = defined( 'SFSCHOOL_TERM' ) ? SFSCHOOL_TERM : 'Fall 2009';
-
-    $query = "
-SELECT entity_id, term_4, name_3, description_9, instructor_5, day_of_week_10, fee_block_6, start_date_7, end_date_8
-FROM   civicrm_value_extended_care_2
-WHERE  entity_id IN ($childrenIDString)
-AND    term_4 = %1
-ORDER BY entity_id
-";
-    $params = array( 1 => array( $term, 'String' ) );
-    $dao = CRM_Core_DAO::executeQuery( $query, $params );
-    while ( $dao->fetch( ) ) {
-        if ( ! $values[$dao->entity_id]['extendedCare'] ) {
-            $values[$dao->entity_id]['extendedCare'] = array( );
-        }
-        $title = "{$dao->day_of_week_10}: {$dao->name_3}";
-        if ( $dao->description_9 ) {
-            $title .= " ({$dao->description_9})";
-        }
-        if ( $dao->instructor_5 ) {
-            $title .= " w/{$dao->instructor_5}";
-        }
-        $values[$dao->entity_id]['extendedCare'][] = $title;
-    }
-
-}
-
-
 function _sfschool_civicrm_pageRun_Profile_Page_Dynamic_4( &$page, $gid ) {
-
     // get all parents (permissioned or not)
     $query = "
 SELECT     p.id, p.display_name, r.is_permission_b_a, ph.phone, e.email
@@ -185,21 +151,25 @@ WHERE      r.relationship_type_id = 1
 AND        r.is_active    = 1
 AND        r.contact_id_a = %1
 ";
-    $varName = 'parentInfo';
 
-    $params = array( 1 => array( $page->getVar( '_id' ), 'Integer' ) );
+    $childID = $page->getVar( '_id' );
+    $params = array( 1 => array( $childID, 'Integer' ) );
     $dao = CRM_Core_DAO::executeQuery( $query, $params );
     $values = array( );
+    $values[$childID] = array( 'parents' => array( ) );
     while ( $dao->fetch( ) ) {
-        $value = array( 'id'              => $dao->id,
-                        'name'            => $dao->display_name,
-                        'is_permissioned' => $dao->is_permission_b_a,
-                        'phone'           => $dao->phone,
-                        'email'           => $dao->email );
-        $values[$dao->id] = $value;
+        $values[$childID]['parents'][$dao->id] =
+            array( 'id'              => $dao->id,
+                   'name'            => $dao->display_name,
+                   'is_permissioned' => $dao->is_permission_b_a,
+                   'phone'           => $dao->phone,
+                   'email'           => $dao->email );
     }
 
-    $page->assign( $varName, $values );
+    require_once 'Utils/ExtendedCare.php';
+    sfschool_Utils_ExtendedCare::getValues( $childID, $values );
+
+    $page->assign( 'childInfo', $values[$childID] );
 }
 
 function sfschool_civicrm_buildForm( $formName, &$form ) {

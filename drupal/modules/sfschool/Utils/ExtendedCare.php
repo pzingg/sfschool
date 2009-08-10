@@ -318,6 +318,47 @@ VALUES
         CRM_Core_DAO::executeQuery( $query, $params );
     }
 
+
+    static function getValues( $childrenIDs, &$values, $term = null ) {
+        if ( empty( $childrenIDs ) ) {
+            return;
+        }
+
+        $single = false;
+        if ( ! is_array( $childrenIDs ) ) {
+            $childrenIDs = array( $childrenIDs => 1 );
+            $single = true;
+        }
+
+        $childrenIDString = implode( ',', array_keys( $childrenIDs ) );
+        $term = self::getTerm( $term );
+
+        $query = "
+SELECT entity_id, term_4, name_3, description_9,
+       instructor_5, day_of_week_10, session_11, fee_block_6,
+       start_date_7, end_date_8
+FROM   civicrm_value_extended_care_2
+WHERE  entity_id IN ($childrenIDString)
+AND    term_4 = %1
+ORDER BY entity_id
+";
+        $params = array( 1 => array( $term, 'String' ) );
+        $dao = CRM_Core_DAO::executeQuery( $query, $params );
+        while ( $dao->fetch( ) ) {
+            if ( ! $values[$dao->entity_id]['extendedCare'] ) {
+                $values[$dao->entity_id]['extendedCare'] = array( );
+            }
+            $session = $dao->session_11 == 'First' ? '' : "({$dao->session_11})";
+            $day = "{$dao->day_of_week_10} $session: {$dao->name_3}";
+            $values[$dao->entity_id]['extendedCare'][] =
+                array( 'day'  => $day,
+                       'name' => $dao->name_3,
+                       'desc' => $dao->description_9,
+                       'instructor' => $dao->instructor_5 );
+        }
+
+    }
+
   }
 
 
