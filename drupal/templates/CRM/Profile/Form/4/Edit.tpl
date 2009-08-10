@@ -134,11 +134,30 @@
 
     {/if}
     {/foreach}
+    </table>
 
-{if $form.sfschool_activity_id}
-<tr><td class="label">{$form.sfschool_activity_id.label}</td><td>{$form.sfschool_activity_id.html}</td></tr>
+{if $extendedCareElements}
+
+<fieldset>
+<legend>Extended Care Information</legend>
+<table class="form-layout-compressed">
+{foreach from=$extendedCareElements item=extendedCareName}
+<tr><td class="label">{$form.$extendedCareName.label}</td><td>{$form.$extendedCareName.html}</td></tr>	 
+{/foreach}
+</fieldset>
 {/if}
 
+
+{if $form.sfschool_activity_id}
+<fieldset>
+<legend>Schedule Parent Teacher Conference</legend>
+<table class="form-layout-compressed">
+<tr><td class="label">{$form.sfschool_activity_id.label}</td><td>{$form.sfschool_activity_id.html}</td></tr>
+</table>
+</fieldset>
+{/if}
+
+<table class="form-layout-compressed">
         {if $addToGroupId}
 	        <tr><td class="label">{$form.group[$addToGroupId].label}</td><td>{$form.group[$addToGroupId].html}</td></tr>
         {/if}

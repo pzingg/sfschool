@@ -55,7 +55,6 @@ AND        sis.entity_id = c.id
 ";
     $varName = 'childrenInfo';
 
-    $params = array( 1 => array( $page->getVar( '_id' ), 'Integer' ) );
     $dao = CRM_Core_DAO::executeQuery( $query, $params );
     $values = $childrenIDs = array( );
     while ( $dao->fetch( ) ) {
@@ -238,23 +237,8 @@ function _sfschool_civicrm_buildForm_CRM_Profile_Form_Edit_4( $formName, &$form,
                                                         $parentID );
     }
 
-    _sfschool_civicrm_buildForm_addExtendedCare( $form, $childID );
-}
-
-function _sfschool_civicrm_buildForm_addExtendedCare( &$form,
-                                                      $childID ) {
-    $activities =& _sfschool_read_extendedCare_activities( );
-
-    foreach ( $activities as $day => $values ) {
-        if ( ! empty( $values['select'] ) ) {
-            $select = array( '' => '- select -' ) + $values['select'];
-            $form->addElement( 'select',
-                               "sfschool_activity_$day",
-                               $day,
-                               $select );
-        }
-    }
-
+    require_once 'Utils/ExtendedCare.php';
+    sfschool_Utils_ExtendedCare::buildForm( $form, $childID );
 }
 
 function _sfschool_civicrm_buildForm_addMeetingActivity( &$form,
@@ -308,7 +292,8 @@ function sfschool_civicrm_postProcess_CRM_Profile_Form_Edit_4( $class, &$form, $
         return;
     }
 
-    _sfschool_civicrm_postProcess_addExtendedCare( $class, $form, $gid );
+    require_once 'Utils/ExtendedCare.php';
+    sfschool_Utils_ExtendedCare::postProcess( $class, $form, $gid );
 }
 
 function _sfschool_civicrm_postProcess_addMeetingActivity( $class,
@@ -341,172 +326,3 @@ VALUES
     
     return;
 }
-
-function _sfschool_civicrm_postProcess_addExtendedCare( $class, $form, $gid ) {
-    $childID   = $form->getVar( '_id' );
-
-    if ( empty( $childID ) ||
-         ! CRM_Utils_Rule::positiveInteger( $childID ) ) {
-        return;
-    }
-
-    $params = $form->controller->exportValues( $form->getVar( '_name' ) );
-
-    $daysOfWeek =& _sfschool_get_daysOfWeek( );
-
-    $classSignedUpFor = array( );
-    foreach ( $daysOfWeek as $day )  {
-        if ( ! empty( $params["sfschool_activity_{$day}"] ) ) {
-            $classSignedUpFor[$day] = $params["sfschool_activity_{$day}"];
-        }
-    }
-
-    if ( empty( $classSignedUpFor ) ) {
-        return;
-    }
-
-    // they have signed up for a class, so now process it
-    $activities =& _sfschool_read_extendedCare_activities( );
-
-    foreach ( $classSignedUpFor as $day => $classID ) {
-        foreach ( $activities[$day]['details'] as $className => $classValues ) {
-            if ( $classValues['id'] == $classID ) {
-                _sfschool_civicrm_postProcess_extendedCareClass( $childID, $classValues );
-            }
-        }
-    }
-
-    exit( );
-}
-
-function _sfschool_civicrm_postProcess_extendedCareClass( $childID,
-                                                          $classValues ) {
-    $query = "
-INSERT INTO civicrm_value_extended_care_2
-( entity_id, term_4, name_3, description_9, instructor_5, day_of_week_10, fee_block_6, start_date_7 )
-VALUES
-( %1, %2, %3, %4, %5, %6, %7, %8 )
-";
-
-    $params = array( 1 => array( $childID, 'Integer' ),
-                     2 => array( $classValues['term'], 'String' ),
-                     3 => array( $classValues['name'], 'String' ),
-                     4 => array( CRM_Utils_Array::value( 'description', $classValues, '' ),
-                                 'String' ),
-                     5 => array( CRM_Utils_Array::value( 'instructor', $classValues, '' ),
-                                 'String' ),
-                     6 => array( $classValues['day'], 'String' ),
-                     7 => array( $classValues['fee block'], 'Float' ),
-                     8 => array( CRM_Utils_Date::getToday( null, 'Ymd' ), 'Date' ) );
-    CRM_Core_DAO::executeQuery( $query, $params );
-}
-
-function &_sfschool_read_extendedCare_activities( $grade    = 1, 
-                                                   $fileName = null,
-                                                   $term     = null ) {
-    $activities = array( );
-
-    if ( ! is_numeric( $grade ) ) {
-        return $activities;
-    }
-
-    $section = 'elementary';
-    if ( $grade > 5 ) {
-        $section = 'middle school';
-    }
-
-    if ( empty( $term ) ) {
-        $term = defined( 'SFSCHOOL_TERM' ) ? SFSCHOOL_TERM : 'Fall 2009';
-    }
-    $term = preg_replace('/\s+|\W+/', '', strtolower($term));
-
-    if ( empty( $fileName ) ) {
-        $fileName =
-            dirname( __FILE__ ) . DIRECTORY_SEPARATOR .
-            'sql'               . DIRECTORY_SEPARATOR .
-            'ExtendedCare.csv';
-    }
-
-    $fdRead  = fopen( $fileName, 'r' );
-    if ( ! $fdRead ) {
-        CRM_Core_Error::fatal( );
-    }
-
-    // ignore first line
-    $fields = fgetcsv( $fdRead );
-
-    $daysOfWeek =& _sfschool_get_daysOfWeek( );
-
-    foreach ( $daysOfWeek as $day )  {
-        $activities[$day] = array( 'select'  => array( ),
-                                   'details' => array( ) );
-    }
-
-    $errors = array( );
-    while ( $fields = fgetcsv( $fdRead ) ) {
-        if ( strtolower( $fields[7] ) != $section ) {
-            continue;
-        }
-
-        $currentTerm = preg_replace('/\s+|\W+/', '', strtolower($fields[0]));
-        if ( $currentTerm != $term ) {
-            continue;
-        }
-
-        if ( ! in_array( $fields[4], $daysOfWeek ) ) {
-            $errors[] = implode( ',', $fields );
-            continue;
-        }
-
-        $id = preg_replace('/\s+|\W+/', '_', strtolower("{$fields[4]}_{$fields[1]}"));
-        
-        $title = $fields[1];
-        if ( ! empty( $fields[2] ) ) {
-            $title .= " ($fields[2])";
-        }
-        
-        if ( ! empty( $fields[3] ) ) {
-            $title .= " w/{$fields[3]}";
-        }
-
-        if ( $fields[6] > 1 ) {
-            $title .= " - {$fields[6]} activity blocks";
-        }
-
-        $activities[$fields[4]]['select'][$id] = $title;
-
-        $activities[$fields[4]]['details'][$fields[1]] = 
-            array( 'id'               => $id,
-                   'title'            => $title,
-                   'term'             => $fields[0],
-                   'name'             => $fields[1],
-                   'description'      => $fields[2],
-                   'instructor'       => $fields[3],
-                   'day'              => $fields[4],
-                   'max participants' => $fields[5],
-                   'fee block'        => $fields[6],
-                   'section'          => $fields[7],
-                   'start date'       => $fields[8],
-                   'end date'         => $fields[9],
-                   );
-                   
-    }
-
-    return $activities;
-}
-
-function &_sfschool_get_daysOfWeek( ) {
-    static $_daysOfWeek = null;
-
-    if ( ! $_daysOfWeek ) {
-        $_daysOfWeek = array( 'Monday', 'Tuesday',
-                              'Wednesday', 'Thursday',
-                              'Friday' );
-    }
-    return $_daysOfWeek;
-
-}
-
-
-
-
