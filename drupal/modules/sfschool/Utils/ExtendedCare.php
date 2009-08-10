@@ -348,13 +348,19 @@ ORDER BY entity_id
             if ( ! $values[$dao->entity_id]['extendedCare'] ) {
                 $values[$dao->entity_id]['extendedCare'] = array( );
             }
-            $session = $dao->session_11 == 'First' ? '' : "({$dao->session_11})";
-            $day = "{$dao->day_of_week_10} $session: {$dao->name_3}";
+            $time = $dao->session_11 == 'First' ? '3:30 pm - 4:30 pm' : "4:30 pm - 5:30 pm";
+            $title = "{$dao->day_of_week_10} $time";
+            $title .= " : {$dao->name_3}";
+            if ( $dao->instructor_5 ) {
+                $title .= " w/{$dao->instructor_5}";
+            }
             $values[$dao->entity_id]['extendedCare'][] =
-                array( 'day'  => $day,
+                array( 'day'  => $dao->day_of_week_10,
+                       'time' => $time,
                        'name' => $dao->name_3,
                        'desc' => $dao->description_9,
-                       'instructor' => $dao->instructor_5 );
+                       'instructor' => $dao->instructor_5,
+                       'title' => $title );
         }
 
     }

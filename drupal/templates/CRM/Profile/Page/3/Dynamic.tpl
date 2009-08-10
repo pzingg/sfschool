@@ -22,8 +22,8 @@
      <td>{$child.meeting}</td>
      <td>
 {if $child.extendedCare}
-{foreach from=$child.extendedCare item=courseTitle}
-   {$courseTitle}<br/>
+{foreach from=$child.extendedCare item=class}
+   {$class.title}<br/>
 {/foreach}
 {/if}
      </td>

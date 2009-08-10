@@ -27,10 +27,11 @@
 <fieldset>
 <legend>Extended Care Information</legend>
 <table class="form-layout-compressed">
-  <tr><th>Day</th><th>Class</th><th>Description</th><th>Instructor</th></tr>
+  <tr><th>Day</th><th>Time</th><th>Class</th><th>Description</th><th>Instructor</th></tr>
   {foreach from=$childInfo.extendedCare key=dontCare item=class}
   <tr>
      <td>{$class.day}</td>
+     <td>{$class.time}</td>
      <td>{$class.name}</td>
      <td>{$class.desc}</td>
      <td>{$class.instructor}</td>
