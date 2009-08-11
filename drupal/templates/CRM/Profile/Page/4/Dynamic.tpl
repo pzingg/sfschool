@@ -23,6 +23,16 @@
 </table>
 </fieldset>
 {/if}
+{if $childInfo.meeting}
+<fieldset>
+<legend>Parent Teacher Conference Information</legend>
+<div>
+{$childInfo.meeting.title}
+&nbsp;
+{$childInfo.meeting.edit}
+</div>
+</fieldset>
+{/if}
 {if $childInfo.extendedCare}
 <fieldset>
 <legend>Extended Care Information</legend>
