@@ -288,8 +288,6 @@ AND    entity_id = %2
         }
 
 
-        CRM_Core_Error::debug( $classSignedUpFor );
-
         // they have signed up for a class, so now process it
         $activities =& self::getSection( );
 

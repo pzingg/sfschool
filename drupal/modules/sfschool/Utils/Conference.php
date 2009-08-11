@@ -34,7 +34,7 @@
  */
 
 class sfschool_Utils_Conference {
-    static function buildForm( $formName, &$form, $gid ) {
+    static function buildForm( &$form, $gid ) {
         $advisorID = CRM_Utils_Request::retrieve( 'advisorID', 'Integer', $form, false, null, $_REQUEST );
         $parentID  = CRM_Utils_Request::retrieve( 'parentID' , 'Integer', $form, false, null, $_REQUEST );
         $ptc       = CRM_Utils_Request::retrieve( 'ptc'      , 'Integer', $form, false, null, $_REQUEST );
@@ -59,8 +59,8 @@ AND        a.status_id = 1
 AND        at.target_contact_id IS NULL
 ";
 
-        $params = array( 1 => array( $advisorID, 'Integer' ),
-                         2 => array( $childID  , 'Integer' ) );
+        $params = array( 1 => array( $advisorID            , 'Integer' ),
+                         2 => array( $form->getVar( '_id' ), 'Integer' ) );
         $dao = CRM_Core_DAO::executeQuery( $sql, $params );
         $elements = array( );
         while ( $dao->fetch( ) ) {

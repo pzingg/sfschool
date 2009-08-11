@@ -17,7 +17,7 @@
  <tr><th>Child Name</th><th>Grade</th><th>Meetings</th><th>Extended Care</th></tr>
   {foreach from=$childrenInfo key=dontCare item=child}
   <tr>
-     <td><a href="{crmURL p='civicrm/profile/view' q="reset=1&gid=4&id=`$child.id`"}">{$child.name}</a></td>
+     <td><a href="{crmURL p='civicrm/profile/view' q="reset=1&gid=4&id=`$child.id`&parentID=`$child.parent_id`"}">{$child.name}</a></td>
      <td>{$child.grade}</td>
      <td>{$child.meeting}</td>
      <td>

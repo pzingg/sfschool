@@ -63,6 +63,7 @@ AND        sis.entity_id = c.id
                        'is_permissioned' => $dao->is_permission_b_a,
                        'sub_type'        => $dao->sub_type_1,
                        'grade'           => $dao->grade_2,
+                       'parent_id'       => $parentID,
                        'meeting'         => null,
                        'extendedCare'    => null );
         }

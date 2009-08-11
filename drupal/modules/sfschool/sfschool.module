@@ -71,7 +71,17 @@ function _sfschool_civicrm_pageRun_Profile_Page_Dynamic_4( &$page, $gid ) {
                                              $values[$childID]['parents'],
                                              false );
 
-    $parentID = null;
+    $parentID = CRM_Utils_Request::retrieve( 'parentID', 'Integer', $page, false, null, $_REQUEST );
+
+    if ( ! $parentID ) {
+        $session =& CRM_Core_Session::singleton( );
+        $parentID = $session->get( 'userID' );
+    }
+
+    if ( ! $parentID ) {
+        CRM_Core_Error::fatal( );
+    }
+
 
     require_once 'Utils/Conference.php';
     sfschool_Utils_Conference::getValues( $parentID, $childID, $values );
