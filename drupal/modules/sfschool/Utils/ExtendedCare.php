@@ -371,6 +371,7 @@ ORDER BY entity_id
                        'title' => $title );
         }
 
+        $values[$dao->entity_id]['extendedCareEdit'] = CRM_Utils_System::url( 'civicrm/profile/edit', "reset=1&gid=4&id={$dao->entity_id}&excare=1" );
     }
 
   }

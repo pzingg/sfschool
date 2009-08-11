@@ -48,6 +48,11 @@
   </tr>
   {/foreach}
 </table>
+{if $childInfo.extendedCareEdit}
+<div>
+<a href="{$childInfo.extendedCareEdit}">Manage your extended care schedule here</a>
+</div>
+{/if}
 </fieldset>
 {/if}
 
