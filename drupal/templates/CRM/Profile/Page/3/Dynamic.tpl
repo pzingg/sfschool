@@ -11,26 +11,12 @@
 </table>
 </fieldset>
 {if $childrenInfo}
+{foreach from=$childrenInfo key=dontCare item=childInfo}
 <fieldset>
-<legend>Child Information</legend>
-<table class="form-layout-compressed">
- <tr><th>Child Name</th><th>Grade</th><th>Meetings</th><th>Extended Care</th></tr>
-  {foreach from=$childrenInfo key=dontCare item=child}
-  <tr>
-     <td><a href="{crmURL p='civicrm/profile/view' q="reset=1&gid=4&id=`$child.id`&parentID=`$child.parent_id`"}">{$child.name}</a></td>
-     <td>{$child.grade}</td>
-     <td>{$child.meeting}</td>
-     <td>
-{if $child.extendedCare}
-{foreach from=$child.extendedCare item=class}
-   {$class.title}<br/>
-{/foreach}
-{/if}
-     </td>
-  </tr>
-  {/foreach}
-</table>
+<legend>{$childInfo.name} Information</legend>
+{include file="sfschool/common/child.tpl"}
 </fieldset>
+{/foreach}
 {/if}
 </div>
 {/if} 

@@ -43,6 +43,9 @@ function _sfschool_civicrm_pageRun_Profile_Page_Dynamic_3( &$page, $gid ) {
     $parentID = $page->getVar( '_id' );
     $values = array( );
 
+    require_once 'Utils/Query.php';
+    sfschool_Utils_Query::checkSubType( $parentID, array( 'Parent', 'Staff' ) );
+
     require_once 'Utils/Relationship.php';
     sfschool_Utils_Relationship::getChildren( $parentID,
                                               $values,
@@ -63,8 +66,16 @@ function _sfschool_civicrm_pageRun_Profile_Page_Dynamic_3( &$page, $gid ) {
 
 function _sfschool_civicrm_pageRun_Profile_Page_Dynamic_4( &$page, $gid ) {
     $childID = $page->getVar( '_id' );
+
+    require_once 'Utils/Query.php';
+    sfschool_Utils_Query::checkSubType( $childID, 'Student' );
+
     $values = array( );
-    $values[$childID] = array( 'parents' => array( ) );
+    $values[$childID] =
+        array('name'    => CRM_Core_DAO::getFieldValue( 'CRM_Contact_DAO_Contact',
+                                                        $childID,
+                                                        'display_name' ),
+              'parents' => array( ) );
 
     require_once 'Utils/Relationship.php';
     sfschool_Utils_Relationship::getParents( $childID,
