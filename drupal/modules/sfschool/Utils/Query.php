@@ -53,7 +53,7 @@ class sfschool_Utils_Query {
         return true;
     }
 
-    static function getSubType( $id, $subType = 'Student' ) {
+    static function getSubType( $id ) {
         $sql = "
 SELECT subtype_1
 FROM   civicrm_value_school_information_1

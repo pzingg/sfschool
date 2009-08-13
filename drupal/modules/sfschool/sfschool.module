@@ -144,3 +144,20 @@ function sfschool_civicrm_postProcess_CRM_Profile_Form_Edit_4( $class, &$form, $
     require_once 'Utils/ExtendedCare.php';
     sfschool_Utils_ExtendedCare::postProcess( $class, $form, $gid );
 }
+
+function sfschool_civicrm_tabs( &$tabs, $contactID ) {
+    require_once 'Utils/Query.php';
+    $subType = sfschool_Utils_Query::getSubType( $contactID );
+
+    // if subType is not student then hide the extended care tab
+    if ( $subType == 'Student' ) {
+        return;
+    }
+
+    foreach ( $tabs as $tabID => $tabValue ) {
+        if ( $tabValue['title'] == 'Extended Care' ) {
+            unset( $tabs[$tabID] );
+            break;
+        }
+    }
+}
