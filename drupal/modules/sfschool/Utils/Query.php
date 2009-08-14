@@ -54,13 +54,33 @@ class sfschool_Utils_Query {
     }
 
     static function getSubType( $id ) {
-        $sql = "
+        static $_cache = array( );
+        
+        if ( ! array_key_exists( $id, $_cache ) ) {
+            $sql = "
 SELECT subtype_1
 FROM   civicrm_value_school_information_1
 WHERE  entity_id = %1
 ";
-        $params = array( 1 => array( $id, 'Integer' ) );
-        return CRM_Core_DAO::singleValueQuery( $sql, $params );
+            $params = array( 1 => array( $id, 'Integer' ) );
+            $_cache[$id] = CRM_Core_DAO::singleValueQuery( $sql, $params );
+        }
+        return $_cache[$id];
+    }
+
+    static function getGrade( $id ) {
+        static $_cache = array( );
+        
+        if ( ! array_key_exists( $id, $_cache ) ) {
+            $sql = "
+SELECT grade_2
+FROM   civicrm_value_school_information_1
+WHERE  entity_id = %1
+";
+            $params = array( 1 => array( $id, 'Integer' ) );
+            $_cache[$id] = CRM_Core_DAO::singleValueQuery( $sql, $params );
+        }
+        return $_cache[$id];
     }
 
 }

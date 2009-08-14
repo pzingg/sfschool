@@ -54,7 +54,7 @@ function _sfschool_civicrm_pageRun_Profile_Page_Dynamic_3( &$page, $gid ) {
     $childrenIDs = array_keys( $values );
 
     require_once 'Utils/Conference.php';
-    sfschool_Utils_Conference::getValues( $parentID, $childrenIDs, $values );
+    sfschool_Utils_Conference::getValues( $childrenIDs, $values );
 
     require_once 'Utils/ExtendedCare.php';
     sfschool_Utils_ExtendedCare::getValues( $childrenIDs, $values );
@@ -82,20 +82,8 @@ function _sfschool_civicrm_pageRun_Profile_Page_Dynamic_4( &$page, $gid ) {
                                              $values[$childID]['parents'],
                                              false );
 
-    $parentID = CRM_Utils_Request::retrieve( 'parentID', 'Integer', $page, false, null, $_REQUEST );
-
-    if ( ! $parentID ) {
-        $session =& CRM_Core_Session::singleton( );
-        $parentID = $session->get( 'userID' );
-    }
-
-    if ( ! $parentID ) {
-        CRM_Core_Error::fatal( );
-    }
-
-
     require_once 'Utils/Conference.php';
-    sfschool_Utils_Conference::getValues( $parentID, $childID, $values );
+    sfschool_Utils_Conference::getValues( $childID, $values );
 
     require_once 'Utils/ExtendedCare.php';
     sfschool_Utils_ExtendedCare::getValues( $childID, $values );

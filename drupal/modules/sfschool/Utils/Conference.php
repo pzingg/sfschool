@@ -40,10 +40,9 @@ class sfschool_Utils_Conference {
 
     static function buildForm( &$form, $gid ) {
         $advisorID = CRM_Utils_Request::retrieve( 'advisorID', 'Integer', $form, false, null, $_REQUEST );
-        $parentID  = CRM_Utils_Request::retrieve( 'parentID' , 'Integer', $form, false, null, $_REQUEST );
         $ptc       = CRM_Utils_Request::retrieve( 'ptc'      , 'Integer', $form, false, null, $_REQUEST );
 
-        if ( empty( $advisorID ) || empty( $parentID ) || $ptc != 1 ) {
+        if ( empty( $advisorID ) || $ptc != 1 ) {
             return;
         }
 
@@ -80,7 +79,7 @@ ORDER BY   a.activity_date_time asc
 
             // get the default values
             $values = array( );
-            self::getValues( $parentID, $childID, $values, true );
+            self::getValues( $childID, $values, true );
             if ( isset( $values[$childID] ) ) {
                 $defaults = array( 'sfschool_activity_id' => $values[$childID]['meeting']['id'] );
                 $form->setDefaults( $defaults );
@@ -91,10 +90,9 @@ ORDER BY   a.activity_date_time asc
 
     static function postProcess( $class, &$form, $gid ) {
         $advisorID = CRM_Utils_Request::retrieve( 'advisorID', 'Integer', $form, false, null, $_REQUEST );
-        $parentID  = CRM_Utils_Request::retrieve( 'parentID' , 'Integer', $form, false, null, $_REQUEST );
         $ptc       = CRM_Utils_Request::retrieve( 'ptc'      , 'Integer', $form, false, null, $_REQUEST );
 
-        if ( empty( $advisorID ) || empty( $parentID ) || $ptc != 1 ) {
+        if ( empty( $advisorID ) || $ptc != 1 ) {
             return;
         }
 
@@ -107,8 +105,8 @@ ORDER BY   a.activity_date_time asc
             return;
         }
 
-        // first we need to delete all the existing meetings for this set of childID/parentID(s)
-        self::deleteAll( $parentID, $childID );
+        // first we need to delete all the existing meetings for this childID
+        self::deleteAll( $childID );
 
         // insert these two into civicrm_target
         // we actually need to lock this and then ensure the space is available
@@ -116,17 +114,14 @@ ORDER BY   a.activity_date_time asc
         $sql = "
 REPLACE INTO civicrm_activity_target (activity_id, target_contact_id)
 VALUES
-( %1, %2 ),
-( %1, %3 )
+( %1, %2 )
 ";
         $params = array( 1 => array( $activityID, 'Integer' ),
-                         2 => array( $childID   , 'Integer' ),
-                         3 => array( $parentID  , 'Integer' ) );
+                         2 => array( $childID   , 'Integer' ) );
         CRM_Core_DAO::executeQuery( $sql, $params );
     }
 
-    function &getValues( $parentID,
-                         $childrenIDs,
+    function &getValues( $childrenIDs,
                          &$values,
                          $onlyScheduled = false ) {
         // check if we need to schedule this parent for a meeting
@@ -168,7 +163,7 @@ AND        at.target_contact_id = r.contact_id_b;
                          2 => array( self::CONFERENCE_ACTIVITY_TYPE_ID , 'Integer' ) );
         $dao = CRM_Core_DAO::executeQuery( $sql, $params );
         while ( $dao->fetch( ) ) {
-            $url = CRM_Utils_System::url( 'civicrm/profile/edit', "reset=1&gid=4&id={$dao->contact_id_b}&advisorID={$dao->advisor_id}&parentID={$parentID}&ptc=1" );
+            $url = CRM_Utils_System::url( 'civicrm/profile/edit', "reset=1&gid=4&id={$dao->contact_id_b}&advisorID={$dao->advisor_id}&ptc=1" );
             $values[$dao->contact_id_b]['meeting']['title'] = "Your {$dao->subject} is scheduled for {$dao->activity_date_time} with {$dao->aac_display_name}";
             $values[$dao->contact_id_b]['meeting']['edit']  = "<a href=\"{$url}\">Modify conference time for {$dao->rcb_display_name}</a>";
             $values[$dao->contact_id_b]['meeting']['id']    = $dao->id;
@@ -214,7 +209,7 @@ GROUP BY r.contact_id_b
                          2 => array( self::CONFERENCE_ACTIVITY_TYPE_ID , 'Integer' ) );
         $dao = CRM_Core_DAO::executeQuery( $sql, $params );
         while ( $dao->fetch( ) ) {
-            $url = CRM_Utils_System::url( 'civicrm/profile/edit', "reset=1&gid=4&id={$dao->contact_id_b}&advisorID={$dao->advisor_id}&parentID={$parentID}&ptc=1" );
+            $url = CRM_Utils_System::url( 'civicrm/profile/edit', "reset=1&gid=4&id={$dao->contact_id_b}&advisorID={$dao->advisor_id}&ptc=1" );
             $values[$dao->contact_id_b]['meeting']['title'] = "Please schedule your {$dao->subject} with {$dao->aac_display_name}";
             $values[$dao->contact_id_b]['meeting']['edit'] = "<a href=\"{$url}\">Schedule a conference for {$dao->rcb_display_name}</a>";
         }
@@ -294,7 +289,7 @@ GROUP BY r.contact_id_b
         $assignment->save( );
     }
 
-    static function deleteAll( $parentID, $childID ) {
+    static function deleteAll( $childID ) {
         $sql = "
 DELETE     at.*
 FROM       civicrm_activity a
@@ -308,11 +303,10 @@ AND        r.is_active = 1
 AND        r.contact_id_b = %1
 AND        a.status_id = 1
 AND        a.activity_date_time > NOW()
-AND        ( at.target_contact_id = %1 OR at.target_contact_id = %2 )
+AND        at.target_contact_id = %1
 ";
 
         $params  = array( 1 => array( $childID , 'Integer' ),
-                          2 => array( $parentID, 'Integer' ),
                           3 => array( self::ADVISOR_RELATIONSHIP_TYPE_ID, 'Integer' ),
                           4 => array( self::CONFERENCE_ACTIVITY_TYPE_ID , 'Integer' ) );
         $dao = CRM_Core_DAO::executeQuery( $sql, $params );

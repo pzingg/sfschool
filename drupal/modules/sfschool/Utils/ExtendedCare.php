@@ -36,16 +36,17 @@
 class sfschool_Utils_ExtendedCare {
     const
         TERM_POSITION = 0,
-        SECTION_POSITION = 1,
-        DAY_POSITION = 2,
-        SESSION_POSITION = 3,
-        NAME_POSITION = 4,
-        DESC_POSITION = 5,
-        INSTR_POSITION = 6,
-        MAX_POSITION = 7,
-        FEE_POSITION = 8,
-        START_POSITION = 9,
-        END_POSITION = 10,
+        MIN_GRADE_POSITION = 1,
+        MAX_GRADE_POSITION = 2,
+        DAY_POSITION = 3,
+        SESSION_POSITION = 4,
+        NAME_POSITION = 5,
+        DESC_POSITION = 6,
+        INSTR_POSITION = 7,
+        MAX_POSITION = 8,
+        FEE_POSITION = 9,
+        START_POSITION = 10,
+        END_POSITION = 11,
         TERM = 'Fall 2009';
 
     static function buildForm( &$form,
@@ -56,17 +57,23 @@ class sfschool_Utils_ExtendedCare {
             return;
         }
 
-        // need to figure out if child is in elementary or middle school
-        $activities = self::getSection( );
+        require_once 'Utils/Query.php';
+        $grade  = sfschool_Utils_ExtendedCare::getGrade( $childID );
+        if ( ! is_numeric( $grade ) ) {
+            return;
+        }
+
+        $activities = self::getActivities( $grade );
 
         $extendedCareElements = array( );
         foreach ( $activities as $day => $dayValues ) {
             foreach ( $dayValues as $session => $values ) {
                 if ( ! empty( $values['select'] ) ) {
+                    $time = $session == 'First' ? '3:30 pm - 4:30 pm' : "4:30 pm - 5:30 pm";
                     $select = array( '' => '- select -' ) + $values['select'];
                     $form->addElement( 'select',
                                        "sfschool_activity_{$day}_{$session}",
-                                       "{$day} - {$session}",
+                                       "{$day} - {$time}",
                                        $select );
                     $extendedCareElements[] = "sfschool_activity_{$day}_{$session}";
                 }
@@ -103,21 +110,18 @@ WHERE  entity_id = %1
         $form->setDefaults( $defaults );
     }
 
-    static function &getSection( $section  = 'Elementary',
-                                 $term     = null,
-                                 $fileName = null ) {
-        
-        static $_all = null;
+    static function &getActivities( $grade ) {
+        static $_all = array( );
 
-        if ( $_all === null ) {
-            $_all = array( );
+        if ( ! is_numeric( $grade ) ) {
+            CRM_Core_Error::fatal( );
         }
 
-        if ( array_key_exists( $section, $_all ) ) {
-            return $_all[$section];
+        if ( array_key_exists( $grade, $_all ) ) {
+            return $_all[$grade];
         }
 
-        $_all[$section] = array( );
+        $_all[$grade] = array( );
 
         $term = self::getTerm( $term );
 
@@ -141,16 +145,18 @@ WHERE  entity_id = %1
         $sessions   =& self::sessions( );
 
         foreach ( $daysOfWeek as $day )  {
-            $_all[$section][$day] = array( );
+            $_all[$grade][$day] = array( );
             foreach ( $sessions as $session ) {
-                $_all[$section][$day][$session] = array( 'select'  => array( ),
-                                                         'details' => array( ) );
+                $_all[$grade][$day][$session] = array( 'select'  => array( ),
+                                                       'details' => array( ) );
             }
         }
 
         $errors = array( );
         while ( $fields = fgetcsv( $fdRead ) ) {
-            if ( $fields[self::SECTION_POSITION] != $section ) {
+            if ( $grade &&
+                ( $grade < $fields[self::MIN_GRADE_POSITION] ||
+                  $grade > $fields[self::MAX_GRADE_POSITION] ) ) {
                 continue;
             }
 
@@ -180,13 +186,12 @@ WHERE  entity_id = %1
                 $title .= ' - ' . $fields[self::FEE_POSITION] . ' activity blocks';
             }
             
-            $_all[$section][$fields[self::DAY_POSITION]][$fields[self::SESSION_POSITION]]['select'][$id] = $title;
+            $_all[$grade][$fields[self::DAY_POSITION]][$fields[self::SESSION_POSITION]]['select'][$id] = $title;
 
-            $_all[$section][$fields[self::DAY_POSITION]][$fields[self::SESSION_POSITION]]['details'][$fields[self::NAME_POSITION]] = 
+            $_all[$grade][$fields[self::DAY_POSITION]][$fields[self::SESSION_POSITION]]['details'][$fields[self::NAME_POSITION]] = 
                 array( 'id'               => $id,
                        'title'            => $title,
                        'term'             => $fields[self::TERM_POSITION],
-                       'section'          => $fields[self::SECTION_POSITION],
                        'day'              => $fields[self::DAY_POSITION],
                        'session'          => $fields[self::SESSION_POSITION],
                        'name'             => $fields[self::NAME_POSITION],
@@ -200,7 +205,7 @@ WHERE  entity_id = %1
                    
         }
 
-        return $_all[$section];
+        return $_all[$grade];
     }
 
     static function &daysOfWeek( ) {
@@ -272,6 +277,7 @@ AND    entity_id = %2
         $sessions   =& self::sessions( );
 
         $classSignedUpFor = array( );
+
         foreach ( $daysOfWeek as $day )  {
             foreach ( $sessions as $session ) {
                 if ( ! empty( $params["sfschool_activity_{$day}_{$session}"] ) ) {
@@ -287,9 +293,13 @@ AND    entity_id = %2
             return;
         }
 
+        require_once 'Utils/Query.php';
+        $grade  = sfschool_Utils_ExtendedCare::getGrade( $childID );
+        if ( ! is_numeric( $grade ) ) {
+            return;
+        }
 
-        // they have signed up for a class, so now process it
-        $activities =& self::getSection( );
+        $activities = self::getActivities( $grade );
 
         foreach ( $classSignedUpFor as $day => $dayValues ) {
             foreach( $dayValues as $session => $classID ) {
@@ -342,39 +352,51 @@ VALUES
         $term = self::getTerm( $term );
 
         $query = "
-SELECT entity_id, term_4, name_3, description_9,
-       instructor_5, day_of_week_10, session_11, fee_block_6,
-       start_date_7, end_date_8
-FROM   civicrm_value_extended_care_2
-WHERE  entity_id IN ($childrenIDString)
-AND    term_4 = %1
-ORDER BY entity_id
+SELECT    c.id as contact_id, e.term_4, e.name_3, e.description_9,
+          e.instructor_5, e.day_of_week_10, e.session_11, e.fee_block_6,
+          e.start_date_7, e.end_date_8, s.grade_2
+FROM      civicrm_contact c
+LEFT JOIN civicrm_value_extended_care_2 e ON ( c.id = e.entity_id AND term_4 = %1 )
+LEFT JOIN civicrm_value_school_information_1 s ON c.id = s.entity_id
+WHERE     c.id IN ($childrenIDString)
+AND       s.subtype_1 = %2
+ORDER BY  c.id
 ";
-        $params = array( 1 => array( $term, 'String' ) );
+        $params = array( 1 => array( $term    , 'String' ),
+                         2 => array( 'Student', 'String' ) );
         $dao = CRM_Core_DAO::executeQuery( $query, $params );
-        while ( $dao->fetch( ) ) {
-            if ( ! $values[$dao->entity_id]['extendedCare'] ) {
-                $values[$dao->entity_id]['extendedCare'] = array( );
-            }
-            $time = $dao->session_11 == 'First' ? '3:30 pm - 4:30 pm' : "4:30 pm - 5:30 pm";
-            $title = "{$dao->day_of_week_10} $time";
-            $title .= " : {$dao->name_3}";
-            if ( $dao->instructor_5 ) {
-                $title .= " w/{$dao->instructor_5}";
-            }
-            $values[$dao->entity_id]['extendedCare'][] =
-                array( 'day'  => $dao->day_of_week_10,
-                       'time' => $time,
-                       'name' => $dao->name_3,
-                       'desc' => $dao->description_9,
-                       'instructor' => $dao->instructor_5,
-                       'title' => $title );
-        }
 
-        $values[$dao->entity_id]['extendedCareEdit'] = CRM_Utils_System::url( 'civicrm/profile/edit', "reset=1&gid=4&id={$dao->entity_id}&excare=1" );
+        while ( $dao->fetch( ) ) {
+            if ( ! is_numeric( $dao->grade_2 ) ) {
+                continue;
+            }
+
+            if ( ! $values[$dao->contact_id]['extendedCare'] ) {
+                $values[$dao->contact_id]['extendedCare'] = array( );
+            }
+
+            // check if there is any data for extended care
+            if ( $dao->name_3 ) {
+                $time = $dao->session_11 == 'First' ? '3:30 pm - 4:30 pm' : "4:30 pm - 5:30 pm";
+                $title = "{$dao->day_of_week_10} $time";
+                $title .= " : {$dao->name_3}";
+                if ( $dao->instructor_5 ) {
+                    $title .= " w/{$dao->instructor_5}";
+                }
+                $values[$dao->contact_id]['extendedCare'][] =
+                    array( 'day'  => $dao->day_of_week_10,
+                           'time' => $time,
+                           'name' => $dao->name_3,
+                           'desc' => $dao->description_9,
+                           'instructor' => $dao->instructor_5,
+                           'title' => $title );
+            }
+            $values[$dao->contact_id]['extendedCareEdit'] = CRM_Utils_System::url( 'civicrm/profile/edit', "reset=1&gid=4&id={$dao->contact_id}&excare=1" );
+        }
     }
 
-  }
+}
+
 
 
 

@@ -10,9 +10,10 @@
 </div>
 </fieldset>
 {/if}
-{if $childInfo.extendedCare}
+{if $childInfo.extendedCare OR $childInfo.extendedCareEdit}
 <fieldset>
 <legend>Extended Care Information</legend>
+{if $childInfo.extendedCare}
 <table class="form-layout-compressed">
   <tr><th>Day</th><th>Time</th><th>Class</th><th>Description</th><th>Instructor</th></tr>
   {foreach from=$childInfo.extendedCare key=dontCare item=class}
@@ -25,8 +26,9 @@
   </tr>
   {/foreach}
 </table>
-{if $childInfo.extendedCareEdit}
 <br/>
+{/if}
+{if $childInfo.extendedCareEdit}
 <div>
 <a href="{$childInfo.extendedCareEdit}">Manage extended care schedule for {$childInfo.name}</a>
 </div>
