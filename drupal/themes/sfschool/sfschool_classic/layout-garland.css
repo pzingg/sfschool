@@ -38,7 +38,7 @@
   {
     margin: 0 auto;
     max-width: 1270px;
-    width:799px;
+    /* width:799px;*/
   }
 
   /* added */
@@ -64,7 +64,7 @@
 
   #squeeze
   {    
-    width: 600px;
+    /* width: 600px;*/
     padding-left: 1em;
     position: relative;
     overflow-x: auto;
@@ -98,7 +98,19 @@
   {
    /* margin-right: 210px; //comment */
     /* padding-right: 1em; /commented */
-    width: 400px;
+    /*width: 400px;*/
+  }
+
+  div#crm-container  
+  {
+     width: 840px;
+  }
+
+  /* added */
+  body.sidebar-right div#crm-container,
+  body.two-sidebars div#crm-container
+  {
+      width: 640px; /* 14th Aug*/
   }
 
 /* Layout the sidebars */

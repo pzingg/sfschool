@@ -120,8 +120,8 @@
       </div> <!-- /navigation -->
       </td></tr>
       
-      <tr><td width="611px"><?php  global $base_url; ?><img src="<?php echo $base_path . $directory; ?>/families.jpg">
-      </td><td width="188px">
+      <tr><td><?php  global $base_url; ?><img src="<?php echo $base_path . $directory; ?>/families.jpg">
+      </td><td>
       <div id="logo-title">
 
         <?php print $search_box; ?>
@@ -166,12 +166,12 @@
         </td>
       <?php endif; ?>
         
-      <td width="615px">  
+      <td>  
       <div id="main" class="column">
 
       <?php if (!empty($right)): ?>    
 
-      <table><tr><td width="427px" valign="top">
+      <table><tr><td width="665px" valign="top">
       <?php endif; if(empty($right)): ?>
      
        <table width="100%"><tr><td valign="top">
