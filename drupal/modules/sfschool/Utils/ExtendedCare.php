@@ -57,8 +57,8 @@ class sfschool_Utils_ExtendedCare {
             return;
         }
 
-        require_once 'Utils/Query.php';
-        $grade  = sfschool_Utils_ExtendedCare::getGrade( $childID );
+        require_once 'Query.php';
+        $grade  = sfschool_Utils_Query::getGrade( $childID );
         if ( ! is_numeric( $grade ) ) {
             return;
         }
@@ -293,8 +293,8 @@ AND    entity_id = %2
             return;
         }
 
-        require_once 'Utils/Query.php';
-        $grade  = sfschool_Utils_ExtendedCare::getGrade( $childID );
+        require_once 'Query.php';
+        $grade  = sfschool_Utils_Query::getGrade( $childID );
         if ( ! is_numeric( $grade ) ) {
             return;
         }
