@@ -23,7 +23,7 @@ function &fixSFSFile( &$northSouthInfo ) {
     
     $fixFields = array( 4, 5, 6, 7 );
     
-    $validSIDs = array( 100030, 100033, 201820, 201513, 100019, 201610, 201421, 201121, 201811, 201722 );
+    $validSIDs = array( 100030, 100033, 201820, 201513, 100019, 201610, 201421, 201121, 201811, 201812, 201722 );
 
     while ( $fields = fgetcsv( $fdRead ) ) {
         // print_r( $fields );
@@ -128,8 +128,9 @@ function &readNorthSouthFile( ) {
     return $northSouthInfo;
 }
 
-function &readStaffFile( ) {
+function &fixStaffFile( ) {
     $fdRead  = fopen( '0910_MSTeachers.csv', 'r' );
+    $fdWrite = fopen( '0910_MSTeachers_FIX.csv', 'w' );
 
     if ( ! $fdRead ) {
         echo "Could not read file\n";
@@ -141,13 +142,19 @@ function &readStaffFile( ) {
 
     $staffInfo = array( );
     while ( $fields = fgetcsv( $fdRead ) ) {
+        $fields[2] = "Staff-{$fields[2]}";
+        $fields[3] = "Staff";
+
         $staffInfo["{$fields[0]} {$fields[1]}"] =
             array( 'first_name' => $fields[0],
                    'last_name'  => $fields[1],
-                   'id'         => "Staff-{$fields[2]}" );
+                   'id'         => $fields[2] );
+
+        fputcsv( $fdWrite, $fields );
     }
 
     fclose( $fdRead );
+    fclose( $fdWrite );
 
     return $staffInfo;
 }
@@ -223,7 +230,7 @@ $northSouthInfo =& readNorthSouthFile( );
 
 $studentInfo =& fixSFSFile( $northSouthInfo );
 
-$staffInfo =& readStaffFile( );
+$staffInfo =& fixStaffFile( );
 
 fixAdvisorFile( $studentInfo, $staffInfo );
 

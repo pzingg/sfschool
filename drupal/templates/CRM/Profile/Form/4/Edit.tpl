@@ -142,7 +142,15 @@
 <legend>Extended Care Information</legend>
 <table class="form-layout-compressed">
 {foreach from=$extendedCareElements item=extendedCareName}
-<tr><td class="label">{$form.$extendedCareName.label}</td><td>{$form.$extendedCareName.html}</td></tr>	 
+<tr>
+  <td class="label">{$form.$extendedCareName.label}</td><td>{$form.$extendedCareName.html}</td>
+  {assign var=cancelName value=$extendedCareName|cat:"_cancel"}
+{if $form.$cancelName}
+  <td>{$form.$cancelName.html}</td><td>{$form.$cancelName.label}</td>
+{else}
+  <td>&nbsp;</td><td>&nbsp;</td>
+{/if}
+</tr>	 
 {/foreach}
 </fieldset>
 {/if}

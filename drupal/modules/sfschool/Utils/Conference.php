@@ -246,6 +246,11 @@ GROUP BY r.contact_id_b
         require_once 'CRM/Activity/DAO/ActivityAssignment.php';
 
         for ( $time = $start; $time < $end; $time++ ) {
+            // skip lunch hour
+            if ( $time == 12 ) {
+                continue;
+            }
+
             if ( $time < 10 ) {
                 $time = "0{$time}";
 
