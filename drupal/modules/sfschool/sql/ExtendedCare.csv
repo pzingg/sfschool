@@ -1,41 +1,40 @@
-"Term","Min Grade","Max Grade","Day","Session","Name","Description","Instructor","Max Participants","Fee Block","Start Date","End Date"
-"Fall 2009",1,5,"Monday","First","Violen",,"Daria",10,3,20090908,20091218
-"Fall 2009",1,5,"Monday","First","Trumpet",,"Owen",10,1,20090908,20091218
-"Fall 2009",1,5,"Monday","First","Still Life Art",,"Peter",10,1,20090908,20091218
-"Fall 2009",1,5,"Monday","First","Creative Kitchen",,"Vivian",10,2,20090908,20091218
-"Fall 2009",1,5,"Monday","First","Hip Hop/Break Dance",,"Florence",10,1,20090908,20091218
-"Fall 2009",1,5,"Monday","First","Tutoring",,"Talia",10,1,20090908,20091218
-"Fall 2009",1,5,"Monday","First","Homework","4th - 8th Grades only","Ben",0,1,20090908,20091218
-"Fall 2009",1,5,"Monday","First","Yard Play",,"Gabrielle",0,1,20090908,20091218
-"Fall 2009",1,5,"Monday","Second","Yard Play",,"Gabrielle",0,1,20090908,20091218
-"Fall 2009",1,5,"Tuesday","First","Drumming",,"Michelle",10,3,20090908,20091218
-"Fall 2009",1,5,"Tuesday","First","Guitar",,"Bryan",10,1,20090908,20091218
-"Fall 2009",1,5,"Tuesday","First","Paso a Paso con",,"Carmen",10,2,20090908,20091218
-"Fall 2009",1,5,"Tuesday","First","Card and Board Games",,"Luke",10,1,20090908,20091218
-"Fall 2009",1,5,"Tuesday","First","Homework","4th - 8th Grades only","Gabrielle",0,1,20090908,20091218
-"Fall 2009",1,5,"Tuesday","First","Yard Play",,,0,1,20090908,20091218
-"Fall 2009",1,5,"Tuesday","Second","Yard Play",,,0,1,20090908,20091218
-"Fall 2009",1,5,"Wednesday","First","Drumming",,"Michelle",10,3,20090908,20091218
-"Fall 2009",1,5,"Wednesday","First","Flute",,"Sky",10,3,20090908,20091218
-"Fall 2009",1,5,"Wednesday","First","Book Altering",,"Gabrielle",10,1,20090908,20091218
-"Fall 2009",1,5,"Wednesday","First","Creative Kitchen",,"Vivian",10,2,20090908,20091218
-"Fall 2009",1,5,"Wednesday","First","Golf",,"Staff",10,3,20090908,20091218
-"Fall 2009",1,5,"Wednesday","First","Basketball Practice",,"Staci",10,1,20090908,20091218
-"Fall 2009",1,5,"Wednesday","First","Homework","4th - 8th Grades only","Peter",0,1,20090908,20091218
-"Fall 2009",1,5,"Wednesday","First","Yard Play",,"Luke",10,1,20090908,20091218
-"Fall 2009",1,5,"Wednesday","Second","Yard Play",,"Luke",10,1,20090908,20091218
-"Fall 2009",1,5,"Thursday","First","Flute",,"Sky",10,3,20090908,20091218
-"Fall 2009",1,5,"Thursday","First","Mandarin","Intermediate","Jesse",10,2,20090908,20091218
-"Fall 2009",1,5,"Thursday","First","5th Grade Math Tutoring","private","Lauren",10,1,20090908,20091218
-"Fall 2009",1,5,"Thursday","First","5th Grade Language Arts","private","Andy",10,1,20090908,20091218
-"Fall 2009",1,5,"Thursday","First","Playwriting/Performance",,"Peter and Gabriel",10,1,20090908,20091218
-"Fall 2009",1,5,"Thursday","First","Hip Hop/Break Dance",,"Florence",10,1,20090908,20091218
-"Fall 2009",1,5,"Thursday","First","Homework","4th - 8th Grades only","Ben",0,1,20090908,20091218
-"Fall 2009",1,5,"Wednesday","First","Yard Play",,"Luke",10,1,20090908,20091218
-"Fall 2009",1,5,"Wednesday","Second","Yard Play",,"Luke",10,1,20090908,20091218
-"Fall 2009",1,5,"Friday","First","Clarinet",,"James Harding",10,3,20090908,20091218
-"Fall 2009",1,5,"Friday","First","Saxophone",,"James Nelson",10,3,20090908,20091218
-"Fall 2009",1,5,"Friday","First","Tree Frog - How Things Work",,"Staff",10,2,20090908,20091218
-"Fall 2009",1,5,"Friday","First","Homework","4th - 8th Grades only","Peter",0,1,20090908,20091218
-"Fall 2009",1,5,"Friday","First","Yard Play",,,10,1,20090908,20091218
-"Fall 2009",1,5,"Friday","Second","Yard Play",,,10,1,20090908,20091218
+ 1,Fall 2009,1,5,Monday,First,Violen,,Daria,10,3,20090908,20091218
+ 2,Fall 2009,1,5,Monday,First,Trumpet,,Owen,10,1,20090908,20091218
+ 3,Fall 2009,1,5,Monday,First,Still Life Art,,Peter,10,1,20090908,20091218
+ 4,Fall 2009,1,5,Monday,First,Creative Kitchen,,Vivian,10,2,20090908,20091218
+ 5,Fall 2009,1,5,Monday,First,Hip Hop/Break Dance,,Florence,10,1,20090908,20091218
+ 6,Fall 2009,1,5,Monday,First,Tutoring,,Talia,10,1,20090908,20091218
+ 7,Fall 2009,1,5,Monday,First,Homework,4th - 8th Grades only,Ben,0,1,20090908,20091218
+ 8,Fall 2009,1,5,Monday,First,Yard Play,,Gabrielle,0,1,20090908,20091218
+ 9,Fall 2009,1,5,Monday,Second,Yard Play,,Gabrielle,0,1,20090908,20091218
+10,Fall 2009,1,5,Tuesday,First,Drumming,,Michelle,10,3,20090908,20091218
+11,Fall 2009,1,5,Tuesday,First,Guitar,,Bryan,10,1,20090908,20091218
+12,Fall 2009,1,5,Tuesday,First,Paso a Paso con,,Carmen,10,2,20090908,20091218
+13,Fall 2009,1,5,Tuesday,First,Card and Board Games,,Luke,10,1,20090908,20091218
+14,Fall 2009,1,5,Tuesday,First,Homework,4th - 8th Grades only,Gabrielle,0,1,20090908,20091218
+15,Fall 2009,1,5,Tuesday,First,Yard Play,,,0,1,20090908,20091218
+16,Fall 2009,1,5,Tuesday,Second,Yard Play,,,0,1,20090908,20091218
+17,Fall 2009,1,5,Wednesday,First,Drumming,,Michelle,10,3,20090908,20091218
+18,Fall 2009,1,5,Wednesday,First,Flute,,Sky,10,3,20090908,20091218
+19,Fall 2009,1,5,Wednesday,First,Book Altering,,Gabrielle,10,1,20090908,20091218
+20,Fall 2009,1,5,Wednesday,First,Creative Kitchen,,Vivian,10,2,20090908,20091218
+21,Fall 2009,1,5,Wednesday,First,Golf,,Staff,10,3,20090908,20091218
+22,Fall 2009,1,5,Wednesday,First,Basketball Practice,,Staci,10,1,20090908,20091218
+23,Fall 2009,1,5,Wednesday,First,Homework,4th - 8th Grades only,Peter,0,1,20090908,20091218
+24,Fall 2009,1,5,Wednesday,First,Yard Play,,Luke,10,1,20090908,20091218
+25,Fall 2009,1,5,Wednesday,Second,Yard Play,,Luke,10,1,20090908,20091218
+26,Fall 2009,1,5,Thursday,First,Flute,,Sky,10,3,20090908,20091218
+27,Fall 2009,1,5,Thursday,First,Mandarin,Intermediate,Jesse,10,2,20090908,20091218
+28,Fall 2009,1,5,Thursday,First,5th Grade Math Tutoring,private,Lauren,10,1,20090908,20091218
+29,Fall 2009,1,5,Thursday,First,5th Grade Language Arts,private,Andy,10,1,20090908,20091218
+30,Fall 2009,1,5,Thursday,First,Playwriting/Performance,,Peter and Gabriel,10,1,20090908,20091218
+31,Fall 2009,1,5,Thursday,First,Hip Hop/Break Dance,,Florence,10,1,20090908,20091218
+32,Fall 2009,1,5,Thursday,First,Homework,4th - 8th Grades only,Ben,0,1,20090908,20091218
+33,Fall 2009,1,5,Wednesday,First,Yard Play,,Luke,10,1,20090908,20091218
+34,Fall 2009,1,5,Wednesday,Second,Yard Play,,Luke,10,1,20090908,20091218
+35,Fall 2009,1,5,Friday,First,Clarinet,,James Harding,10,3,20090908,20091218
+36,Fall 2009,1,5,Friday,First,Saxophone,,James Nelson,10,3,20090908,20091218
+37,Fall 2009,1,5,Friday,First,Tree Frog - How Things Work,,Staff,10,2,20090908,20091218
+38,Fall 2009,1,5,Friday,First,Homework,4th - 8th Grades only,Peter,0,1,20090908,20091218
+39,Fall 2009,1,5,Friday,First,Yard Play,,,10,1,20090908,20091218
+40,Fall 2009,1,5,Friday,Second,Yard Play,,,10,1,20090908,20091218

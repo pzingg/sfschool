@@ -67,18 +67,25 @@ class sfschool_Utils_ExtendedCare {
             return;
         }
 
-        $activities = self::getActivities( $grade );
+        $classInfo = self::getClassCount( $grade );
+        self::getCurrentClasses( $childID, $classInfo );
+
+        $activities = self::getActivities( $grade, $classInfo );
 
         self::$_extendedCareElements = array( );
+        self::$_registeredElements   = array( );
+
         foreach ( $activities as $day => $dayValues ) {
             foreach ( $dayValues as $session => $values ) {
                 if ( ! empty( $values['select'] ) ) {
                     $time = $session == 'First' ? '3:30 pm - 4:30 pm' : "4:30 pm - 5:30 pm";
                     $select = array( '' => '- select -' ) + $values['select'];
-                    $form->addElement( 'select',
-                                       "sfschool_activity_{$day}_{$session}",
-                                       "{$day} - {$time}",
-                                       $select );
+
+                    $element =& $form->addElement( 'select',
+                                                   "sfschool_activity_{$day}_{$session}",
+                                                   "{$day} - {$time}",
+                                                   $select );
+
                     self::$_extendedCareElements[] = "sfschool_activity_{$day}_{$session}";
                 }
             }
@@ -93,11 +100,6 @@ class sfschool_Utils_ExtendedCare {
     static function setDefaults( &$form,
                                  &$activities,
                                  $childID ) {
-        if ( empty( $childID ) ||
-             ! CRM_Utils_Rule::positiveInteger( $childID ) ) {
-            return;
-        }
-
         $sql = "
 SELECT entity_id, term_4, day_of_week_10, session_11, name_3, description_9, instructor_5, fee_block_6, start_date_7, end_date_8
 FROM   civicrm_value_extended_care_2
@@ -106,9 +108,8 @@ WHERE  entity_id = %1 AND has_cancelled_12 = 0
         $params = array( 1 => array( $childID, 'Integer' ) );
         $dao = CRM_Core_DAO::executeQuery( $sql, $params );
 
-        self::$_registeredElements = array( );
         while ( $dao->fetch( ) ) {
-            $id   = preg_replace('/\s+|\W+/', '_', strtolower("{$dao->day_of_week_10}_{$dao->session_11}_{$dao->name_3}"));
+            $id   = self::makeID( $dao, 'Custom' );
             $name = "sfschool_activity_{$dao->day_of_week_10}_{$dao->session_11}";
             $defaults[$name] = $id;
             $form->addElement( 'checkbox', "{$name}_cancel", ts( 'Cancel this activity?' ) );
@@ -121,12 +122,8 @@ WHERE  entity_id = %1 AND has_cancelled_12 = 0
         $form->setDefaults( $defaults );
     }
 
-    static function &getActivities( $grade ) {
+    static function &getActivities( $grade, &$classInfo ) {
         static $_all = array( );
-
-        if ( ! is_numeric( $grade ) ) {
-            CRM_Core_Error::fatal( );
-        }
 
         if ( array_key_exists( $grade, $_all ) ) {
             return $_all[$grade];
@@ -134,27 +131,22 @@ WHERE  entity_id = %1 AND has_cancelled_12 = 0
 
         $_all[$grade] = array( );
 
-        $term = self::getTerm( $term );
+        $term       =  self::getTerm( $term );
 
-        if ( empty( $fileName ) ) {
-            $fileName =
-                dirname( __FILE__ ) . DIRECTORY_SEPARATOR .
-                '..'                . DIRECTORY_SEPARATOR .
-                'sql'               . DIRECTORY_SEPARATOR .
-                'ExtendedCare.csv';
-        }
-
-        $fdRead  = fopen( $fileName, 'r' );
-        if ( ! $fdRead ) {
-            CRM_Core_Error::fatal( );
-        }
-
-        // ignore first line
-        $fields = fgetcsv( $fdRead );
+        $sql = "
+SELECT * 
+FROM   sfschool_extended_care_source
+WHERE  term  = %1
+AND    min_grade < %2
+AND    max_grade > %2
+AND    is_active = 1
+";
+        $params = array( 1 => array( $term , 'String'  ),
+                         2 => array( $grade, 'Integer' ) );
+        $dao = CRM_Core_DAO::executeQuery( $sql, $params );
 
         $daysOfWeek =& self::daysOfWeek( );
         $sessions   =& self::sessions( );
-
         foreach ( $daysOfWeek as $day )  {
             $_all[$grade][$day] = array( );
             foreach ( $sessions as $session ) {
@@ -164,54 +156,46 @@ WHERE  entity_id = %1 AND has_cancelled_12 = 0
         }
 
         $errors = array( );
-        while ( $fields = fgetcsv( $fdRead ) ) {
-            if ( $grade &&
-                ( $grade < $fields[self::MIN_GRADE_POSITION] ||
-                  $grade > $fields[self::MAX_GRADE_POSITION] ) ) {
-                continue;
+        while ( $dao->fetch( ) ) {
+            $id = self::makeID( $dao, 'Source' );
+
+            if ( $classInfo &&
+                 array_key_exists( $id, $classInfo ) ) {
+                // check if the person is not enrolled and the class is full
+                if ( ! $classInfo[$id]['enrolled'] &&
+                     $classInfo[$id]['current'] >= $classInfo[$id]['max'] ) {
+                    continue;
+                }
             }
 
-            $currentTerm = $fields[self::TERM_POSITION];
-            if ( $currentTerm != $term ) {
-                continue;
-            }
-
-            if ( ! in_array( $fields[self::DAY_POSITION], $daysOfWeek ) ||
-                 ! in_array( $fields[self::SESSION_POSITION], $sessions ) ) {
-                $errors[] = implode( ',', $fields );
-                continue;
-            }
-
-            $id = self::makeID( $fields );
-
-            $title = $fields[self::NAME_POSITION];
-            if ( ! empty( $fields[self::DESC_POSITION] ) ) {
-                $title .= ' (' . $fields[self::DESC_POSITION] . ')';
+            $title = $dao->name;
+            if ( ! empty( $dao->description ) ) {
+                $title .= " ({$dao->description})";
             }
         
-            if ( ! empty( $fields[self::INSTR_POSITION] ) ) {
-                $title .= ' w/' . $fields[self::INSTR_POSITION];
+            if ( ! empty( $dao->instructor ) ) {
+                $title .= " w/{$dao->instructor}";
             }
 
-            if ( $fields[self::FEE_POSITION] > 1 ) {
-                $title .= ' - ' . $fields[self::FEE_POSITION] . ' activity blocks';
+            if ( $dao->fee > 1 ) {
+                $title .= " - {$dao->fee} activity blocks";
             }
-            
-            $_all[$grade][$fields[self::DAY_POSITION]][$fields[self::SESSION_POSITION]]['select'][$id] = $title;
 
-            $_all[$grade][$fields[self::DAY_POSITION]][$fields[self::SESSION_POSITION]]['details'][$fields[self::NAME_POSITION]] = 
+            $_all[$grade][$dao->day_of_week][$dao->session]['select'][$id]  = $title;
+            $_all[$grade][$dao->day_of_week][$dao->session]['details'][$id] =
                 array( 'id'               => $id,
                        'title'            => $title,
-                       'term'             => $fields[self::TERM_POSITION],
-                       'day'              => $fields[self::DAY_POSITION],
-                       'session'          => $fields[self::SESSION_POSITION],
-                       'name'             => $fields[self::NAME_POSITION],
-                       'description'      => $fields[self::DESC_POSITION],
-                       'instructor'       => $fields[self::INSTR_POSITION],
-                       'max participants' => $fields[self::MAX_POSITION],
-                       'fee block'        => $fields[self::FEE_POSITION],
-                       'start date'       => $fields[self::START_POSITION],
-                       'end date'         => $fields[self::END_POSITION],
+                       'name'             => $dao->name,
+                       'term'             => $dao->term,
+                       'day'              => $dao->day_of_week,
+                       'session'          => $dao->session,
+                       'name'             => $dao->name,
+                       'description'      => $dao->description,
+                       'instructor'       => $dao->instructor,
+                       'max participants' => $dao->max_participants,
+                       'fee block'        => $dao->fee_block,
+                       'start date'       => $dao->start_date,
+                       'end date'         => $dao->end_date,
                        );
                    
         }
@@ -249,12 +233,13 @@ WHERE  entity_id = %1 AND has_cancelled_12 = 0
         return $_sessions;
     }
 
-    static function makeID( &$fields ) {
-        $id =
-            $fields[self::DAY_POSITION]     . "_" .
-            $fields[self::SESSION_POSITION] . "_" .
-            $fields[self::NAME_POSITION];
-        return preg_replace( '/\s+|\W+/', '_', strtolower( $id ) );
+    static function makeID( &$dao, $class = 'Source' ) {
+        $id = $class == 'Source'
+            ? "{$dao->day_of_week}_{$dao->session}_{$dao->name}" 
+            : "{$dao->day_of_week_10}_{$dao->session_11}_{$dao->name_3}";
+
+        return preg_replace( '/\s+|\W+/', '_',
+                             $id );
     }
 
 
@@ -309,16 +294,21 @@ WHERE  entity_id = %1 AND has_cancelled_12 = 0
             return;
         }
 
-        $activities = self::getActivities( $grade );
+        $classInfo = self::getClassCount( $grade );
+        self::getCurrentClasses( $childID, $classInfo );
+
+        $activities = self::getActivities( $grade, $classInfo );
 
         // first deal with all cancelled classes
         if ( ! empty( $classCancelled ) ) {
             foreach ( $classCancelled as $day => $dayValues ) {
                 foreach( $dayValues as $session => $classID ) {
-                    foreach ( $activities[$day][$session]['details'] as $className => $classValues ) {
-                        if ( $classValues['id'] == $classID ) {
-                            self::postProcessClass( $childID, $classValues, 'Cancelled' );
-                        }
+                    if ( array_key_exists( $classID, $activities[$day][$session]['details'] ) ) {
+                        self::postProcessClass( $childID,
+                                                $activities[$day][$session]['details'][$classID],
+                                                'Cancelled' );
+                    } else {
+                        CRM_Core_Error::fatal( $classID );
                     }
                 }
             }
@@ -327,10 +317,12 @@ WHERE  entity_id = %1 AND has_cancelled_12 = 0
         if ( ! empty( $classSignedUpFor ) ) {
             foreach ( $classSignedUpFor as $day => $dayValues ) {
                 foreach( $dayValues as $session => $classID ) {
-                    foreach ( $activities[$day][$session]['details'] as $className => $classValues ) {
-                        if ( $classValues['id'] == $classID ) {
-                            self::postProcessClass( $childID, $classValues, 'Added' );
-                        }
+                    if ( array_key_exists( $classID, $activities[$day][$session]['details'] ) ) {
+                        self::postProcessClass( $childID,
+                                                $activities[$day][$session]['details'][$classID],
+                                                'Added' );
+                    } else {
+                        CRM_Core_Error::fatal( $classID );
                     }
                 }
             }
@@ -361,7 +353,8 @@ VALUES
                              7  => array( $classValues['session'], 'String' ),
                              8  => array( $classValues['fee block'], 'Float' ),
                              9  => array( CRM_Utils_Date::getToday( null, 'YmdHis' ), 'Timestamp' ),
-                             10 => array( $classValues['end date'], 'Date' ) );
+                             10 => array( CRM_Utils_Date::isoToMysql( $classValues['end date'] ),
+                                          'Timestamp' ) );
         } else if ( $operation == 'Cancelled' ) { 
             $query = "
 UPDATE civicrm_value_extended_care_2
@@ -408,7 +401,7 @@ LEFT JOIN civicrm_value_extended_care_2 e ON ( c.id = e.entity_id AND term_4 = %
 LEFT JOIN civicrm_value_school_information_1 s ON c.id = s.entity_id
 WHERE     c.id IN ($childrenIDString)
 AND       s.subtype_1 = %2
-ORDER BY  c.id
+ORDER BY  c.id, e.day_of_week_10, e.session_11
 ";
         $params = array( 1 => array( $term    , 'String' ),
                          2 => array( 'Student', 'String' ) );
@@ -419,19 +412,25 @@ ORDER BY  c.id
                 continue;
             }
 
-            if ( ! $values[$dao->contact_id]['extendedCare'] ) {
-                $values[$dao->contact_id]['extendedCare'] = array( );
-            }
-
             // check if there is any data for extended care
             if ( $dao->name_3 ) {
+                if ( ! $values[$dao->contact_id]['extendedCareDay'] ) {
+                    $values[$dao->contact_id]['extendedCare']    = array( );
+                    $values[$dao->contact_id]['extendedCareDay'] = array( );
+                }
+
+                if ( ! isset( $values[$dao->contact_id]['extendedCareDay'][$dao->day_of_week_10] ) ) {
+                    $values[$dao->contact_id]['extendedCareDay'][$dao->day_of_week_10] = array( );
+                }
+            
                 $time = $dao->session_11 == 'First' ? '3:30 pm - 4:30 pm' : "4:30 pm - 5:30 pm";
                 $title = "{$dao->day_of_week_10} $time";
                 $title .= " : {$dao->name_3}";
                 if ( $dao->instructor_5 ) {
                     $title .= " w/{$dao->instructor_5}";
                 }
-                $values[$dao->contact_id]['extendedCare'][] =
+
+                $values[$dao->contact_id]['extendedCareDay'][$dao->day_of_week_10][] =
                     array( 'day'  => $dao->day_of_week_10,
                            'time' => $time,
                            'name' => $dao->name_3,
@@ -439,7 +438,65 @@ ORDER BY  c.id
                            'instructor' => $dao->instructor_5,
                            'title' => $title );
             }
-            $values[$dao->contact_id]['extendedCareEdit'] = CRM_Utils_System::url( 'civicrm/profile/edit', "reset=1&gid=4&id={$dao->contact_id}&excare=1" );
+        }
+
+        $daysOfWeek =& self::daysOfWeek( );
+        foreach ( $values as $contactID => $value ) {
+            foreach ( $daysOfWeek as $day )  {
+                if ( ! empty( $values[$dao->contact_id]['extendedCareDay'][$day] ) ) {
+                    $values[$dao->contact_id]['extendedCare'] = 
+                        array_merge( $values[$dao->contact_id]['extendedCare'],
+                                     $values[$dao->contact_id]['extendedCareDay'][$day] );
+                }
+            }
+            unset( $values[$dao->contact_id]['extendedCareDay'][$dao->day_of_week_10] );
+            $values[$contactID]['extendedCareEdit'] =
+                CRM_Utils_System::url( 'civicrm/profile/edit', "reset=1&gid=4&id={$dao->contact_id}&excare=1" );
+        }
+
+    }
+
+    static function &getClassCount( $grade ) {
+        $sql = "
+SELECT     count(entity_id) as current, s.max_participants as max, term_4, day_of_week_10, session_11, name_3
+FROM       civicrm_value_extended_care_2 e
+INNER JOIN sfschool_extended_care_source s ON ( s.term = e.term_4 AND s.day_of_week = e.day_of_week_10 AND s.session = e.session_11 AND s.name = e.name_3 ) 
+WHERE      e.has_cancelled_12 = 0
+AND        s.min_grade < %1
+AND        s.max_grade > %1
+AND        s.is_active = 1
+GROUP BY term_4, day_of_week_10, session_11, name_3
+";
+        $params = array( 1 => array( $grade, 'Integer' ) );
+
+        $values = array( );
+        $dao = CRM_Core_DAO::executeQuery( $sql, $params );
+        while ( $dao->fetch( ) ) {
+            $id = self::makeID( $dao, 'Custom' ); 
+           $values[$id] = array( 'current'   => $dao->current,
+                                  'max'      => $dao->max,
+                                  'enrolled' => 0 );
+        }
+
+        return $values;
+    }
+
+    static function getCurrentClasses( $childID, &$values ) {
+        $sql = "
+SELECT entity_id, term_4, day_of_week_10, session_11, name_3
+FROM   civicrm_value_extended_care_2
+WHERE  entity_id = %1 AND has_cancelled_12 = 0
+";
+        $params = array( 1 => array( $childID, 'Integer' ) );
+        $dao = CRM_Core_DAO::executeQuery( $sql, $params );
+
+        while ( $dao->fetch( ) ) {
+            $id = self::makeID( $dao, 'Custom' );
+            
+            if ( ! array_key_exists( $id, $values ) ) {
+                CRM_Core_Error::fatal( $id );
+            }
+            $values[$id]['enrolled'] = 1;
         }
     }
 
