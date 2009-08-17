@@ -341,6 +341,9 @@ AND    is_active = 1
                                       $classValues,
                                       $operation = 'Added' ) {
 
+        $startDate = CRM_Utils_Date::isoToMysql( $classValues['start date'] );
+        $rightNow  = CRM_Utils_Date::getToday( null, 'YmdHis' );
+
         if ( $operation == 'Added' ) {
             $query = "
 INSERT INTO civicrm_value_extended_care_2
@@ -348,7 +351,8 @@ INSERT INTO civicrm_value_extended_care_2
 VALUES
 ( %1, %2, %3, %4, %5, %6, %7, %8, %9, %10, 0 )
 ";
-            
+        
+            $useStart = ( $startDate > $rightNow ) ? $startDate : $rightNow;
             $params = array( 1  => array( $childID, 'Integer' ),
                              2  => array( $classValues['term'], 'String' ),
                              3  => array( $classValues['name'], 'String' ),
@@ -359,11 +363,25 @@ VALUES
                              6  => array( $classValues['day'], 'String' ),
                              7  => array( $classValues['session'], 'String' ),
                              8  => array( $classValues['fee block'], 'Float' ),
-                             9  => array( CRM_Utils_Date::getToday( null, 'YmdHis' ), 'Timestamp' ),
+                             9  => array( $useStart, 'Timestamp' ),
                              10 => array( CRM_Utils_Date::isoToMysql( $classValues['end date'] ),
                                           'Timestamp' ) );
-        } else if ( $operation == 'Cancelled' ) { 
-            $query = "
+        } else if ( $operation == 'Cancelled' ) {
+            // check if the class has already started, if so cancel it
+            // else delete it
+
+            if ( $startDate > $rightNow ) {
+                $query = "
+DELETE 
+FROM   civicrm_value_extended_care_2
+WHERE  entity_id = %1
+AND    term_4    = %2
+AND    name_3    = %3
+AND    day_of_week_10 = %4
+AND    session_11 = %5
+";
+            } else {
+                $query = "
 UPDATE civicrm_value_extended_care_2
 SET    end_date_8 = %6, has_cancelled_12 = 1
 WHERE  entity_id = %1
@@ -373,12 +391,13 @@ AND    day_of_week_10 = %4
 AND    session_11 = %5
 AND    has_cancelled_12 = 0
 ";
-           $params = array( 1  => array( $childID, 'Integer' ),
-                            2  => array( $classValues['term'], 'String' ),
-                            3  => array( $classValues['name'], 'String' ),
-                            4  => array( $classValues['day'], 'String' ),
-                            5  => array( $classValues['session'], 'String' ),
-                            6  => array( CRM_Utils_Date::getToday( null, 'YmdHis' ), 'Timestamp' ) );
+            }
+            $params = array( 1  => array( $childID, 'Integer' ),
+                             2  => array( $classValues['term'], 'String' ),
+                             3  => array( $classValues['name'], 'String' ),
+                             4  => array( $classValues['day'], 'String' ),
+                             5  => array( $classValues['session'], 'String' ),
+                             6  => array( CRM_Utils_Date::getToday( null, 'YmdHis' ), 'Timestamp' ) );
         } else {
             CRM_Core_Error::fatal( );
         }
