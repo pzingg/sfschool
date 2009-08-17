@@ -54,10 +54,10 @@ function _sfschool_civicrm_pageRun_Profile_Page_Dynamic_3( &$page, $gid ) {
     $childrenIDs = array_keys( $values );
 
     require_once 'Utils/Conference.php';
-    sfschool_Utils_Conference::getValues( $childrenIDs, $values );
+    sfschool_Utils_Conference::getValues( $childrenIDs, $values, false, $parentID );
 
     require_once 'Utils/ExtendedCare.php';
-    sfschool_Utils_ExtendedCare::getValues( $childrenIDs, $values );
+    sfschool_Utils_ExtendedCare::getValues( $childrenIDs, $values, $parentID );
 
     $page->assign( 'childrenInfo', $values );
 }
@@ -75,6 +75,7 @@ function _sfschool_civicrm_pageRun_Profile_Page_Dynamic_4( &$page, $gid ) {
         array('name'    => CRM_Core_DAO::getFieldValue( 'CRM_Contact_DAO_Contact',
                                                         $childID,
                                                         'display_name' ),
+              'grade'   => sfschool_Utils_Query::getGrade( $childID ),
               'parents' => array( ) );
 
     require_once 'Utils/Relationship.php';

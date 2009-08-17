@@ -52,7 +52,7 @@ class sfschool_Utils_ExtendedCare {
     static
         $_extendedCareElements = null,
         $_registeredElements   = null;
-        
+
     static function buildForm( &$form,
                                $childID ) {
         
@@ -66,6 +66,8 @@ class sfschool_Utils_ExtendedCare {
         if ( ! is_numeric( $grade ) ) {
             return;
         }
+
+        $parentID = CRM_Utils_Request::retrieve( 'parentID', 'Integer', $form, false, null, $_REQUEST );
 
         $classInfo = self::getClassCount( $grade );
         self::getCurrentClasses( $childID, $classInfo );
@@ -241,7 +243,7 @@ AND    is_active = 1
     }
 
 
-    function postProcess( $class, $form, $gid ) {
+    function postProcess( $class, &$form, $gid ) {
         $excare = CRM_Utils_Request::retrieve( 'excare', 'Integer', $form, false, null, $_REQUEST );
         if ( $excare != 1 ) {
             return;
@@ -253,8 +255,15 @@ AND    is_active = 1
              ! CRM_Utils_Rule::positiveInteger( $childID ) ) {
             return;
         }
-
-        $params = $form->controller->exportValues( $form->getVar( '_name' ) );
+ 
+        $parentID = CRM_Utils_Request::retrieve( 'parentID', 'Integer', $form, false, null, $_REQUEST );
+        if ( $parentID ) {
+            $sess =& CRM_Core_Session::singleton( );
+            $sess->pushUserContext( CRM_Utils_System::url( 'civicrm/profile/view',
+                                                           "reset=1&gid=3&id=$parentID" ) );
+        }
+        
+       $params = $form->controller->exportValues( $form->getVar( '_name' ) );
 
         $daysOfWeek =& self::daysOfWeek( );
         $sessions   =& self::sessions( );
@@ -376,7 +385,7 @@ AND    has_cancelled_12 = 0
         CRM_Core_DAO::executeQuery( $query, $params );
     }
 
-    static function getValues( $childrenIDs, &$values, $term = null ) {
+    static function getValues( $childrenIDs, &$values, $parentID = null, $term = null ) {
         if ( empty( $childrenIDs ) ) {
             return;
         }
@@ -447,11 +456,15 @@ ORDER BY  c.id, e.day_of_week_10, e.session_11
                                      $values[$contactID]['extendedCareDay'][$day] );
                 }
             }
-            unset( $values[$contactID]['extendedCareDay'][$day] );
+            unset( $values[$contactID]['extendedCareDay'] );
             if ( is_numeric( $values[$contactID]['grade'] ) ) {
-            $values[$contactID]['extendedCareEdit'] =
-                CRM_Utils_System::url( 'civicrm/profile/edit', "reset=1&gid=4&id={$contactID}&excare=1" );
-}
+                $parent = null;
+                if ( $parentID ) {
+                    $parent = "&parentID=$parentID";
+                }
+                $values[$contactID]['extendedCareEdit'] =
+                    CRM_Utils_System::url( 'civicrm/profile/edit', "reset=1&gid=4&id={$contactID}&excare=1&$parent" );
+            }
         }
 
     }

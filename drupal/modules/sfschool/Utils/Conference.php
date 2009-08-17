@@ -46,6 +46,7 @@ class sfschool_Utils_Conference {
             return;
         }
 
+        
         // add scheduling information if any
         $sql = "
 SELECT     r.contact_id_b, a.id as activity_id, a.activity_date_time, a.subject, a.location, aac.display_name, aac.id as advisor_id
@@ -74,12 +75,14 @@ ORDER BY   a.activity_date_time asc
             $elements[$dao->activity_id] = "{$dao->activity_date_time} w/{$dao->display_name}";
         }
 
+        $parentID = CRM_Utils_Request::retrieve( 'parentID', 'Integer', $form, false, null, $_REQUEST );
+
         if ( ! empty( $elements ) ) {
             $form->addElement( 'select', 'sfschool_activity_id', "Choose a Meeting time for {$dao->subject}", $elements, true );
 
             // get the default values
             $values = array( );
-            self::getValues( $childID, $values, true );
+            self::getValues( $childID, $values, true, $parentID );
             if ( isset( $values[$childID] ) ) {
                 $defaults = array( 'sfschool_activity_id' => $values[$childID]['meeting']['id'] );
                 $form->setDefaults( $defaults );
@@ -119,11 +122,19 @@ VALUES
         $params = array( 1 => array( $activityID, 'Integer' ),
                          2 => array( $childID   , 'Integer' ) );
         CRM_Core_DAO::executeQuery( $sql, $params );
+
+        $parentID = CRM_Utils_Request::retrieve( 'parentID', 'Integer', $form, false, null, $_REQUEST );
+        if ( $parentID ) {
+            $sess =& CRM_Core_Session::singleton( );
+            $sess->pushUserContext( CRM_Utils_System::url( 'civicrm/profile/view',
+                                                              "reset=1&gid=3&id=$parentID" ) );
+        }
     }
 
     function &getValues( $childrenIDs,
                          &$values,
-                         $onlyScheduled = false ) {
+                         $onlyScheduled = false,
+                         $parentID = null ) {
         // check if we need to schedule this parent for a meeting
         // or display any future scheduled meetings
         if ( empty( $childrenIDs ) ) {
@@ -159,11 +170,15 @@ AND        aa.assignee_contact_id = r.contact_id_a
 AND        at.target_contact_id = r.contact_id_b;
 ";
 
+        $parent = null;
+        if ( $parentID ) {
+            $parent = "parentID=$parentID";
+        }
         $params = array( 1 => array( self::ADVISOR_RELATIONSHIP_TYPE_ID, 'Integer' ),
                          2 => array( self::CONFERENCE_ACTIVITY_TYPE_ID , 'Integer' ) );
         $dao = CRM_Core_DAO::executeQuery( $sql, $params );
         while ( $dao->fetch( ) ) {
-            $url = CRM_Utils_System::url( 'civicrm/profile/edit', "reset=1&gid=4&id={$dao->contact_id_b}&advisorID={$dao->advisor_id}&ptc=1" );
+            $url = CRM_Utils_System::url( 'civicrm/profile/edit', "reset=1&gid=4&id={$dao->contact_id_b}&advisorID={$dao->advisor_id}&ptc=1&$parent" );
             $values[$dao->contact_id_b]['meeting']['title'] = "Your {$dao->subject} is scheduled for {$dao->activity_date_time} with {$dao->aac_display_name}";
             $values[$dao->contact_id_b]['meeting']['edit']  = "<a href=\"{$url}\">Modify conference time for {$dao->rcb_display_name}</a>";
             $values[$dao->contact_id_b]['meeting']['id']    = $dao->id;
@@ -209,7 +224,7 @@ GROUP BY r.contact_id_b
                          2 => array( self::CONFERENCE_ACTIVITY_TYPE_ID , 'Integer' ) );
         $dao = CRM_Core_DAO::executeQuery( $sql, $params );
         while ( $dao->fetch( ) ) {
-            $url = CRM_Utils_System::url( 'civicrm/profile/edit', "reset=1&gid=4&id={$dao->contact_id_b}&advisorID={$dao->advisor_id}&ptc=1" );
+            $url = CRM_Utils_System::url( 'civicrm/profile/edit', "reset=1&gid=4&id={$dao->contact_id_b}&advisorID={$dao->advisor_id}&ptc=1&$parent" );
             $values[$dao->contact_id_b]['meeting']['title'] = "Please schedule your {$dao->subject} with {$dao->aac_display_name}";
             $values[$dao->contact_id_b]['meeting']['edit'] = "<a href=\"{$url}\">Schedule a conference for {$dao->rcb_display_name}</a>";
         }

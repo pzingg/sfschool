@@ -18,7 +18,8 @@ function &fixSFSFile( &$northSouthInfo ) {
     array_splice( $fields,  4, 0, array( 'Contact SubType' ) );
     array_splice( $fields,  7, 0, array( 'Contact SubType' ) );
     array_splice( $fields, 10, 0, array( 'Contact SubType' ) );
-    
+    $fields[] = 'Grade SIS';
+
     fputcsv( $fdWrite, $fields );
     
     $fixFields = array( 4, 5, 6, 7 );
@@ -33,6 +34,9 @@ function &fixSFSFile( &$northSouthInfo ) {
                 echo 'FATAL: ' . implode( ',', $fields ) . "\n";
                 exit( );
             }
+
+            // save the SIS grade for sorting purposes
+            $fields[]  = $fields[2];
             $fields[2] = $northSouthInfo[$fields[3]];
         }
         
