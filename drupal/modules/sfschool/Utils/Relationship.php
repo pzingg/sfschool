@@ -50,8 +50,9 @@ AND        sis.entity_id = c.id
 ";
         if ( $permissioned ) {
             $sql .= " AND        r.is_permission_b_a = 1";
-
         }
+
+        $sql .= " ORDER BY sis.grade_sis_14 DESC";
 
         $params  = array( 1 => array( $parentID, 'Integer' ) );
 
