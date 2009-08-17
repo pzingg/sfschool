@@ -27,7 +27,8 @@ function _sfschool_initialize( ) {
 }
 
 function sfschool_civicrm_pageRun( &$page ) {
-    if ( $page->getVar( '_name' ) == 'CRM_Profile_Page_Dynamic' ) {
+    $name = $page->getVar( '_name' );
+    if ( $name == 'CRM_Profile_Page_Dynamic' ) {
         $gid = $page->getVar( '_gid' );
         if ( $gid == 3 ) {
             return _sfschool_civicrm_pageRun_Profile_Page_Dynamic_3( $page, $gid );
@@ -35,8 +36,21 @@ function sfschool_civicrm_pageRun( &$page ) {
         if ( $gid == 4 ) {
             return _sfschool_civicrm_pageRun_Profile_Page_Dynamic_4( $page, $gid );
         }
+    } else if ( $name == 'CRM_Contact_Page_View_CustomData' ) {
+        if ( $page->getVar( '_groupId' ) != 2 ) {
+            return;
+        }
+
+        // get the details from smarty
+        $smarty  =& CRM_Core_Smarty::singleton( );
+        $details =& $smarty->get_template_vars( 'viewCustomData' );
         
+        require_once 'Utils/ExtendedCare.php';
+        sfschool_Utils_ExtendedCare::sortDetails( $details );
+
+        $smarty->assign_by_ref( 'viewCustomData', $details );
     }
+
 }
 
 function _sfschool_civicrm_pageRun_Profile_Page_Dynamic_3( &$page, $gid ) {

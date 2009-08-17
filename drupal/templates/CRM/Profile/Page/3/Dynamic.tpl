@@ -14,6 +14,14 @@
 {foreach from=$childrenInfo key=dontCare item=childInfo}
 <fieldset>
 <legend>{$childInfo.name} Information</legend>
+<div>
+<table class="form-layout-compressed">
+   <tr><td class="label">Child Name</td><td class="view-value">{$childInfo.name}</td></tr>
+   <tr><td class="label">Grade</td><td class="view-value">{$childInfo.grade}</td></tr>
+</table>
+</div>
+<br/>
+
 {include file="sfschool/common/child.tpl"}
 </fieldset>
 {/foreach}

@@ -513,9 +513,59 @@ WHERE  entity_id = %1 AND has_cancelled_12 = 0
         }
     }
 
+    function sortDetails( &$details ) {
+        foreach ( $details as $childID => $detail ) {
+            self::sortDetail( $details, $childID );
+        }
+    }
+
+    function sortDetail( &$details, $childID ) {
+        $yesDetail = $noDetail = array( );
+
+        $daysOfWeek =& self::daysOfWeek( );
+        $sessions   =& self::sessions( );
+
+        foreach ( $daysOfWeek as $day ) {
+            $yesDetail[$day] = array( );
+            $noDetail[$day]  = array( );
+            foreach ( $sessions as $session ) {
+                $yesDetail[$day][$session] = array( );
+                $noDetail[$day][$session]  = array( );
+            }
+        }
+
+        foreach ( $details[$childID] as $id => &$values ) {
+            $day     = $values['fields'][10]['field_value'];
+            $session = $values['fields'][11]['field_value'];
+            $yesno   = trim( $values['fields'][12]['field_value'] );
+
+            if ( $yesno == 'Yes' ) {
+                $yesDetail[$day][$session][] = $values;
+            } else {
+                $noDetail[$day][$session][] = $values;
+            }
+        }
+
+        $newDetail = array( );
+
+        foreach ( $noDetail as $day => $values ) {
+            foreach ( $values as $session =>& $values ) {
+                foreach ( $values as $value ) {
+                    $newDetail[] = $value;
+                }
+            }
+        }
+
+        foreach ( $yesDetail as $day => $values ) {
+            foreach ( $values as $session =>& $values ) {
+                foreach ( $values as $value ) {
+                    $newDetail[] = $value;
+                }
+            }
+        }
+
+        $details[$childID] = $newDetail;
+    }
+
+
 }
-
-
-
-
-
