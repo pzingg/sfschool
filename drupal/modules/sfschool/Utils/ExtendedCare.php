@@ -71,7 +71,6 @@ class sfschool_Utils_ExtendedCare {
         self::getCurrentClasses( $childID, $classInfo );
 
         $activities = self::getActivities( $grade, $classInfo );
-
         self::$_extendedCareElements = array( );
         self::$_registeredElements   = array( );
 
@@ -137,14 +136,13 @@ WHERE  entity_id = %1 AND has_cancelled_12 = 0
 SELECT * 
 FROM   sfschool_extended_care_source
 WHERE  term  = %1
-AND    min_grade < %2
-AND    max_grade > %2
+AND    %2 >= min_grade
+AND    %2 <= max_grade
 AND    is_active = 1
 ";
         $params = array( 1 => array( $term , 'String'  ),
                          2 => array( $grade, 'Integer' ) );
         $dao = CRM_Core_DAO::executeQuery( $sql, $params );
-
         $daysOfWeek =& self::daysOfWeek( );
         $sessions   =& self::sessions( );
         foreach ( $daysOfWeek as $day )  {
@@ -443,15 +441,17 @@ ORDER BY  c.id, e.day_of_week_10, e.session_11
         $daysOfWeek =& self::daysOfWeek( );
         foreach ( $values as $contactID => $value ) {
             foreach ( $daysOfWeek as $day )  {
-                if ( ! empty( $values[$dao->contact_id]['extendedCareDay'][$day] ) ) {
-                    $values[$dao->contact_id]['extendedCare'] = 
-                        array_merge( $values[$dao->contact_id]['extendedCare'],
-                                     $values[$dao->contact_id]['extendedCareDay'][$day] );
+                if ( ! empty( $values[$contactID]['extendedCareDay'][$day] ) ) {
+                    $values[$contactID]['extendedCare'] = 
+                        array_merge( $values[$contactID]['extendedCare'],
+                                     $values[$contactID]['extendedCareDay'][$day] );
                 }
             }
-            unset( $values[$dao->contact_id]['extendedCareDay'][$dao->day_of_week_10] );
+            unset( $values[$contactID]['extendedCareDay'][$day] );
+            if ( is_numeric( $values[$contactID]['grade'] ) ) {
             $values[$contactID]['extendedCareEdit'] =
-                CRM_Utils_System::url( 'civicrm/profile/edit', "reset=1&gid=4&id={$dao->contact_id}&excare=1" );
+                CRM_Utils_System::url( 'civicrm/profile/edit', "reset=1&gid=4&id={$contactID}&excare=1" );
+}
         }
 
     }
@@ -462,8 +462,8 @@ SELECT     count(entity_id) as current, s.max_participants as max, term_4, day_o
 FROM       civicrm_value_extended_care_2 e
 INNER JOIN sfschool_extended_care_source s ON ( s.term = e.term_4 AND s.day_of_week = e.day_of_week_10 AND s.session = e.session_11 AND s.name = e.name_3 ) 
 WHERE      e.has_cancelled_12 = 0
-AND        s.min_grade < %1
-AND        s.max_grade > %1
+AND        %1 >= s.min_grade
+AND        %1 <= s.max_grade
 AND        s.is_active = 1
 GROUP BY term_4, day_of_week_10, session_11, name_3
 ";

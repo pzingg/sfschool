@@ -35,7 +35,7 @@
 
 
 global $civicrm_root;
-$civicrm_root = '/Users/lobo/public_html/drupal6/sites/all/modules/civicrm';
+$civicrm_root = '/var/www/sfschool.civicrm.org/public/sites/sfschool.civicrm.org/modules/civicrm/';
 
 function run( ) {
     session_start( );                               

@@ -12,8 +12,8 @@ CREATE TABLE sfschool_extended_care_source (
   max_participants int(10) unsigned default 0,
   start_date datetime default NULL,
   end_date datetime default NULL,
-  is_active tinyint default 1 COMMENT 'Is this activity active?' 
+  is_active tinyint default 1 COMMENT 'Is this activity active?',
   PRIMARY KEY  (id),
-  INDEX sfschool_extended_date_source_ALLKEY (term, day_of_week, session, name, is_active)
+  INDEX INDEX_sfschool_extended_care_source (term, day_of_week, session, is_active, name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 
