@@ -553,10 +553,11 @@ WHERE  entity_id = %1 AND has_cancelled_12 = 0
             }
         }
 
+
         foreach ( $details[$childID] as $id => &$values ) {
             $day     = $values['fields'][10]['field_value'];
             $session = $values['fields'][11]['field_value'];
-            $yesno   = trim( $values['fields'][12]['field_value'] );
+            $yesno   = trim( $values['fields'][13]['field_value'] );
 
             if ( $yesno == 'Yes' ) {
                 $yesDetail[$day][$session][] = $values;
@@ -567,16 +568,16 @@ WHERE  entity_id = %1 AND has_cancelled_12 = 0
 
         $newDetail = array( );
 
-        foreach ( $noDetail as $day => $values ) {
-            foreach ( $values as $session =>& $values ) {
+        foreach ( $noDetail as $day => $detailValues ) {
+            foreach ( $detailValues as $session =>& $values ) {
                 foreach ( $values as $value ) {
                     $newDetail[] = $value;
                 }
             }
         }
 
-        foreach ( $yesDetail as $day => $values ) {
-            foreach ( $values as $session =>& $values ) {
+        foreach ( $yesDetail as $day => $detailValues ) {
+            foreach ( $detailValues as $session =>& $values ) {
                 foreach ( $values as $value ) {
                     $newDetail[] = $value;
                 }

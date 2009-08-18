@@ -10,13 +10,22 @@ function sfschool_help( ) {
 }
 
 function _sfschool_initialize( ) {
-    $template = CRM_Core_Smarty::singleton( );
+    static $_initialized = false;
 
-    $sfschoolDir = 
+    if ( $_initialized ) {
+        return;
+    }
+
+    $_initialized = true;
+
+    $template =& CRM_Core_Smarty::singleton( );
+
+    $sfschoolRoot = 
         dirname( __FILE__ ) . DIRECTORY_SEPARATOR .
         '..'                . DIRECTORY_SEPARATOR .
-        '..'                . DIRECTORY_SEPARATOR .
-        'templates';
+        '..'                . DIRECTORY_SEPARATOR;
+
+    $sfschoolDir = $sfschoolRoot . 'templates';
 
     if ( is_array( $template->template_dir ) ) {
         $template->template_dir = array( $sfschoolDir ) + $template->template_dir;                            
@@ -24,9 +33,15 @@ function _sfschool_initialize( ) {
         $template->template_dir = array( $sfschoolDir, $template->template_dir );
     }
 
+    // also fix php include path
+    $include_path = $sfschoolRoot . PATH_SEPARATOR . get_include_path( );
+    set_include_path( $include_path );
+                
 }
 
 function sfschool_civicrm_pageRun( &$page ) {
+    _sfschool_initialize( );
+
     $name = $page->getVar( '_name' );
     if ( $name == 'CRM_Profile_Page_Dynamic' ) {
         $gid = $page->getVar( '_gid' );
@@ -46,8 +61,9 @@ function sfschool_civicrm_pageRun( &$page ) {
         $details =& $smarty->get_template_vars( 'viewCustomData' );
         
         require_once 'SFS/Utils/ExtendedCare.php';
-        SFS_Utils_ExtendedCare::sortDetails( $details );
+         SFS_Utils_ExtendedCare::sortDetails( $details );
 
+         // CRM_Core_Error::debug( 'POST', $details );
         $smarty->assign_by_ref( 'viewCustomData', $details );
     }
 
@@ -107,6 +123,8 @@ function _sfschool_civicrm_pageRun_Profile_Page_Dynamic_4( &$page, $gid ) {
 }
 
 function sfschool_civicrm_buildForm( $formName, &$form ) {
+    _sfschool_initialize( );
+
     if ( $formName == 'CRM_Profile_Form_Edit' ) {
         $gid = $form->getVar( '_gid' );
         if ( $gid == 4 ) {
@@ -116,6 +134,8 @@ function sfschool_civicrm_buildForm( $formName, &$form ) {
 }
 
 function sfschool_civicrm_postProcess( $class, &$form ) {
+    _sfschool_initialize( );
+
     if ( is_a( $form, 'CRM_Profile_Form_Edit' ) ) {
         $gid = $form->getVar( '_gid' );
         if ( $gid == 4 ) {
@@ -149,6 +169,8 @@ function sfschool_civicrm_postProcess_CRM_Profile_Form_Edit_4( $class, &$form, $
 }
 
 function sfschool_civicrm_tabs( &$tabs, $contactID ) {
+    _sfschool_initialize( );
+
     require_once 'SFS/Utils/Query.php';
     $subType = SFS_Utils_Query::getSubType( $contactID );
 
@@ -158,9 +180,9 @@ function sfschool_civicrm_tabs( &$tabs, $contactID ) {
     }
 
     foreach ( $tabs as $tabID => $tabValue ) {
-        if ( $tabValue['title'] == 'Extended Care' ) {
+        if ( $tabValue['title'] == 'Extended Care' ||
+             $tabValue['title'] == 'Extended Care Signout' ) {
             unset( $tabs[$tabID] );
-            break;
         }
     }
 }
