@@ -83,4 +83,29 @@ WHERE  entity_id = %1
         return $_cache[$id];
     }
 
+    static function &getStudentsByGrade( $extendedCareOnly = false ) {
+        $sql = "
+SELECT     c.id, c.display_name, sis.grade_2 
+FROM       civicrm_contact c
+INNER JOIN civicrm_value_school_information_1 sis ON sis.entity_id = c.id
+";
+
+        if ( $extendedCareOnly ) {
+            $sql .= " WHERE sis.grade_sis_14 > 0";
+        }
+        $sql .= " ORDER BY sis.grade_sis_14 DESC";
+
+        $dao = CRM_Core_DAO::executeQuery( $sql );
+
+        $students = array( '' => array( '' => '- First Select Grade -') );
+
+        while ( $dao->fetch( ) ) {
+            if ( ! array_key_exists( $dao->grade_2, $students ) ) {
+                $students[$dao->grade_2] = array( '' => '- Select Student -' );
+            }
+            $students[$dao->grade_2][$dao->id] = $dao->display_name;
+        }
+        return $students;
+    }
+
 }
