@@ -35,7 +35,7 @@
 
 require_once 'CRM/Core/Form.php';
 
-class sfs_Form_Record extends CRM_Core_Form {
+class SFS_Form_Record extends CRM_Core_Form {
     protected $_grade;
     protected $_students;
 
@@ -56,8 +56,8 @@ class sfs_Form_Record extends CRM_Core_Form {
                                7  => 7,
                                8  => 8 );
         
-        require_once 'sfs/Utils/Query.php';
-        $this->_students =& sfs_Utils_Query::getStudentsByGrade( true );
+        require_once 'SFS/Utils/Query.php';
+        $this->_students =& SFS_Utils_Query::getStudentsByGrade( true );
 
         $studentElement = array( );
         for ( $i = 1; $i <= 4; $i++ ) {
@@ -72,7 +72,7 @@ class sfs_Form_Record extends CRM_Core_Form {
 
         $this->addDefaultButtons( 'Sign Out', 'next', null, true );
 
-        $this->addFormRule( array( 'sfs_Form_Record', 'formRule' ), $this );
+        $this->addFormRule( array( 'SFS_Form_Record', 'formRule' ), $this );
     }
 
     /**  

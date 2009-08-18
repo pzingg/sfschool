@@ -33,7 +33,7 @@
  *
  */
 
-class sfs_Utils_Query {
+class SFS_Utils_Query {
 
     static function checkSubType( $id, $subType = 'Student', $abort = true ) {
         $entitySubType = self::getSubType( $id );
