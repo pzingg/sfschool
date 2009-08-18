@@ -33,7 +33,7 @@
  *
  */
 
-class sfschool_Utils_Relationship {
+class sfs_Utils_Relationship {
     
     static function getChildren( $parentID, &$values, $permissioned = null ) {
         // get all children only        

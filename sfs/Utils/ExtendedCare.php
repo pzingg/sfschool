@@ -33,7 +33,7 @@
  *
  */
 
-class sfschool_Utils_ExtendedCare {
+class sfs_Utils_ExtendedCare {
     const
         TERM_POSITION = 0,
         MIN_GRADE_POSITION = 1,
@@ -61,8 +61,8 @@ class sfschool_Utils_ExtendedCare {
             return;
         }
 
-        require_once 'Query.php';
-        $grade  = sfschool_Utils_Query::getGrade( $childID );
+        require_once 'sfs/Utils/Query.php';
+        $grade  = sfs_Utils_Query::getGrade( $childID );
         if ( ! is_numeric( $grade ) ) {
             return;
         }
@@ -295,8 +295,8 @@ AND    is_active = 1
             return;
         }
 
-        require_once 'Query.php';
-        $grade  = sfschool_Utils_Query::getGrade( $childID );
+        require_once 'sfs/Utils/Query.php';
+        $grade  = sfs_Utils_Query::getGrade( $childID );
         if ( ! is_numeric( $grade ) ) {
             return;
         }

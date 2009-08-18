@@ -45,8 +45,8 @@ function sfschool_civicrm_pageRun( &$page ) {
         $smarty  =& CRM_Core_Smarty::singleton( );
         $details =& $smarty->get_template_vars( 'viewCustomData' );
         
-        require_once 'Utils/ExtendedCare.php';
-        sfschool_Utils_ExtendedCare::sortDetails( $details );
+        require_once 'sfs/Utils/ExtendedCare.php';
+        sfs_Utils_ExtendedCare::sortDetails( $details );
 
         $smarty->assign_by_ref( 'viewCustomData', $details );
     }
@@ -57,21 +57,21 @@ function _sfschool_civicrm_pageRun_Profile_Page_Dynamic_3( &$page, $gid ) {
     $parentID = $page->getVar( '_id' );
     $values = array( );
 
-    require_once 'Utils/Query.php';
-    sfschool_Utils_Query::checkSubType( $parentID, array( 'Parent', 'Staff' ) );
+    require_once 'sfs/Utils/Query.php';
+    sfs_Utils_Query::checkSubType( $parentID, array( 'Parent', 'Staff' ) );
 
-    require_once 'Utils/Relationship.php';
-    sfschool_Utils_Relationship::getChildren( $parentID,
+    require_once 'sfs/Utils/Relationship.php';
+    sfs_Utils_Relationship::getChildren( $parentID,
                                               $values,
                                               true );
 
     $childrenIDs = array_keys( $values );
 
-    require_once 'Utils/Conference.php';
-    sfschool_Utils_Conference::getValues( $childrenIDs, $values, false, $parentID );
+    require_once 'sfs/Utils/Conference.php';
+    sfs_Utils_Conference::getValues( $childrenIDs, $values, false, $parentID );
 
-    require_once 'Utils/ExtendedCare.php';
-    sfschool_Utils_ExtendedCare::getValues( $childrenIDs, $values, $parentID );
+    require_once 'sfs/Utils/ExtendedCare.php';
+    sfs_Utils_ExtendedCare::getValues( $childrenIDs, $values, $parentID );
 
     $page->assign( 'childrenInfo', $values );
 }
@@ -81,27 +81,27 @@ function _sfschool_civicrm_pageRun_Profile_Page_Dynamic_3( &$page, $gid ) {
 function _sfschool_civicrm_pageRun_Profile_Page_Dynamic_4( &$page, $gid ) {
     $childID = $page->getVar( '_id' );
 
-    require_once 'Utils/Query.php';
-    sfschool_Utils_Query::checkSubType( $childID, 'Student' );
+    require_once 'sfs/Utils/Query.php';
+    sfs_Utils_Query::checkSubType( $childID, 'Student' );
 
     $values = array( );
     $values[$childID] =
         array('name'    => CRM_Core_DAO::getFieldValue( 'CRM_Contact_DAO_Contact',
                                                         $childID,
                                                         'display_name' ),
-              'grade'   => sfschool_Utils_Query::getGrade( $childID ),
+              'grade'   => sfs_Utils_Query::getGrade( $childID ),
               'parents' => array( ) );
 
-    require_once 'Utils/Relationship.php';
-    sfschool_Utils_Relationship::getParents( $childID,
+    require_once 'sfs/Utils/Relationship.php';
+    sfs_Utils_Relationship::getParents( $childID,
                                              $values[$childID]['parents'],
                                              false );
 
-    require_once 'Utils/Conference.php';
-    sfschool_Utils_Conference::getValues( $childID, $values );
+    require_once 'sfs/Utils/Conference.php';
+    sfs_Utils_Conference::getValues( $childID, $values );
 
-    require_once 'Utils/ExtendedCare.php';
-    sfschool_Utils_ExtendedCare::getValues( $childID, $values );
+    require_once 'sfs/Utils/ExtendedCare.php';
+    sfs_Utils_ExtendedCare::getValues( $childID, $values );
 
     $page->assign( 'childInfo', $values[$childID] );
 }
@@ -132,25 +132,25 @@ function _sfschool_civicrm_buildForm_CRM_Profile_Form_Edit_4( $formName, &$form,
 
     $childID   = $form->getVar( '_id' );
 
-    require_once 'Utils/Conference.php';
-    sfschool_Utils_Conference::buildForm( $form, $childID );
+    require_once 'sfs/Utils/Conference.php';
+    sfs_Utils_Conference::buildForm( $form, $childID );
 
-    require_once 'Utils/ExtendedCare.php';
-    sfschool_Utils_ExtendedCare::buildForm( $form, $childID );
+    require_once 'sfs/Utils/ExtendedCare.php';
+    sfs_Utils_ExtendedCare::buildForm( $form, $childID );
 }
 
 
 function sfschool_civicrm_postProcess_CRM_Profile_Form_Edit_4( $class, &$form, $gid ) {
-    require_once 'Utils/Conference.php';
-    sfschool_Utils_Conference::postProcess( $class, $form, $gid );
+    require_once 'sfs/Utils/Conference.php';
+    sfs_Utils_Conference::postProcess( $class, $form, $gid );
 
-    require_once 'Utils/ExtendedCare.php';
-    sfschool_Utils_ExtendedCare::postProcess( $class, $form, $gid );
+    require_once 'sfs/Utils/ExtendedCare.php';
+    sfs_Utils_ExtendedCare::postProcess( $class, $form, $gid );
 }
 
 function sfschool_civicrm_tabs( &$tabs, $contactID ) {
-    require_once 'Utils/Query.php';
-    $subType = sfschool_Utils_Query::getSubType( $contactID );
+    require_once 'sfs/Utils/Query.php';
+    $subType = sfs_Utils_Query::getSubType( $contactID );
 
     // if subType is not student then hide the extended care tab
     if ( $subType == 'Student' ) {
@@ -170,6 +170,7 @@ function sfschool_civicrm_xmlMenu( &$files ) {
         dirname( __FILE__ ) . DIRECTORY_SEPARATOR .
         '..'                . DIRECTORY_SEPARATOR .
         '..'                . DIRECTORY_SEPARATOR .
+        'sfs'               . DIRECTORY_SEPARATOR .
         'xml'               . DIRECTORY_SEPARATOR .
         'Menu'              . DIRECTORY_SEPARATOR .
         'sfschool.xml';

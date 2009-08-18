@@ -33,7 +33,7 @@
  *
  */
 
-class sfschool_Utils_Conference {
+class sfs_Utils_Conference {
     const
         ADVISOR_RELATIONSHIP_TYPE_ID = 10,
         CONFERENCE_ACTIVITY_TYPE_ID  = 20;
