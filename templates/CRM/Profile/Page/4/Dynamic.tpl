@@ -23,7 +23,7 @@
 </table>
 </fieldset>
 {/if}
-{include file="sfschool/common/child.tpl"}
+{include file="SFS/common/child.tpl"}
 
 </div>
 {/if} 

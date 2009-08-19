@@ -22,7 +22,7 @@
 </div>
 <br/>
 
-{include file="sfschool/common/child.tpl"}
+{include file="SFS/common/child.tpl"}
 </fieldset>
 {/foreach}
 {/if}
