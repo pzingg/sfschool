@@ -197,3 +197,21 @@ function sfschool_civicrm_xmlMenu( &$files ) {
         'Menu'              . DIRECTORY_SEPARATOR .
         'sfschool.xml';
 }
+
+function sfschool_user( $op, &$edit, &$account, $category = null ) {
+    switch ( $op ) {
+    case 'login':
+        _sfschool_initialize( );
+        
+        // get the contact id and then the subtype
+        require_once 'api/v2/UFGroup.php';
+        $cid     = civicrm_uf_match_id_get( $account->uid );
+        
+        require_once 'SFS/Utils/Query.php';
+        $subType = SFS_Utils_Query::getSubType( $cid );
+        if ( $subType == 'Parent' ) {
+            CRM_Utils_System::redirect( CRM_Utils_System::url( 'civicrm/profile/view',
+                                                               'reset=1&gid=3' ) );
+        }
+    }
+}
