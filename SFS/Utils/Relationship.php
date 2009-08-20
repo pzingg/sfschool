@@ -71,7 +71,6 @@ AND        sis.entity_id = c.id
     }
 
     static function getParents( $childID, &$values, $permissioned = null ) {
-
         // get all parents (permissioned or not)
         $sql = "
 SELECT     p.id, p.display_name, r.is_permission_b_a, ph.phone, e.email

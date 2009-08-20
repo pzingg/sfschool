@@ -11,7 +11,7 @@
     <table class="selector">
       <tr class="columnheader">
       {foreach from=$columnHeaders item=header}
-        {if $header.name ne "Added By"}
+        {if $header.name ne "Added By" and $header.name ne "Status"}
         <th scope="col">
         {if $header.sort}
           {assign var='key' value=$header.sort}
@@ -53,8 +53,6 @@
         </td>
 
         <td>{$row.activity_date_time|crmDate}</td>
-
-        <td>{$row.status}</td>
 
         <td>{$row.action}</td>    
       </tr>

@@ -72,7 +72,9 @@ ORDER BY   a.activity_date_time asc
         $dao = CRM_Core_DAO::executeQuery( $sql, $params );
         $elements = array( );
         while ( $dao->fetch( ) ) {
-            $elements[$dao->activity_id] = "{$dao->activity_date_time} w/{$dao->display_name}";
+            $dateTime = CRM_Utils_Date::customFormat( $dao->activity_date_time,
+                                                      "%l:%M %P on %b %E%f" );
+            $elements[$dao->activity_id] = "$dateTime w/{$dao->display_name}";
         }
 
         $parentID = CRM_Utils_Request::retrieve( 'parentID', 'Integer', $form, false, null, $_REQUEST );
@@ -129,6 +131,24 @@ VALUES
             $sess->pushUserContext( CRM_Utils_System::url( 'civicrm/profile/view',
                                                               "reset=1&gid=3&id=$parentID" ) );
         }
+
+        require_once 'SFS/Utils/Query.php';
+        $templateVars = array( );
+        list( $templateVars['advisorName'],
+              $templateVars['advisorEmail'] ) = SFS_Utils_Query::getNameAndEmail( $advisorID );
+
+        $templateVars['dateTime'] =
+            CRM_Utils_Date::customFormat( CRM_Core_DAO::getFieldValue( 'CRM_Activity_DAO_Activity',
+                                                                       $activityID,
+                                                                       'activity_date_time' ),
+                                          "%l:%M %P on %b %E%f" );
+        
+        // now send a message to the parents about what they did
+        require_once 'SFS/Utils/Mail.php';
+        SFS_Utils_Mail::sendMailToParents( $childID,
+                                           'SFS/Mail/Conference/Subject.tpl',
+                                           'SFS/Mail/Conference/Message.tpl',
+                                           $templateVars );
     }
 
     function &getValues( $childrenIDs,

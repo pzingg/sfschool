@@ -47,7 +47,9 @@ class SFS_Utils_ExtendedCare {
         FEE_POSITION = 9,
         START_POSITION = 10,
         END_POSITION = 11,
-        TERM = 'Fall 2009';
+        TERM = 'Fall 2009',
+        COORDINATOR_NAME  = 'Gilbert Bagaman',
+        COORDINATOR_EMAIL = 'anybagaman@aol.com';
 
     static
         $_extendedCareElements = null,
@@ -306,6 +308,10 @@ AND    is_active = 1
 
         $activities = self::getActivities( $grade, $classInfo );
 
+        $templateVars = array( 'term'             => self::getTerm( ),
+                               'classCancelled'   => array( ),
+                               'classSignedUpFor' => array( ) );
+
         // first deal with all cancelled classes
         if ( ! empty( $classCancelled ) ) {
             foreach ( $classCancelled as $day => $dayValues ) {
@@ -314,6 +320,7 @@ AND    is_active = 1
                         self::postProcessClass( $childID,
                                                 $activities[$day][$session]['details'][$classID],
                                                 'Cancelled' );
+                        $templateVars['classCancelled'][$classID] = $activities[$day][$session]['details'][$classID];
                     } else {
                         CRM_Core_Error::fatal( $classID );
                     }
@@ -328,6 +335,7 @@ AND    is_active = 1
                         self::postProcessClass( $childID,
                                                 $activities[$day][$session]['details'][$classID],
                                                 'Added' );
+                        $templateVars['classSignedUpFor'][$classID] = $activities[$day][$session]['details'][$classID];
                     } else {
                         CRM_Core_Error::fatal( $classID );
                     }
@@ -335,6 +343,20 @@ AND    is_active = 1
             }
         }
 
+        // get all the class enrolled by the child
+        $values = array( );
+        self::getValues( $childID, $values );
+        $templateVars['classEnrolled'] = CRM_Utils_Array::value( 'extendedCare', $values[$childID] );
+
+        $templateVars['extendedCareCoordinatorName' ] = self::COORDINATOR_NAME ;
+        $templateVars['extendedCareCoordinatorEmail'] = self::COORDINATOR_EMAIL;
+
+        // now send a message to the parents about what they did
+        require_once 'SFS/Utils/Mail.php';
+        SFS_Utils_Mail::sendMailToParents( $childID,
+                                           'SFS/Mail/ExtendedCare/Subject.tpl',
+                                           'SFS/Mail/ExtendedCare/Message.tpl',
+                                           $templateVars );
     }
 
     static function postProcessClass( $childID,
