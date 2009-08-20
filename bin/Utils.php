@@ -33,16 +33,20 @@
  *
  */
 
+global $civicrm_root;
+$civicrm_root = '/Users/lobo/svn/crm_v2.2/';
+# $civicrm_root = '/var/www/sfschool.civicrm.org/public/sites/sfschool.civicrm.org/modules/civicrm/';
 
-require_once 'Utils.php';
+function sfs_bin_Utils_auth( ) {
+    session_start( );                               
+                                            
+    global $civicrm_root;
 
-function run( ) {
-    sfs_bin_Utils_auth( );
+    require_once "$civicrm_root/civicrm.config.php";
+    require_once 'CRM/Core/Config.php'; 
+    
+    $config =& CRM_Core_Config::singleton(); 
 
-    require_once '../sfs/Utils/Conference.php';
-    sfs_Utils_Conference::createConferenceSchedule( 1,
-                                                    'Fall 2009 Parent Teacher Conference',
-                                                    'San Francisco School' );
+    // this does not return on failure
+    CRM_Utils_System::authenticateScript( true );
 }
-
-run( );

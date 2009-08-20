@@ -343,6 +343,14 @@ AND    is_active = 1
             }
         }
 
+        self::sendExtendedCareEmail( $childID, $templateVars );
+    }
+
+    static function sendExtendedCareEmail( $childID, $templateVars = array( ) ) {
+        if ( ! array_key_exists( 'classSignedUpFor', $templateVars ) ) {
+            $templateVars['classSignedUpFor'] = $templateVars['classCancelled'] = array( );
+        }
+
         // get all the class enrolled by the child
         $values = array( );
         self::getValues( $childID, $values );

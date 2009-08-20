@@ -33,16 +33,18 @@
  *
  */
 
-
 require_once 'Utils.php';
 
 function run( ) {
     sfs_bin_Utils_auth( );
 
     require_once '../sfs/Utils/Conference.php';
-    sfs_Utils_Conference::createConferenceSchedule( 1,
-                                                    'Fall 2009 Parent Teacher Conference',
-                                                    'San Francisco School' );
+
+    // send reminder email for 2 days out
+    sfs_Utils_Conference::sendReminderEmail( 2 );
+
+    // send reminder email for 1 day out
+    sfs_Utils_Conference::sendReminderEmail( 1 );
 }
 
 run( );

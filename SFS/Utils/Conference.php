@@ -132,17 +132,24 @@ VALUES
                                                               "reset=1&gid=3&id=$parentID" ) );
         }
 
+        self::sendConferenceEmail( $activityID, $advisorID, $childID );
+    }
+
+    function sendConferenceEmail( $activityID, $advisorID, $childID, $dateTime = null ) {
         require_once 'SFS/Utils/Query.php';
         $templateVars = array( );
         list( $templateVars['advisorName'],
               $templateVars['advisorEmail'] ) = SFS_Utils_Query::getNameAndEmail( $advisorID );
 
-        $templateVars['dateTime'] =
-            CRM_Utils_Date::customFormat( CRM_Core_DAO::getFieldValue( 'CRM_Activity_DAO_Activity',
-                                                                       $activityID,
-                                                                       'activity_date_time' ),
-                                          "%l:%M %P on %b %E%f" );
+        if ( $dateTime == null ) {
+            $dateTime = CRM_Core_DAO::getFieldValue( 'CRM_Activity_DAO_Activity',
+                                                     $activityID,
+                                                     'activity_date_time' );
+        }
         
+        $templateVars['dateTime'] = CRM_Utils_Date::customFormat( $dateTime,
+                                                                  "%l:%M %P on %b %E%f" );
+
         // now send a message to the parents about what they did
         require_once 'SFS/Utils/Mail.php';
         SFS_Utils_Mail::sendMailToParents( $childID,
@@ -331,25 +338,75 @@ GROUP BY r.contact_id_b
 
     static function deleteAll( $childID ) {
         $sql = "
-DELETE     at.*
-FROM       civicrm_activity a
-INNER JOIN civicrm_activity_assignment aa ON a.id = aa.activity_id
-INNER JOIN civicrm_contact            aac ON aa.assignee_contact_id = aac.id
-INNER JOIN civicrm_relationship         r ON r.contact_id_a = aac.id
-INNER JOIN civicrm_activity_target     at ON a.id = at.activity_id
-WHERE      a.activity_type_id = %4
-AND        r.relationship_type_id = %3
-AND        r.is_active = 1
-AND        r.contact_id_b = %1
+UPDATE     civicrm_activity a,
+           civicrm_activity_assignment aa,
+           civicrm_activity_target     at
+SET        a.phone_number = NULL
+WHERE      a.activity_type_id = %2
+AND        a.id = aa.activity_id
+AND        a.id = at.activity_id
 AND        a.status_id = 1
 AND        a.activity_date_time > NOW()
 AND        at.target_contact_id = %1
 ";
-
         $params  = array( 1 => array( $childID , 'Integer' ),
-                          3 => array( self::ADVISOR_RELATIONSHIP_TYPE_ID, 'Integer' ),
-                          4 => array( self::CONFERENCE_ACTIVITY_TYPE_ID , 'Integer' ) );
+                          2 => array( self::CONFERENCE_ACTIVITY_TYPE_ID , 'Integer' ) );
+        $dao = CRM_Core_DAO::executeQuery( $sql, $params );
+
+        $sql = "
+DELETE     at.*
+FROM       civicrm_activity a,
+           civicrm_activity_assignment aa,
+           civicrm_activity_target     at
+WHERE      a.activity_type_id = %2
+AND        a.id = aa.activity_id
+AND        a.id = at.activity_id
+AND        a.status_id = 1
+AND        a.activity_date_time > NOW()
+AND        at.target_contact_id = %1
+";
         $dao = CRM_Core_DAO::executeQuery( $sql, $params );
     }
-    
+
+    static function sendReminderEmail( $days ) {
+
+        $daysMinusOne = $days - 1;
+
+        $sql = "
+SELECT     a.id, a.activity_date_time,
+           aa.assignee_contact_id as advisor_id,
+           at.target_contact_id   as child_id
+FROM       civicrm_activity a,
+           civicrm_activity_assignment aa,
+           civicrm_activity_target     at
+WHERE      a.activity_type_id = %1
+AND        a.status_id = 1
+AND        aa.activity_id = a.id
+AND        at.activity_id = a.id
+AND        a.activity_date_time > NOW( )
+AND        a.activity_date_time > ADDDATE( NOW( ), $daysMinusOne )
+AND        a.activity_date_time < ADDDATE( NOW( ), $days         )
+AND        ( a.phone_number IS NULL OR ROUND( a.phone_number ) > %2 )
+";
+        $params = array( 1 => array( self::CONFERENCE_ACTIVITY_TYPE_ID, 'Integer' ),
+                         2 => array( $days                            , 'Integer' ) );
+        $dao = CRM_Core_DAO::executeQuery( $sql, $params );
+
+        $activityIDs = array( );
+        while ( $dao->fetch( ) ) {
+            self::sendConferenceEmail( $dao->id, $dao->advisor_id, $dao->child_id, $dao->activity_date_time );
+            $activityIDs[] = $dao->id;
+        }
+
+        if ( ! empty( $activityIDs ) ) {
+            $activityIDString = implode( ',', $activityIDs );
+            $sql = "
+UPDATE civicrm_activity
+SET    phone_number = %2
+WHERE  id IN ( $activityIDString )
+";
+            CRM_Core_DAO::executeQuery( $sql, $params );
+        }
+    }
+
 }

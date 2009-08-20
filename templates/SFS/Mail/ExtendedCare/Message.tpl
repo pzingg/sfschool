@@ -7,14 +7,14 @@ You recently made the following changes to your child's extended care schedule:
 You signed up for the following classes for {$childName}
 
 {foreach from=$classSignedUpFor item=class}
-{$class.title} on {$class.day}.
+{$class.day} : {$class.title}
 {/foreach}
 {/if}
 {if ! empty($classCancelled) }
 You cancelled the following classes for {$childName}
 
 {foreach from=$classCancelled item=class}
-{$class.title} on {$class.day}.
+{$class.day} : {$class.title}
 {/foreach}
 {/if}
 
