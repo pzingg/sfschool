@@ -35,66 +35,78 @@
 
 require_once 'CRM/Report/Form.php';
 
-class CRM_Report_Form_Custom_ExtendedCare extends CRM_Report_Form {
+class SFS_Report_Form_Custom_ExtendedCare extends CRM_Report_Form {
     
     // set custom table name
-    protected $_customTable   = 'civicrm_value_sessions_2';  
+    protected $_customTable   = 'civicrm_value_extended_care_2';  
     
     // set columns to display
     // colunm_name => title from custom table
     protected $displayColumns = array( 'start_date_7' => 'In' , 'end_date_8' => 'Logout' );
     
-    // set colunm_name for grouping , 'Day' should be first element in array
-    protected $optionFields   = array ('day_11', 'term_12');
+    // set colunm_name for grouping
+    protected $groupingFields   = array ( 'day_of_week_10', 'name_3', 'session_11' , 'term_4' );
     
 
     function __construct( ) {
-        $this->_columns = array ( );
+        $this->_columns = array( );
         
-        $fields = array();
+        $fields = array( );
         $query  = " 
                    SELECT column_name, label , option_group_id 
                    FROM civicrm_custom_field 
                    WHERE is_active = 1 AND custom_group_id = ( SELECT id FROM civicrm_custom_group WHERE table_name='{$this->_customTable}' ) " ;
-        
         $dao_column = CRM_Core_DAO::executeQuery( $query );
         
-        $modifyOption = array( );
+        $this->_optionFields = $this->_textFields = array( );
         while ( $dao_column->fetch( ) ) {
-            if ( in_array($dao_column->column_name , $this->optionFields ) ) {
-                $fields[$dao_column->column_name] = array(
-                                                          'title' => $dao_column->label,
-                                                          );
-                $modifyOption[$dao_column->option_group_id] = $dao_column->column_name;
+            if ( in_array($dao_column->column_name , $this->groupingFields ) ) {
+                $fields[$dao_column->column_name] = array(  'title' => $dao_column->label );
+                
+                if( $dao_column->option_group_id ) {
+                    $this->_optionFields[$dao_column->column_name] = $dao_column->option_group_id;
+                } else {
+                    $this->_textFields[$dao_column->column_name] =  $dao_column->column_name;
                 }
+            }
             
         }
-        $this->optionFields = $modifyOption;
         
         $filters = array( );
-        foreach( $this->optionFields as $grp => $fieldName ) {
+        // take values form civicrm_option_value
+        foreach( $this->_optionFields as $fieldName => $grp ) {
             $options = array( );
-            $query = "SELECT label , value FROM civicrm_option_value WHERE option_group_id = $grp AND is_active=1";
-
-            $dao = CRM_Core_DAO::executeQuery( $query );
-
+            $query   = "SELECT label , value FROM civicrm_option_value WHERE option_group_id = $grp AND is_active=1";
+            $dao     = CRM_Core_DAO::executeQuery( $query );
+            
             while( $dao->fetch() ) {
                 $options[$dao->value] = $dao->label; 
             }
             $filters[$fieldName] = array( 'operatorType' => CRM_Report_Form::OP_MULTISELECT,
-                                          'options'      => $options );
-            
+                                          'options'      => $options,
+                                          );
         }
 
+        // take values form same table
+        foreach( $this->_textFields as $key => $fieldName ) {
+            $options = array( );
+            $query   = "SELECT DISTINCT {$fieldName} as fld FROM {$this->_customTable}";
+            $dao     = CRM_Core_DAO::executeQuery( $query );
+
+            while( $dao->fetch() ) {
+                $options[$dao->fld] = $dao->fld; 
+            }
+            $filters[$fieldName] = array( 'type' => CRM_Utils_Type::T_STRING );
+        }
+        
         foreach( $fields as $key => $val ) {
             foreach ( $filters[$key ] as $k => $v ) {
                 $fields[$key][$k] = $v; 
             }
         }   
         
-        $this->_columns[$this->_customTable] = array( 
-                                                     'dao'     => 'CRM_Contact_DAO_Contact',
-                                                     'filters' => $fields,
+        $this->_columns[$this->_customTable] = array( 'dao'     => 'CRM_Contact_DAO_Contact',
+                                                      'filters' => $fields,
                                                       );
         parent::__construct( );
     }
@@ -125,23 +137,21 @@ class CRM_Report_Form_Custom_ExtendedCare extends CRM_Report_Form {
             $this->_columnHeaders[$fieldAlias] = array ('title' => $title );
         }
         
-        
-        $count = 1; 
-        foreach( $this->optionFields  as $grpId => $fld ) {
-            $optionAlias = $fld."_".$grpId;
- 
-            if( $count == 1 ) {
-                $labelAlias  = 'day_label';
-                $valueAlias  = 'day_value';
-                $select[]    = "$optionAlias.label as $labelAlias , $optionAlias.value as $valueAlias ";
-            } else {
-                $labelAlias  = 'term_label';
-                $valueAlias  = 'term_value';
+        foreach( $this->_optionFields as $fieldName => $grp ) {
+            if ( in_array( $fieldName, $this->groupingFields ) ) {
+                $optionAlias = $fieldName."_".$grp;
+                $labelAlias  = $grp.'_label';
+                $valueAlias  = $grp.'_value';
                 $select[]    = "$optionAlias.label as $labelAlias ,$optionAlias.value as $valueAlias ";
             }
-            $count++;
         }
         
+        foreach( $this->_textFields as $key => $fieldName ) {
+            if ( in_array( $fieldName, $this->groupingFields ) ) {
+                $select[]    = "$alias.$fieldName as $fieldName ";
+            }
+        }
+
         $this->_select = "SELECT " . implode( ",\n", $select ) . " ";
    }
 
@@ -155,14 +165,12 @@ class CRM_Report_Form_Custom_ExtendedCare extends CRM_Report_Form {
                               INNER JOIN civicrm_contact {$this->_aliases['civicrm_contact']} 
 	                                     ON {$alias}.entity_id = {$this->_aliases['civicrm_contact']}.id ";
 
-        foreach( $this->optionFields  as $grpId => $fld ) {
-            $optionAlias    = $fld."_".$grpId;
+        foreach( $this->_optionFields  as $fieldName => $grp ) {
+            $optionAlias  = $fieldName."_".$grp;
             $this->_from .= " 
                              LEFT JOIN civicrm_option_value $optionAlias
-                                  ON $optionAlias.value = $alias.$fld AND $optionAlias.option_group_id = $grpId ";
+                                  ON $optionAlias.value = $alias.$fieldName AND $optionAlias.option_group_id = $grp ";
         }
-        
-        
     }
     
     function where( ) {
@@ -180,12 +188,21 @@ class CRM_Report_Form_Custom_ExtendedCare extends CRM_Report_Form {
                     } else {
                         $op = CRM_Utils_Array::value( "{$fieldName}_op", $this->_params );
                         if ( $op ) {
-                            $clause = 
-                                $this->whereClause( $field,
-                                                    $op,
-                                                    CRM_Utils_Array::value( "{$fieldName}_value", $this->_params ),
-                                                    CRM_Utils_Array::value( "{$fieldName}_min", $this->_params ),
-                                                    CRM_Utils_Array::value( "{$fieldName}_max", $this->_params ) );
+                            
+                            // hack for values type string
+                            if ( $op == 'in' ) {
+                                $value  = CRM_Utils_Array::value( "{$fieldName}_value", $this->_params );
+                                if ( $value !== null && count( $value ) > 0 ) {
+                                    $clause = "( {$field['dbAlias']} IN ('" . implode( '\',\'', $value ) . "' ) )";
+                                }
+                            } else {
+                                $clause = 
+                                    $this->whereClause( $field,
+                                                        $op,
+                                                        CRM_Utils_Array::value( "{$fieldName}_value", $this->_params ),
+                                                        CRM_Utils_Array::value( "{$fieldName}_min", $this->_params ),
+                                                        CRM_Utils_Array::value( "{$fieldName}_max", $this->_params ) );
+                            }
                         }
                     }
                     
@@ -195,66 +212,47 @@ class CRM_Report_Form_Custom_ExtendedCare extends CRM_Report_Form {
                 }
             }
         }
-
+        
         if ( empty( $clauses ) ) {
             $this->_where = "WHERE ( 1 ) ";
         } else {
             $this->_where = "WHERE " . implode( ' AND ', $clauses );
         }
     }
-
-
-    function orderBy( ) {
-        $this->_orderBy = "";
-        $orderBy = array( );
-        $alias = $this->_aliases[$this->_customTable];
-
-        foreach( $this->optionFields  as $grpId => $fld ) {
-            $orderBy[] = " $alias.$fld ";
-        }
-        if( !empty($groupBy)) {
-            $this->_groupBy = " ORDER BY ".implode(',', $groupBy ) ;
-        }
-        
-    }
-
+    
     function groupBy( ) {
         $this->_groupBy = "";
         $groupBy = array( ) ;
         $alias = $this->_aliases[$this->_customTable];
-
-        foreach( $this->optionFields  as $grpId => $fld ) {
+        
+        foreach( $this->groupingFields  as $key => $fld ) {
             $groupBy[] = " $alias.$fld ";
         }
-        if( !empty($groupBy)) {
+        if( !empty($groupBy) ) {
             $this->_groupBy = " GROUP BY ".implode(',', $groupBy ) ." , $alias.id";
         }
        
     }
 
     function postProcess( ) {
-        $dispalyFields = array();
-        
-        $count = 1; 
-        foreach( $this->optionFields  as $grpId => $fld ) {
-            
-            if( $count == 1 ) {
-                $day_label = 'day_label';
-                $day_value = 'day_value';
-                $dispalyFields[$fld] = $day_label;
-            } else {
-                $term_label  = 'term_label';
-                $term_value  = 'term_value';
-                $dispalyFields[$fld] = $term_label;
+
+        $mapFields = array( );
+        foreach( $this->groupingFields as $key => $value ) {
+            if( array_key_exists( $value, $this->_optionFields ) ) {
+                $mapFields[$key]['value'] = $this->_optionFields[$this->groupingFields[$key]].'_value';
+                $mapFields[$key]['label'] = $this->_optionFields[$this->groupingFields[$key]].'_label';
             }
-            $count++;
+            if( array_key_exists( $value, $this->_textFields ) ) { 
+                $mapFields[$key]['value'] = $this->groupingFields[$key];
+                $mapFields[$key]['label'] = $this->groupingFields[$key];
+            }               
         }
-        
+
         $this->beginPostProcess( );
         
         $sql  = $this->buildQuery( );
         
-        $rows = $termHeaders =  $dayHeaders = array( ); 
+        $rows = $dayHeaders = $nameHeaders = $termHeaders = $sessionHeaders = array( ); 
         $dao  = CRM_Core_DAO::executeQuery( $sql );
 
         while( $dao->fetch( ) ) {
@@ -264,20 +262,28 @@ class CRM_Report_Form_Custom_ExtendedCare extends CRM_Report_Form {
                     $row[$key] = $dao->$key;
                 }
             }
-            foreach ($dispalyFields as $k => $v ) {
-                if ( property_exists( $dao, $v ) ) {
-                    $row[$v] = $dao->$v;
-                }
-            }
             
-            $rows[$dao->$day_value][$dao->$term_value][] = $row;
-            $dayHeaders[$dao->$day_value] =  $dao->$day_label;
-            $termHeaders[$dao->$day_value][$dao->$term_value]=  $dao->$term_label;
+            $rows[$dao->$mapFields[0]['value']][$dao->$mapFields[1]['value']][$dao->$mapFields[2]['value']][] = $row;
+
+            $dayHeaders[$dao->$mapFields[0]['value']] =  $dao->$mapFields[0]['label'];
+
+            $termHeaders[$dao->$mapFields[0]['value']][$dao->$mapFields[1]['value']]= 
+                $dao->$mapFields[3]['label'];
+
+            $nameHeaders[$dao->$mapFields[0]['value']][$dao->$mapFields[1]['value']]=  
+                $dao->$mapFields[1]['label'];
+
+            $sessionHeaders[$dao->$mapFields[0]['value']][$dao->$mapFields[1]['value']][$dao->$mapFields[2]['value']]=
+                $dao->$mapFields[2]['label'];
+            
         }   
 
         $this->assign( 'dayHeaders' , $dayHeaders );
+        $this->assign( 'nameHeaders' , $nameHeaders );
         $this->assign( 'termHeaders' , $termHeaders );
+        $this->assign( 'sessionHeaders' , $sessionHeaders );
         unset( $this->_columnHeaders['civicrm_contact_id'] );
+
         $this->formatDisplay( $rows );
 
         $this->doTemplateAssignment( $rows );
@@ -299,23 +305,22 @@ class CRM_Report_Form_Custom_ExtendedCare extends CRM_Report_Form {
 
     function alterDisplay( &$rows ) {
         foreach ( $rows as $dayId =>$day ) {
-            foreach( $day as $termId => $term ) {
-                foreach ( $term as $rowNum => $row ) {
-                    
-                    if ( array_key_exists( 'civicrm_contact_id', $row ) &&
-                         array_key_exists( 'civicrm_contact_display_name', $row ) ) {
-                        
-                        $url = CRM_Utils_System::url( "civicrm/contact/view",  
-                                              'reset=1&cid=' . $row['civicrm_contact_id'] );                      
-                        $rows[$dayId][$termId][$rowNum]['civicrm_contact_display_name_link'] = $url;
-                        $rows[$dayId][$termId][$rowNum]['civicrm_contact_display_name_hover'] =
-                            ts("View Contact Summary for this Contact");
+            foreach( $day as $nameId => $name ) {
+                foreach ( $name as $sessionId => $session ) {
+                    foreach ( $session as $rowNum => $row ) {
+                        if ( array_key_exists( 'civicrm_contact_id', $row ) &&
+                             array_key_exists( 'civicrm_contact_display_name', $row ) ) {
+                            
+                            $url = CRM_Utils_System::url( "civicrm/contact/view",  
+                                                          'reset=1&cid=' . $row['civicrm_contact_id'] );                      
+                            $rows[$dayId][$nameId][$sessionId][$rowNum]['civicrm_contact_display_name_link'] = $url;
+                            $rows[$dayId][$termId][$sessionId][$rowNum]['civicrm_contact_display_name_hover'] =
+                                ts("View Contact Summary for this Contact");
+                        }
                     }
                 }
-                
             }
         }
     }
     
- }
-    
+}
