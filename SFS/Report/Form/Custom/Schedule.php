@@ -38,10 +38,12 @@ require_once 'CRM/Report/Form.php';
 class SFS_Report_Form_Custom_Schedule extends CRM_Report_Form {
     
     // set custom table name
-    protected $_customTable   = 'civicrm_value_school_information_1';  
+    protected $_customTable          = 'civicrm_value_school_information_1';  
+    protected $_customTable_exCare   = 'civicrm_value_extended_care_2';  
     
     // set colunm_name for grouping
     protected $fieldName   = 'subtype_1';
+    protected $fieldName_exCare = array('name_3', 'instructor_5','start_date_7');
     
     const
         ROW_COUNT_LIMIT = 10;
@@ -73,12 +75,13 @@ class SFS_Report_Form_Custom_Schedule extends CRM_Report_Form {
                   array( 'dao'     => 'CRM_Activity_DAO_Activity',
                          'fields'  =>
                          array(
-                               'subject' => array( 'title'      => ts('Activity'),
-                                                   'required'   => true,
-                                                   'no_display' => true),
                                'activity_date_time' => array( 'title'      => ts('Date'),
                                                               'no_display' => true, 
                                                               'required'   => true ),
+                               'subject' => array( 'title'      => ts('Activity'),
+                                                   'required'   => true,
+                                                   'no_display' => true),
+                               
                                ),
                          'filters' =>
                          array( 'activity_date_time '=>array( 'title'        => ts('Date'),
@@ -87,27 +90,7 @@ class SFS_Report_Form_Custom_Schedule extends CRM_Report_Form {
                                                               'type'         => CRM_Utils_Type::T_DATE )
                                 ), ),
 
-                  'civicrm_activity_target' =>
-                   array( 'dao'      => 'CRM_Activity_DAO_ActivityTarget',
-                          'fields'    =>
-                          array( 'target_contact_id' =>
-                                 array( 'no_display' => true ,
-                                        'required'   => true )
-                                 ),
-                          'grouping' => 'activity-fields',
-                          ),
-                   
-                   'civicrm_activity_assignment' => 
-                   array( 'dao'      => 'CRM_Activity_DAO_ActivityAssignment',
-                          'fields'    =>
-                          array( 'assignee_contact_id' =>
-                                 array( 'no_display'  => true ,
-                                        'required'    => true )
-                                 ),
-                          'grouping' => 'activity-fields',
-                          ),
-                  
-                  'civicrm_contact_target' =>
+                  'civicrm_contact_other' =>
                   array( 'dao'       => 'CRM_Contact_DAO_Contact',
                          'fields'    => 
                          array( 'display_name' =>
@@ -117,18 +100,6 @@ class SFS_Report_Form_Custom_Schedule extends CRM_Report_Form {
                                       'title'      => ts('With')
                                       ),
                                 ), ),
-                  
-                  'civicrm_contact_assignment' =>
-                  array( 'dao'       => 'CRM_Contact_DAO_Contact',
-                         'fields'    => 
-                         array( 'display_name' =>
-                                array(
-                                      'no_display' => true,
-                                      'required'   => true,
-                                      'title'      => ts('Assigned To')
-                                      ),
-                                ), ),
-                  
                     
                    );
                   
@@ -166,7 +137,6 @@ class SFS_Report_Form_Custom_Schedule extends CRM_Report_Form {
                                             );
         
         $this->_columns[$this->_customTable] = array( 'dao'     => 'CRM_Contact_DAO_Contact',
-                                                      'fields' => $fields ,
                                                       'filters' =>$filters ,
                                                       );
         parent::__construct( );
@@ -177,22 +147,15 @@ class SFS_Report_Form_Custom_Schedule extends CRM_Report_Form {
         parent::preProcess( );
     }
     
-    function select( $value = null ) {
+    function select(  ) {
+        
+
         $alias = $this->_aliases[$this->_customTable];
         $fieldArray = array( 'civicrm_contact',$this->_customTable );
         $select = $this->_columnHeaders =  array( );
 
         foreach ( $this->_columns as $tableName => $table ) {
-           if( $value ) {
-               if( !in_array( $tableName, $fieldArray ) ) {
-                    continue;
-                }
-           }
-           else {
-               if( in_array( $tableName, $fieldArray )/*$tableName == $this->_customTable*/  ) {
-                   continue;
-               }
-           }
+ 
            if ( array_key_exists('fields', $table) ) {
                 foreach ( $table['fields'] as $fieldName => $field ) {
                     if ( CRM_Utils_Array::value( 'required', $field ) ||
@@ -214,37 +177,69 @@ class SFS_Report_Form_Custom_Schedule extends CRM_Report_Form {
     function from( ) {
 
         $alias = $this->_aliases[$this->_customTable];
-        $this->_from = "FROM
-                        civicrm_activity {$this->_aliases['civicrm_activity']}
-                        LEFT JOIN civicrm_activity_target {$this->_aliases['civicrm_activity_target']} ON 
-                            {$this->_aliases['civicrm_activity']}.id = {$this->_aliases['civicrm_activity_target']}.activity_id 
-                        LEFT JOIN civicrm_activity_assignment {$this->_aliases['civicrm_activity_assignment']} ON 
-                            {$this->_aliases['civicrm_activity']}.id = {$this->_aliases['civicrm_activity_assignment']}.activity_id 
-                        LEFT JOIN civicrm_contact {$this->_aliases['civicrm_contact']}  ON 
-                            {$this->_aliases['civicrm_activity']}.source_contact_id = {$this->_aliases['civicrm_contact']}.id 
+        if ( $this->_params['subtype_1_value'] == 'Staff' ||  $this->_params['subtype_1_value'] == 'Teacher' ) { 
+            $this->_from = "FROM
+                              civicrm_activity_assignment activity_assignment
+                              INNER JOIN $this->_customTable $alias
+                                           ON $alias.entity_id = activity_assignment.assignee_contact_id
+                                              AND $alias.subtype_1='".$this->_params['subtype_1_value']."'
+                              INNER JOIN civicrm_contact {$this->_aliases['civicrm_contact']}
+                                           ON 
+                                               {$this->_aliases['civicrm_contact']}.id = activity_assignment.assignee_contact_id
 
-		                LEFT JOIN civicrm_contact {$this->_aliases['civicrm_contact_target']} ON 
-                           {$this->_aliases['civicrm_activity_target']}.target_contact_id = {$this->_aliases['civicrm_contact_target']}.id
+                              INNER  JOIN civicrm_activity {$this->_aliases['civicrm_activity']}
+                                            ON 
+                                              {$this->_aliases['civicrm_activity']}.id = activity_assignment.activity_id 
 
-                        LEFT JOIN civicrm_contact {$this->_aliases['civicrm_contact_assignment']} ON 
-                           {$this->_aliases['civicrm_activity_assignment']}.assignee_contact_id = {$this->_aliases['civicrm_contact_assignment']}.id ";
+                              INNER JOIN civicrm_activity_target activity_target 
+                                            ON 
+                                              {$this->_aliases['civicrm_activity']}.id = activity_target.activity_id
+                              LEFT JOIN civicrm_contact  {$this->_aliases['civicrm_contact_other']}
+                                             ON 
+                                              {$this->_aliases['civicrm_contact_other']}.id = activity_target.target_contact_id   ";
+        }
+
+
+
+
+
+        if( $this->_params['subtype_1_value'] == 'Student' || $this->_params['subtype_1_value'] == 'Parent' ) {
+            $this->_from = "FROM 
+                                 civicrm_activity_target activity_target
+                                 INNER JOIN $this->_customTable $alias
+                                           ON $alias.entity_id = activity_target.target_contact_id
+                                              AND $alias.subtype_1='".$this->_params['subtype_1_value']."'
+                                 INNER JOIN civicrm_contact {$this->_aliases['civicrm_contact']}
+                                           ON 
+                                               {$this->_aliases['civicrm_contact']}.id = activity_target.target_contact_id  
+
+                                 INNER JOIN civicrm_activity {$this->_aliases['civicrm_activity']}
+                                            ON 
+                                              {$this->_aliases['civicrm_activity']}.id =  activity_target.activity_id 
+
+
+                                 INNER JOIN civicrm_activity_assignment activity_assignment 
+                                            ON 
+                                              {$this->_aliases['civicrm_activity']}.id = activity_assignment.activity_id 
+
+                                  LEFT JOIN civicrm_contact  {$this->_aliases['civicrm_contact_other']}
+                                             ON 
+                                              {$this->_aliases['civicrm_contact_other']}.id = activity_assignment.assignee_contact_id
+
+ ";
+
+        }
 
     }
     
-    function where( $value=null) { //CRm_core_error::debug('',$this);
+    function where( ) { 
         $fieldArray = array('civicrm_contact', $this->_customTable );
         $clauses    = array( );
         foreach ( $this->_columns as $tableName => $table ) {
-            if( $value   ) {
-                if(!in_array( $tableName, $fieldArray ) ) {
-                    continue;
-                }
+            if( $tableName != 'civicrm_contact' ) {
+                
+                continue;
             }
-            else {
-                if( in_array( $tableName, $fieldArray ) ) {
-                    continue;
-                }
-            }    
             if ( array_key_exists('filters', $table) ) {
                 foreach ( $table['filters'] as $fieldName => $field ) {
                     $clause = null;
@@ -289,114 +284,93 @@ class SFS_Report_Form_Custom_Schedule extends CRM_Report_Form {
         } else {
             $this->_where = "WHERE " . implode( ' AND ', $clauses );
         }
-        
-        if( !$value ) {
-            $selectedContacts = implode(',',$this->contactSelected );
-            $this->_where .= " AND ( {$this->_aliases['civicrm_activity']}.source_contact_id IN ($selectedContacts) OR 
-                                      target_contact_id IN ($selectedContacts) OR 
-                                      assignee_contact_id IN ($selectedContacts) OR 
-                                     {$this->_aliases['civicrm_activity']}.is_test = 0 )";
-        }
+       
 
     }
     
     function groupBy( ) {
-        $this->_groupBy = " GROUP BY {$this->_aliases['civicrm_activity']}.id";
+
+        $this->_groupBy = "  ";
+        
+            
+        $this->_groupBy = " GROUP BY {$this->_aliases['civicrm_activity']}.id,{$this->_aliases['civicrm_activity']}.id";
+
+        
     }
 
     function postProcess( ) {
-        $this->_params = $this->controller->exportValues( $this->_name );
         $this->beginPostProcess( ); 
-        $this->selectContacts( );
-        if( !empty($this->contactSelected) ) {
-        $this->select ( false );
+        // print_r($this->_params);
+      
+        $this->contact = $contact= array();
+        $activity = array();
+
+        $this->select (  );
         $this->from   ( );
-        $this->where  ( false );
+        $this->where  (  );
         $this->groupBy( );
         $sql  = "{$this->_select} {$this->_from} {$this->_where} {$this->_groupBy}";
         
         $dao  = CRM_Core_DAO::executeQuery( $sql );
-        if( !empty($this->contactSelected) ) {
-            $rows = array();
-            while( $dao->fetch( ) ) {
-                $row = array( );
-                foreach ( $this->_columnHeaders as $key => $value ) {
-                    if ( property_exists( $dao, $key ) ) {
-                        $row[$key] = $dao->$key;
-                    }
-                }
-                if ( isset( $dao->civicrm_activity_source_contact_id ) ) {
-                    $rows[ $dao->civicrm_activity_source_contact_id][] = $row ;
-                }
-                if ( isset( $dao->civicrm_activity_target_target_contact_id ) ) {
-                    $rows[$dao->civicrm_activity_target_target_contact_id][] = $row;    
-                }
-                if ( isset( $dao->civicrm_activity_assignment_assignee_contact_id ) ) {
-                    $rows[$dao->civicrm_activity_assignment_assignee_contact_id][] = $row;
-                }
-            }   
-            
+        $rows = array();
 
-            $unsetHeaders = array('civicrm_activity_target_target_contact_id', 'civicrm_activity_assignment_assignee_contact_id');
-            foreach( $unsetHeaders as $fld ) {
-                unset($this->_columnHeaders[$fld]);
+        while( $dao->fetch( ) ) {
+
+            $row = array( );
+            foreach ( $this->_columnHeaders as $key => $value ) {
+                if ( property_exists( $dao, $key ) ) {
+                        $row[$key] = $dao->$key;
+                }
             }
+            $this->contact[$dao->civicrm_contact_id]['display_name'] = $dao->civicrm_contact_display_name;
+            $contact[] = $dao->civicrm_contact_id;
+            $rows[$dao->civicrm_contact_id][] = $row;
+            
+        }   
         
-            $this->assign( 'activityHeaders' , $this->_columnHeaders );
-            $this->assign( 'activityDetails' , $rows );
+        if( !empty($contact) && ($this->_params['subtype_1_value'] == 'Student' OR $this->_params['subtype_1_value'] == 'Parent' )) {       
+            $this->addRelationData($this->_params['subtype_1_value'], $contact);
         }
-        }
-        $this->formatDisplay( $this->contactSelected ,false );
         
-        $this->doTemplateAssignment($this->contactSelected  );
+        unset($this->_columnHeaders['civicrm_contact_id']);
+        unset($this->_columnHeaders['civicrm_contact_display_name']);     
+
+        $this->assign( 'contactDetails', $this->contact );
+        $this->assign( 'activityHeaders' , $this->_columnHeaders );
+        $this->assign( 'activityDetails' , $rows );
         
-        $this->endPostProcess($this->contactSelected  );
+
+
+
+
+        $this->formatDisplay($this->contact ,false );
+        
+        $this->doTemplateAssignment($this->contact );
+        
+        $this->endPostProcess($this->contact );
 
     }
     
-    function limit( $rowCount = self::ROW_COUNT_LIMIT ) {
-        parent::limit( $rowCount );
-    }
 
-    function setPager( $rowCount = self::ROW_COUNT_LIMIT ) {
-        parent::setPager( $rowCount );
-    }
-
-    function selectContacts( ) {
-        $this->contactSelected = array( );
+    function addRelationData( $subType ,$contact ) {
+        $relationDetails = array();
+        $relationHeaders = array();
         
-        $alias = $this->_aliases[$this->_customTable];
+        if( $subType == 'Student') {
+            $query ="SELECT contact_id_a,contact_id_b, contact.display_name as rel_contact  FROM civicrm_relationship 
+                     LEFT JOIN civicrm_contact contact
+                            ON contact_id_b=contact.id
+                     WHERE relationship_type_id = 1 AND
+                     contact_id_a IN (".implode(',', $contact).") AND is_active=1 GROUP BY contact_id_a,contact_id_b";
 
-        $this->select('contacts'); 
-        $this->_from   = "FROM {$this->_customTable} $alias
-                               INNER JOIN civicrm_contact {$this->_aliases['civicrm_contact']}
-                                   ON {$this->_aliases['civicrm_contact']}.id = {$alias}.entity_id";
-        $this->where( 'contacts' );
-        $this->limit();
-        
-        $query = "{$this->_select}{$this->_from} {$this->_where}{$this->_limit}";
-
-        $dao   = CRM_Core_DAO::executeQuery( $query );
-
-        while ( $dao->fetch( ) ) {
-            $row = array( );
-            foreach ( $this->_columnHeaders as $key => $value ) {
-
-                if ( property_exists( $dao, $key ) ) {
-
-
-                    $row[$key] = $dao->$key;
-                }
+            $dao = CRM_Core_DAO::executeQuery( $query );
+            while(  $dao->fetch()) {
+                $relationDetails[$dao->contact_id_a][] = $dao->rel_contact;
             }
-            $rows[$dao->civicrm_contact_id] = $row;
-            $this->contactSelected[]= $dao->civicrm_contact_id;
+         $this->assign('relationDetails', $relationDetails );
+         $this->assign('relHeader', 'Parent');
         }
-        unset($this->_columnHeaders['civicrm_contact_id']);
-        $this->assign( 'contactDetails', $rows );
-        $this->assign( 'contactHeaders', $this->_columnHeaders );
-        $this->setPager( );
         
     }
-
     
 }
