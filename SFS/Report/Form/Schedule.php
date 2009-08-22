@@ -35,7 +35,7 @@
 
 require_once 'CRM/Report/Form.php';
 
-class SFS_Report_Form_Custom_Schedule extends CRM_Report_Form {
+class SFS_Report_Form_Schedule extends CRM_Report_Form {
     
     // set custom table name
     protected $_customTable          = 'civicrm_value_school_information_1';  

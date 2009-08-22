@@ -35,7 +35,7 @@
 
 require_once 'CRM/Report/Form.php';
 
-class SFS_Report_Form_Custom_Attendance extends CRM_Report_Form {
+class SFS_Report_Form_Attendance extends CRM_Report_Form {
     const 
         EXTRA_ROWS_MIN = 0,
         EXTRA_ROWS_MAX = 10,
