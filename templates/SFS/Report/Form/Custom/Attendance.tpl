@@ -22,9 +22,9 @@
     <br />
 
     {foreach from=$rows item=rows key=sfield}
-    <table class="report-layout">
+    <table class="report-layout" style="width: 48%; float: left; margin: 0 10px 10px 0px;">
         <thead>
-        <tr><th style="width: 30%;"><u>{$sfield}</u></th></tr>
+        <tr><th style="width: 70%;"><u>{$sfield}</u></th><th></th><th></th></tr>
         <tr> 
             {foreach from=$columnHeaders item=header key=field}
                 {assign var=class value=""}
@@ -99,9 +99,7 @@
             {* /foreach*}
         {/if}
     </table>
-    <br/>
     {/foreach}
-
 {/if}        
 
     

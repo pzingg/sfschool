@@ -44,17 +44,18 @@ class SFS_Report_Form_Custom_Attendance extends CRM_Report_Form {
     // set custom table name
     protected $_customTable   = 'civicrm_value_extended_care_2';  
     
-    // set colunm_name for grouping
-    protected $groupingFields   = array ( 'day_of_week_10' );
-    
-
+    // col mapper
+    protected $_colMapper = array ( 'dayOfWeek'   => 'day_of_week_10',
+                                    'sessionName' => 'name_3',
+                                    'isCancelled' => 'has_cancelled_12',
+                                    );
     function __construct( ) {
         $this->_columns = array( );
         
         $query  = "
 SELECT column_name, label , option_group_id
 FROM civicrm_custom_field
-WHERE is_active = 1 AND column_name IN ('" . implode("','", $this->groupingFields) . "')";
+WHERE is_active = 1 AND column_name = '{$this->_colMapper['dayOfWeek']}'";
         $dao_column = CRM_Core_DAO::executeQuery( $query );
         $this->_optionFields = array( );
         while ( $dao_column->fetch( ) ) {
@@ -68,9 +69,8 @@ WHERE option_group_id = {$dao_column->option_group_id} AND is_active=1";
             }
         }
 
-        // FIXME: generalize hardcoded fieldnames
         $query   = "
-SELECT distinct name_3 as session_name 
+SELECT distinct {$this->_colMapper['sessionName']} as session_name 
 FROM   civicrm_value_extended_care_2 value_extended_care_2_civireport";
         $dao      = CRM_Core_DAO::executeQuery( $query );
         $sOptions = array( );
@@ -86,20 +86,16 @@ FROM   civicrm_value_extended_care_2 value_extended_care_2_civireport";
             array( 'dao'     => 'CRM_Contact_DAO_Contact',
                    'filters' =>             
                    array( 
-                         'session_name'  => 
-                         array( 'title'   => ts( 'Name' ),
-                                'operatorType' => CRM_Report_Form::OP_MULTISELECT,
-                                'options' => $sOptions ),
+                         'weekday'       => 
+                         array( 'title'   => ts( 'Day Of Week' ),
+                                'operatorType' => CRM_Report_Form::OP_SELECT,
+                                'options'      => $this->_optionFields[$this->_colMapper['dayOfWeek']] ),
                          'extra_rows'    => 
                          array( 'title'   => ts( 'Extra Rows' ),
                                 'default' => self::EXTRA_ROWS_DEFAULT,
                                 'type'         => CRM_Utils_Type::T_INT,
                                 'operatorType' => CRM_Report_Form::OP_SELECT,
                                 'options'      => $eOptions ),
-                         'weekday'       => 
-                         array( 'title'   => ts( 'Day Of Week' ),
-                                'operatorType' => CRM_Report_Form::OP_SELECT,
-                                'options'      => $this->_optionFields['day_of_week_10'] ),
                           ),
                    );
         parent::__construct( );
@@ -115,18 +111,11 @@ FROM   civicrm_value_extended_care_2 value_extended_care_2_civireport";
     function postProcess( ) {
         $this->beginPostProcess( );
 
-        $where = '';
-        if ( !empty($this->_params['session_name_value']) ) {
-            $where = "WHERE name_3 IN ('" . implode("','" , $this->_params['session_name_value']) . "')";
-        }
-
         $sql  = "
-SELECT distinct name_3 as session_name 
-FROM   civicrm_value_extended_care_2 value_extended_care_2_civireport
-$where";
-        $sname     = CRM_Core_DAO::executeQuery( $sql );
-        $extraRows = 5;
-        $rows = array( ); 
+SELECT distinct {$this->_colMapper['sessionName']} as session_name 
+FROM   civicrm_value_extended_care_2 value_extended_care_2_civireport";
+        $sname = CRM_Core_DAO::executeQuery( $sql );
+        $rows  = array( ); 
 
         while( $sname->fetch( ) ) {
             $sql  = "
@@ -134,12 +123,14 @@ SELECT contact_civireport.id as contact_civireport_id,
        contact_civireport.display_name as contact_civireport_display_name, '' as SignIn, '' as SignOut 
 FROM   civicrm_value_extended_care_2 value_extended_care_2_civireport
 INNER  JOIN civicrm_contact as contact_civireport ON value_extended_care_2_civireport.entity_id = contact_civireport.id
-WHERE  value_extended_care_2_civireport.name_3 = '{$sname->session_name}';
-";
+WHERE  value_extended_care_2_civireport.{$this->_colMapper['sessionName']} = '{$sname->session_name}' AND 
+       value_extended_care_2_civireport.{$this->_colMapper['dayOfWeek']} = '{$this->_params['weekday_value']}' AND
+       value_extended_care_2_civireport.{$this->_colMapper['isCancelled']} != 1";
+
             $this->_columnHeaders = 
                 array( 'contact_civireport_id' => array( 'no_display' => true ),
                        'contact_civireport_display_name' => array( 'title' => 'Name' ),
-                       'SignIn'  => array( 'title' => 'In' ),
+                       'SignIn'  => array( 'title' => 'Sign In&nbsp;' ),
                        'SignOut' => array( 'title' => 'Sign Out' ),
                    );
             $rows[$sname->session_name] = array( );
