@@ -153,7 +153,7 @@ AND    time_of_pickup_17 LIKE '{$date}%'
                                  $now ) {
         $sql = "
 INSERT INTO civicrm_value_extended_care_signout_3
-( entity_id, pickup_person_name_15, grade_16, time_of_pickup_17 )
+( entity_id, pickup_person_name, time_of_pickup )
 VALUES
 ( %1, %2, %3, %4 )
 ";

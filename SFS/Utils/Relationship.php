@@ -38,7 +38,7 @@ class SFS_Utils_Relationship {
     static function getChildren( $parentID, &$values, $permissioned = null ) {
         // get all children only        
         $sql = "
-SELECT     c.id, c.display_name, r.is_permission_b_a, sis.subtype_1, sis.grade_2
+SELECT     c.id, c.display_name, r.is_permission_b_a, sis.subtype, sis.grade
 FROM       civicrm_contact c
 INNER JOIN civicrm_relationship r ON r.contact_id_a = c.id
 LEFT JOIN  civicrm_value_school_information_1 sis ON sis.entity_id = c.id
@@ -52,7 +52,7 @@ AND        sis.entity_id = c.id
             $sql .= " AND        r.is_permission_b_a = 1";
         }
 
-        $sql .= " ORDER BY sis.grade_sis_14 DESC";
+        $sql .= " ORDER BY sis.grade_sis DESC";
 
         $params  = array( 1 => array( $parentID, 'Integer' ) );
 
@@ -62,8 +62,8 @@ AND        sis.entity_id = c.id
                 array( 'id'              => $dao->id,
                        'name'            => $dao->display_name,
                        'is_permissioned' => $dao->is_permission_b_a,
-                       'sub_type'        => $dao->sub_type_1,
-                       'grade'           => $dao->grade_2,
+                       'sub_type'        => $dao->sub_type,
+                       'grade'           => $dao->grade,
                        'parent_id'       => $parentID,
                        'meeting'         => null,
                        'extendedCare'    => null );

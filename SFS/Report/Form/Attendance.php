@@ -46,8 +46,8 @@ class SFS_Report_Form_Attendance extends CRM_Report_Form {
     
     // col mapper
     protected $_colMapper = array ( 'dayOfWeek'   => 'day_of_week_10',
-                                    'sessionName' => 'name_3',
-                                    'isCancelled' => 'has_cancelled_12',
+                                    'sessionName' => 'name',
+                                    'isCancelled' => 'has_cancelled',
                                     );
     function __construct( ) {
         $this->_columns = array( );

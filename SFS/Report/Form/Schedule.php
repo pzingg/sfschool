@@ -43,7 +43,7 @@ class SFS_Report_Form_Schedule extends CRM_Report_Form {
     
     // set colunm_name for grouping
     protected $fieldName   = 'subtype_1';
-    protected $fieldName_exCare = array('name_3', 'instructor_5','start_date_7');
+    protected $fieldName_exCare = array('name', 'instructor','start_date');
     
     const
         ROW_COUNT_LIMIT = 10;

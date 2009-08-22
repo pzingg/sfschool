@@ -58,7 +58,7 @@ class SFS_Utils_Query {
         
         if ( ! array_key_exists( $id, $_cache ) ) {
             $sql = "
-SELECT subtype_1
+SELECT subtype
 FROM   civicrm_value_school_information_1
 WHERE  entity_id = %1
 ";
@@ -73,7 +73,7 @@ WHERE  entity_id = %1
         
         if ( ! array_key_exists( $id, $_cache ) ) {
             $sql = "
-SELECT grade_2
+SELECT grade
 FROM   civicrm_value_school_information_1
 WHERE  entity_id = %1
 ";
@@ -91,9 +91,9 @@ INNER JOIN civicrm_value_school_information_1 sis ON sis.entity_id = c.id
 ";
 
         if ( $extendedCareOnly ) {
-            $sql .= " WHERE sis.grade_sis_14 > 0";
+            $sql .= " WHERE sis.grade_sis > 0";
         }
-        $sql .= " ORDER BY sis.grade_sis_14 DESC";
+        $sql .= " ORDER BY sis.grade_sis DESC";
 
         $dao = CRM_Core_DAO::executeQuery( $sql );
 
@@ -101,9 +101,9 @@ INNER JOIN civicrm_value_school_information_1 sis ON sis.entity_id = c.id
 
         while ( $dao->fetch( ) ) {
             if ( ! array_key_exists( $dao->grade_2, $students ) ) {
-                $students[$dao->grade_2] = array( '' => '- Select Student -' );
+                $students[$dao->grade] = array( '' => '- Select Student -' );
             }
-            $students[$dao->grade_2][$dao->id] = $dao->display_name;
+            $students[$dao->grade][$dao->id] = $dao->display_name;
         }
         return $students;
     }

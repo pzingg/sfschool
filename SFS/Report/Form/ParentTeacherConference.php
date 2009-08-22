@@ -40,9 +40,9 @@ class SFS_Report_Form_ParentTeacherConference extends CRM_Report_Form {
     // set custom table name
     protected $_customTable = 'civicrm_value_school_information_1';  
     
-    protected $_typeField   = array( 'column_name'  => 'subtype_1',
+    protected $_typeField   = array( 'column_name'  => 'subtype',
                                      'value'        => 'Student' );
-    protected $_gradeField  = array( 'column_name'  => 'grade_2' );
+    protected $_gradeField  = array( 'column_name'  => 'grade' );
 
     const
         ROW_COUNT_LIMIT =10;

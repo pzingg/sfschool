@@ -70,6 +70,14 @@ class SFS_Utils_ExtendedCare {
         }
 
         $parentID = CRM_Utils_Request::retrieve( 'parentID', 'Integer', $form, false, null, $_REQUEST );
+        if ( $parentID ) {
+            $sess =& CRM_Core_Session::singleton( );
+            $url  =  CRM_Utils_System::url( 'civicrm/profile/view',
+                                            "reset=1&gid=3&id=$parentID" );
+            $form->removeElement( 'cancelURL' );
+            $form->add( 'hidden', 'cancelURL', $url );
+            $sess->pushUserContext( $url );
+        }
 
         $classInfo = self::getClassCount( $grade );
         self::getCurrentClasses( $childID, $classInfo );
@@ -104,16 +112,16 @@ class SFS_Utils_ExtendedCare {
                                  &$activities,
                                  $childID ) {
         $sql = "
-SELECT entity_id, term_4, day_of_week_10, session_11, name_3, description_9, instructor_5, fee_block_6, start_date_7, end_date_8
+SELECT entity_id, term, day_of_week, session, name, description, instructor, fee_block, start_date, end_date
 FROM   civicrm_value_extended_care_2
-WHERE  entity_id = %1 AND has_cancelled_12 = 0
+WHERE  entity_id = %1 AND has_cancelled = 0
 ";
         $params = array( 1 => array( $childID, 'Integer' ) );
         $dao = CRM_Core_DAO::executeQuery( $sql, $params );
 
         while ( $dao->fetch( ) ) {
             $id   = self::makeID( $dao, 'Custom' );
-            $name = "sfschool_activity_{$dao->day_of_week_10}_{$dao->session_11}";
+            $name = "sfschool_activity_{$dao->day_of_week}_{$dao->session}";
             $defaults[$name] = $id;
             $form->addElement( 'checkbox', "{$name}_cancel", ts( 'Cancel this activity?' ) );
 
@@ -238,7 +246,7 @@ AND    is_active = 1
     static function makeID( &$dao, $class = 'Source' ) {
         $id = $class == 'Source'
             ? "{$dao->day_of_week}_{$dao->session}_{$dao->name}" 
-            : "{$dao->day_of_week_10}_{$dao->session_11}_{$dao->name_3}";
+            : "{$dao->day_of_week}_{$dao->session}_{$dao->name}";
 
         return preg_replace( '/\s+|\W+/', '_',
                              $id );
@@ -258,13 +266,6 @@ AND    is_active = 1
             return;
         }
  
-        $parentID = CRM_Utils_Request::retrieve( 'parentID', 'Integer', $form, false, null, $_REQUEST );
-        if ( $parentID ) {
-            $sess =& CRM_Core_Session::singleton( );
-            $sess->pushUserContext( CRM_Utils_System::url( 'civicrm/profile/view',
-                                                           "reset=1&gid=3&id=$parentID" ) );
-        }
-        
        $params = $form->controller->exportValues( $form->getVar( '_name' ) );
 
         $daysOfWeek =& self::daysOfWeek( );
@@ -377,7 +378,7 @@ AND    is_active = 1
         if ( $operation == 'Added' ) {
             $query = "
 INSERT INTO civicrm_value_extended_care_2
-( entity_id, term_4, name_3, description_9, instructor_5, day_of_week_10, session_11, fee_block_6, start_date_7, end_date_8, has_cancelled_12 )
+( entity_id, term, name, description, instructor, day_of_week, session, fee_block, start_date, end_date, has_cancelled )
 VALUES
 ( %1, %2, %3, %4, %5, %6, %7, %8, %9, %10, 0 )
 ";
@@ -404,22 +405,22 @@ VALUES
                 $query = "
 DELETE 
 FROM   civicrm_value_extended_care_2
-WHERE  entity_id = %1
-AND    term_4    = %2
-AND    name_3    = %3
-AND    day_of_week_10 = %4
-AND    session_11 = %5
+WHERE  entity_id   = %1
+AND    term        = %2
+AND    name        = %3
+AND    day_of_week = %4
+AND    session     = %5
 ";
             } else {
                 $query = "
 UPDATE civicrm_value_extended_care_2
-SET    end_date_8 = %6, has_cancelled_12 = 1
-WHERE  entity_id = %1
-AND    term_4    = %2
-AND    name_3    = %3
-AND    day_of_week_10 = %4
-AND    session_11 = %5
-AND    has_cancelled_12 = 0
+SET    end_date = %6, has_cancelled = 1
+WHERE  entity_id     = %1
+AND    term          = %2
+AND    name          = %3
+AND    day_of_week   = %4
+AND    session       = %5
+AND    has_cancelled = 0
 ";
             }
             $params = array( 1  => array( $childID, 'Integer' ),
@@ -449,49 +450,49 @@ AND    has_cancelled_12 = 0
         $term = self::getTerm( $term );
 
         $query = "
-SELECT    c.id as contact_id, e.term_4, e.name_3, e.description_9,
-          e.instructor_5, e.day_of_week_10, e.session_11, e.fee_block_6,
-          e.start_date_7, e.end_date_8, s.grade_2
+SELECT    c.id as contact_id, e.term, e.name, e.description,
+          e.instructor, e.day_of_week, e.session, e.fee_block,
+          e.start_date, e.end_date, s.grade
 FROM      civicrm_contact c
-LEFT JOIN civicrm_value_extended_care_2 e ON ( c.id = e.entity_id AND term_4 = %1 AND has_cancelled_12 = 0 )
+LEFT JOIN civicrm_value_extended_care_2 e ON ( c.id = e.entity_id AND term = %1 AND has_cancelled = 0 )
 LEFT JOIN civicrm_value_school_information_1 s ON c.id = s.entity_id
 WHERE     c.id IN ($childrenIDString)
-AND       s.subtype_1 = %2
-ORDER BY  c.id, e.day_of_week_10, e.session_11
+AND       s.subtype = %2
+ORDER BY  c.id, e.day_of_week, e.session
 ";
         $params = array( 1 => array( $term    , 'String' ),
                          2 => array( 'Student', 'String' ) );
         $dao = CRM_Core_DAO::executeQuery( $query, $params );
 
         while ( $dao->fetch( ) ) {
-            if ( ! is_numeric( $dao->grade_2 ) ) {
+            if ( ! is_numeric( $dao->grade ) ) {
                 continue;
             }
 
             // check if there is any data for extended care
-            if ( $dao->name_3 ) {
+            if ( $dao->name ) {
                 if ( ! $values[$dao->contact_id]['extendedCareDay'] ) {
                     $values[$dao->contact_id]['extendedCare']    = array( );
                     $values[$dao->contact_id]['extendedCareDay'] = array( );
                 }
 
-                if ( ! isset( $values[$dao->contact_id]['extendedCareDay'][$dao->day_of_week_10] ) ) {
-                    $values[$dao->contact_id]['extendedCareDay'][$dao->day_of_week_10] = array( );
+                if ( ! isset( $values[$dao->contact_id]['extendedCareDay'][$dao->day_of_week] ) ) {
+                    $values[$dao->contact_id]['extendedCareDay'][$dao->day_of_week] = array( );
                 }
             
-                $time = $dao->session_11 == 'First' ? '3:30 pm - 4:30 pm' : "4:30 pm - 5:30 pm";
-                $title = "{$dao->day_of_week_10} $time";
-                $title .= " : {$dao->name_3}";
-                if ( $dao->instructor_5 ) {
-                    $title .= " w/{$dao->instructor_5}";
+                $time = $dao->session == 'First' ? '3:30 pm - 4:30 pm' : "4:30 pm - 5:30 pm";
+                $title = "{$dao->day_of_week} $time";
+                $title .= " : {$dao->name}";
+                if ( $dao->instructor ) {
+                    $title .= " w/{$dao->instructor}";
                 }
 
-                $values[$dao->contact_id]['extendedCareDay'][$dao->day_of_week_10][] =
-                    array( 'day'  => $dao->day_of_week_10,
+                $values[$dao->contact_id]['extendedCareDay'][$dao->day_of_week][] =
+                    array( 'day'  => $dao->day_of_week,
                            'time' => $time,
-                           'name' => $dao->name_3,
-                           'desc' => $dao->description_9,
-                           'instructor' => $dao->instructor_5,
+                           'name' => $dao->name,
+                           'desc' => $dao->description,
+                           'instructor' => $dao->instructor,
                            'title' => $title );
             }
         }
@@ -520,14 +521,14 @@ ORDER BY  c.id, e.day_of_week_10, e.session_11
 
     static function &getClassCount( $grade ) {
         $sql = "
-SELECT     count(entity_id) as current, s.max_participants as max, term_4, day_of_week_10, session_11, name_3
+SELECT     count(entity_id) as current, s.max_participants as max, s.term, s.day_of_week, s.session, s.name
 FROM       civicrm_value_extended_care_2 e
-INNER JOIN sfschool_extended_care_source s ON ( s.term = e.term_4 AND s.day_of_week = e.day_of_week_10 AND s.session = e.session_11 AND s.name = e.name_3 ) 
-WHERE      e.has_cancelled_12 = 0
+INNER JOIN sfschool_extended_care_source s ON ( s.term = e.term AND s.day_of_week = e.day_of_week AND s.session = e.session AND s.name = e.name ) 
+WHERE      e.has_cancelled = 0
 AND        %1 >= s.min_grade
 AND        %1 <= s.max_grade
 AND        s.is_active = 1
-GROUP BY term_4, day_of_week_10, session_11, name_3
+GROUP BY term, day_of_week, session, name
 ";
         $params = array( 1 => array( $grade, 'Integer' ) );
 
@@ -545,9 +546,9 @@ GROUP BY term_4, day_of_week_10, session_11, name_3
 
     static function getCurrentClasses( $childID, &$values ) {
         $sql = "
-SELECT entity_id, term_4, day_of_week_10, session_11, name_3
+SELECT entity_id, term, day_of_week, session, name
 FROM   civicrm_value_extended_care_2
-WHERE  entity_id = %1 AND has_cancelled_12 = 0
+WHERE  entity_id = %1 AND has_cancelled = 0
 ";
         $params = array( 1 => array( $childID, 'Integer' ) );
         $dao = CRM_Core_DAO::executeQuery( $sql, $params );

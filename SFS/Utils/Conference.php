@@ -78,6 +78,14 @@ ORDER BY   a.activity_date_time asc
         }
 
         $parentID = CRM_Utils_Request::retrieve( 'parentID', 'Integer', $form, false, null, $_REQUEST );
+        if ( $parentID ) {
+            $sess =& CRM_Core_Session::singleton( );
+            $url  =  CRM_Utils_System::url( 'civicrm/profile/view',
+                                            "reset=1&gid=3&id=$parentID" );
+            $form->removeElement( 'cancelURL' );
+            $form->add( 'hidden', 'cancelURL', $url );
+            $sess->pushUserContext( $url );
+        }
 
         if ( ! empty( $elements ) ) {
             $form->addElement( 'select', 'sfschool_activity_id', "Choose a Meeting time for {$dao->subject}", $elements, true );
@@ -124,13 +132,6 @@ VALUES
         $params = array( 1 => array( $activityID, 'Integer' ),
                          2 => array( $childID   , 'Integer' ) );
         CRM_Core_DAO::executeQuery( $sql, $params );
-
-        $parentID = CRM_Utils_Request::retrieve( 'parentID', 'Integer', $form, false, null, $_REQUEST );
-        if ( $parentID ) {
-            $sess =& CRM_Core_Session::singleton( );
-            $sess->pushUserContext( CRM_Utils_System::url( 'civicrm/profile/view',
-                                                              "reset=1&gid=3&id=$parentID" ) );
-        }
 
         self::sendConferenceEmail( $activityID, $advisorID, $childID );
     }
@@ -206,7 +207,9 @@ AND        at.target_contact_id = r.contact_id_b;
         $dao = CRM_Core_DAO::executeQuery( $sql, $params );
         while ( $dao->fetch( ) ) {
             $url = CRM_Utils_System::url( 'civicrm/profile/edit', "reset=1&gid=4&id={$dao->contact_id_b}&advisorID={$dao->advisor_id}&ptc=1&$parent" );
-            $values[$dao->contact_id_b]['meeting']['title'] = "Your {$dao->subject} is scheduled for {$dao->activity_date_time} with {$dao->aac_display_name}";
+            $dateTime = CRM_Utils_Date::customFormat( $dao->activity_date_time,
+                                                      "%l:%M %P on %b %E%f" );
+            $values[$dao->contact_id_b]['meeting']['title'] = "Your {$dao->subject} is scheduled for $dateTime with {$dao->aac_display_name}";
             $values[$dao->contact_id_b]['meeting']['edit']  = "<a href=\"{$url}\">Modify conference time for {$dao->rcb_display_name}</a>";
             $values[$dao->contact_id_b]['meeting']['id']    = $dao->id;
             // FIXME when we have access to the web :)
