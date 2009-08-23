@@ -42,7 +42,7 @@ class SFS_Report_Form_Schedule extends CRM_Report_Form {
     protected $_customTable_exCare   = 'civicrm_value_extended_care_2';  
     
     // set colunm_name for grouping
-    protected $fieldName   = 'subtype_1';
+    protected $fieldName   = 'subtype';
     protected $fieldName_exCare = array('name', 'instructor','start_date');
     
     const
@@ -177,12 +177,12 @@ class SFS_Report_Form_Schedule extends CRM_Report_Form {
     function from( ) {
 
         $alias = $this->_aliases[$this->_customTable];
-        if ( $this->_params['subtype_1_value'] == 'Staff' ||  $this->_params['subtype_1_value'] == 'Teacher' ) { 
+        if ( $this->_params['subtype_value'] == 'Staff' ||  $this->_params['subtype_value'] == 'Teacher' ) { 
             $this->_from = "FROM
                               civicrm_activity_assignment activity_assignment
                               INNER JOIN $this->_customTable $alias
                                            ON $alias.entity_id = activity_assignment.assignee_contact_id
-                                              AND $alias.subtype_1='".$this->_params['subtype_1_value']."'
+                                              AND $alias.subtype='".$this->_params['subtype_value']."'
                               INNER JOIN civicrm_contact {$this->_aliases['civicrm_contact']}
                                            ON 
                                                {$this->_aliases['civicrm_contact']}.id = activity_assignment.assignee_contact_id
@@ -203,12 +203,12 @@ class SFS_Report_Form_Schedule extends CRM_Report_Form {
 
 
 
-        if( $this->_params['subtype_1_value'] == 'Student' || $this->_params['subtype_1_value'] == 'Parent' ) {
+        if( $this->_params['subtype_value'] == 'Student' || $this->_params['subtype_value'] == 'Parent' ) {
             $this->_from = "FROM 
                                  civicrm_activity_target activity_target
                                  INNER JOIN $this->_customTable $alias
                                            ON $alias.entity_id = activity_target.target_contact_id
-                                              AND $alias.subtype_1='".$this->_params['subtype_1_value']."'
+                                              AND $alias.subtype='".$this->_params['subtype_value']."'
                                  INNER JOIN civicrm_contact {$this->_aliases['civicrm_contact']}
                                            ON 
                                                {$this->_aliases['civicrm_contact']}.id = activity_target.target_contact_id  
@@ -328,8 +328,8 @@ class SFS_Report_Form_Schedule extends CRM_Report_Form {
             
         }   
         
-        if( !empty($contact) && ($this->_params['subtype_1_value'] == 'Student' OR $this->_params['subtype_1_value'] == 'Parent' )) {       
-            $this->addRelationData($this->_params['subtype_1_value'], $contact);
+        if( !empty($contact) && ($this->_params['subtype_value'] == 'Student' OR $this->_params['subtype_value'] == 'Parent' )) {       
+            $this->addRelationData($this->_params['subtype_value'], $contact);
         }
         
         unset($this->_columnHeaders['civicrm_contact_id']);

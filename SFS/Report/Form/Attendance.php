@@ -45,9 +45,10 @@ class SFS_Report_Form_Attendance extends CRM_Report_Form {
     protected $_customTable   = 'civicrm_value_extended_care_2';  
     
     // col mapper
-    protected $_colMapper = array ( 'dayOfWeek'   => 'day_of_week_10',
-                                    'sessionName' => 'name',
-                                    'isCancelled' => 'has_cancelled',
+    protected $_colMapper = array ( 'dayOfWeek'    => 'day_of_week',
+                                    'sessionName'  => 'name',
+                                    'sessionOrder' => 'session',
+                                    'isCancelled'  => 'has_cancelled',
                                     );
     function __construct( ) {
         $this->_columns = array( );
@@ -112,7 +113,8 @@ FROM   civicrm_value_extended_care_2 value_extended_care_2_civireport";
         $this->beginPostProcess( );
 
         $sql  = "
-SELECT distinct {$this->_colMapper['sessionName']} as session_name 
+SELECT distinct value_extended_care_2_civireport.{$this->_colMapper['sessionName']} as session_name, 
+       value_extended_care_2_civireport.{$this->_colMapper['sessionOrder']} as session_order 
 FROM   civicrm_value_extended_care_2 value_extended_care_2_civireport";
         $sname = CRM_Core_DAO::executeQuery( $sql );
         $rows  = array( ); 
@@ -120,7 +122,7 @@ FROM   civicrm_value_extended_care_2 value_extended_care_2_civireport";
         while( $sname->fetch( ) ) {
             $sql  = "
 SELECT contact_civireport.id as contact_civireport_id, 
-       contact_civireport.display_name as contact_civireport_display_name, '' as SignIn, '' as SignOut 
+       contact_civireport.display_name as contact_civireport_display_name, '' as SignIn, '' as SignOut
 FROM   civicrm_value_extended_care_2 value_extended_care_2_civireport
 INNER  JOIN civicrm_contact as contact_civireport ON value_extended_care_2_civireport.entity_id = contact_civireport.id
 WHERE  value_extended_care_2_civireport.{$this->_colMapper['sessionName']} = '{$sname->session_name}' AND 
@@ -132,8 +134,10 @@ WHERE  value_extended_care_2_civireport.{$this->_colMapper['sessionName']} = '{$
                        'contact_civireport_display_name' => array( 'title' => 'Name' ),
                        'SignIn'  => array( 'title' => 'Sign In&nbsp;' ),
                        'SignOut' => array( 'title' => 'Sign Out' ),
-                   );
-            $rows[$sname->session_name] = array( );
+                       );
+            $rows[$sname->session_name] = $sessionInfo[$sname->session_name] = array( );
+            $sessionInfo[$sname->session_name ] = $sname->session_order;
+
             $dao  = CRM_Core_DAO::executeQuery( $sql );
             
             while( $dao->fetch( ) ) {
@@ -151,6 +155,7 @@ WHERE  value_extended_care_2_civireport.{$this->_colMapper['sessionName']} = '{$
         }
         $this->formatDisplay( $rows );
 
+        $this->assign_by_ref( 'sessionInfo', $sessionInfo );
         $this->doTemplateAssignment( $rows );
 
         $this->endPostProcess( $rows );

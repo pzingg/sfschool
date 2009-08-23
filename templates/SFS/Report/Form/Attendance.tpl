@@ -24,7 +24,7 @@
     {foreach from=$rows item=rows key=sfield}
     <table class="report-layout" style="width: 48%; float: left; margin: 0 10px 10px 0px;">
         <thead>
-        <tr><th style="width: 70%;"><u>{$sfield}</u></th><th></th><th></th></tr>
+        <tr><th style="width: 70%;"><u>{$sfield}</u>&nbsp;{if $sessionInfo.$sfield eq 'First'}3:30 pm - 4:30 pm{else}4:30 pm - 5:30 pm{/if}</th></tr>
         <tr> 
             {foreach from=$columnHeaders item=header key=field}
                 {assign var=class value=""}
