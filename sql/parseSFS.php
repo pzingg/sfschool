@@ -38,6 +38,8 @@ function &fixSFSFile( &$northSouthInfo ) {
             // save the SIS grade for sorting purposes
             $fields[]  = $fields[2];
             $fields[2] = $northSouthInfo[$fields[3]];
+        } else {
+            $fields[]  = $fields[2];
         }
         
         foreach ( $fixFields as $fix ) {
@@ -64,11 +66,13 @@ function &fixSFSFile( &$northSouthInfo ) {
             array_splice( $fields, 10, 0, array( '' ) );
         }
         
+        /*******
         // scramble the fields
         if ( in_array( $fields[3], $validSIDs ) === false &&
              $fields[2] != 6 ) {
             scrambleFields( $fields );
         }
+        *********/
 
         $studentInfo[$fields[3]] = array( 'first_name' => $fields[0],
                                           'last_name'  => $fields[1],
@@ -133,8 +137,8 @@ function &readNorthSouthFile( ) {
 }
 
 function &fixStaffFile( ) {
-    $fdRead  = fopen( '0910_MSTeachers.csv', 'r' );
-    $fdWrite = fopen( '0910_MSTeachers_FIX.csv', 'w' );
+    $fdRead  = fopen( 'faculty.csv', 'r' );
+    $fdWrite = fopen( 'faculty_FIX.csv', 'w' );
 
     if ( ! $fdRead ) {
         echo "Could not read file\n";
@@ -147,7 +151,7 @@ function &fixStaffFile( ) {
     $staffInfo = array( );
     while ( $fields = fgetcsv( $fdRead ) ) {
         $fields[2] = "Staff-{$fields[2]}";
-        $fields[3] = "Staff";
+        $fields[4] = "Staff";
 
         $staffInfo["{$fields[0]} {$fields[1]}"] =
             array( 'first_name' => $fields[0],

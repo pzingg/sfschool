@@ -6,4 +6,9 @@
      <page_callback>SFS_Form_Record</page_callback>
      <access_arguments>profile listings and forms</access_arguments>
   </item>  
+  <item>
+     <path>civicrm/sfschool/class</path>
+     <page_callback>SFS_Page_Class</page_callback>
+     <access_arguments>profile listings and forms</access_arguments>
+  </item>  
 </menu>

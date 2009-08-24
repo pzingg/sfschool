@@ -136,6 +136,10 @@ WHERE  entity_id = %1 AND has_cancelled = 0
     static function &getActivities( $grade, &$classInfo ) {
         static $_all = array( );
 
+        if ( empty( $grade ) ) {
+            $grade = 'ALL';
+        }
+
         if ( array_key_exists( $grade, $_all ) ) {
             return $_all[$grade];
         }
@@ -148,15 +152,21 @@ WHERE  entity_id = %1 AND has_cancelled = 0
 SELECT * 
 FROM   sfschool_extended_care_source
 WHERE  term  = %1
-AND    %2 >= min_grade
-AND    %2 <= max_grade
 AND    is_active = 1
 ";
-        $params = array( 1 => array( $term , 'String'  ),
-                         2 => array( $grade, 'Integer' ) );
-        $dao = CRM_Core_DAO::executeQuery( $sql, $params );
+        $params = array( 1 => array( $term , 'String'  ) );
+
+        if ( is_numeric( $grade ) ) {
+            $sql .= "
+AND    %2 >= min_grade
+AND    %2 <= max_grade
+";
+            $params[2] = array( $grade, 'Integer' );
+        }
+
         $daysOfWeek =& self::daysOfWeek( );
         $sessions   =& self::sessions( );
+
         foreach ( $daysOfWeek as $day )  {
             $_all[$grade][$day] = array( );
             foreach ( $sessions as $session ) {
@@ -166,6 +176,7 @@ AND    is_active = 1
         }
 
         $errors = array( );
+        $dao = CRM_Core_DAO::executeQuery( $sql, $params );
         while ( $dao->fetch( ) ) {
             $id = self::makeID( $dao, 'Source' );
 
@@ -179,9 +190,6 @@ AND    is_active = 1
             }
 
             $title = $dao->name;
-            if ( ! empty( $dao->description ) ) {
-                $title .= " ({$dao->description})";
-            }
         
             if ( ! empty( $dao->instructor ) ) {
                 $title .= " w/{$dao->instructor}";
@@ -200,12 +208,15 @@ AND    is_active = 1
                        'day'              => $dao->day_of_week,
                        'session'          => $dao->session,
                        'name'             => $dao->name,
-                       'description'      => $dao->description,
                        'instructor'       => $dao->instructor,
-                       'max participants' => $dao->max_participants,
-                       'fee block'        => $dao->fee_block,
-                       'start date'       => $dao->start_date,
-                       'end date'         => $dao->end_date,
+                       'max_participants' => $dao->max_participants,
+                       'fee_block'        => $dao->fee_block,
+                       'start_date'       => $dao->start_date,
+                       'end_date'         => $dao->end_date,
+                       'min_grade'        => $dao->min_grade,
+                       'max_grade'        => $dao->max_grade,
+                       'url'              => $dao->url,
+                       'location'         => $dao->location
                        );
                    
         }
@@ -372,7 +383,7 @@ AND    is_active = 1
                                       $classValues,
                                       $operation = 'Added' ) {
 
-        $startDate = CRM_Utils_Date::isoToMysql( $classValues['start date'] );
+        $startDate = CRM_Utils_Date::isoToMysql( $classValues['start_date'] );
         $rightNow  = CRM_Utils_Date::getToday( null, 'YmdHis' );
 
         if ( $operation == 'Added' ) {
@@ -393,9 +404,9 @@ VALUES
                                           'String' ),
                              6  => array( $classValues['day'], 'String' ),
                              7  => array( $classValues['session'], 'String' ),
-                             8  => array( $classValues['fee block'], 'Float' ),
+                             8  => array( $classValues['fee_block'], 'Float' ),
                              9  => array( $useStart, 'Timestamp' ),
-                             10 => array( CRM_Utils_Date::isoToMysql( $classValues['end date'] ),
+                             10 => array( CRM_Utils_Date::isoToMysql( $classValues['end_date'] ),
                                           'Timestamp' ) );
         } else if ( $operation == 'Cancelled' ) {
             // check if the class has already started, if so cancel it
