@@ -19,7 +19,7 @@
 {if $class.fee_block > 0}
     <td>{$class.fee_block}</td>
 {else}
-    <td></td>
+    <td>&nbsp;</td>
 {/if}
 {if $class.min_grade == 1 && $class.max_grade == 8}
     <td>All Grades</td>
@@ -27,7 +27,11 @@
     <td>Grades {$class.min_grade} - {$class.max_grade}</td>
 {/if}
     <td>{$class.location}</td>
-    <td><a href="{$class.url}">More Info</a></td>
+{if $class.url}
+    <td><a href="javascript:popUp('{$class.url}')">More Info</a></td>
+{else}
+    <td>&nbsp;</td>
+{/if}
   </tr>
   {/foreach}
 </table>
