@@ -61,8 +61,12 @@ WHERE is_active = 1 AND column_name = '{$this->_colMapper['dayOfWeek']}'";
         $this->_optionFields = array( );
         while ( $dao_column->fetch( ) ) {
             if( $dao_column->option_group_id ) {
-                $query   = "SELECT label , value FROM civicrm_option_value 
-WHERE option_group_id = {$dao_column->option_group_id} AND is_active=1";
+                $query   = "
+SELECT label , value
+FROM   civicrm_option_value 
+WHERE  option_group_id = {$dao_column->option_group_id}
+AND    is_active = 1
+";
                 $dao     = CRM_Core_DAO::executeQuery( $query );
                 while( $dao->fetch() ) {
                     $this->_optionFields[$dao_column->column_name][$dao->value] = $dao->label;
@@ -72,8 +76,14 @@ WHERE option_group_id = {$dao_column->option_group_id} AND is_active=1";
 
         $query   = "
 SELECT distinct {$this->_colMapper['sessionName']} as session_name 
-FROM   civicrm_value_extended_care_2 value_extended_care_2_civireport";
-        $dao      = CRM_Core_DAO::executeQuery( $query );
+FROM   sfschool_extended_care_source value_extended_care_2_civireport
+WHERE  is_active = 1
+AND    term = %1
+";
+        require_once 'SFS/Utils/ExtendedCare.php';
+        $params = array( 1 => array( SFS_Utils_ExtendedCare::getTerm( ), 'String' ) );
+        $dao      = CRM_Core_DAO::executeQuery( $query, $params );
+
         $sOptions = array( );
         while( $dao->fetch( ) ) {
             $sOptions[$dao->session_name] = $dao->session_name;
@@ -115,8 +125,12 @@ FROM   civicrm_value_extended_care_2 value_extended_care_2_civireport";
         $sql  = "
 SELECT distinct value_extended_care_2_civireport.{$this->_colMapper['sessionName']} as session_name, 
        value_extended_care_2_civireport.{$this->_colMapper['sessionOrder']} as session_order 
-FROM   civicrm_value_extended_care_2 value_extended_care_2_civireport";
-        $sname = CRM_Core_DAO::executeQuery( $sql );
+FROM   sfschool_extended_care_source value_extended_care_2_civireport
+WHERE  is_active = 1
+AND    term = %1
+";
+        $params = array( 1 => array( SFS_Utils_ExtendedCare::getTerm( ), 'String' ) );
+        $sname = CRM_Core_DAO::executeQuery( $sql, $params );
         $rows  = array( ); 
 
         while( $sname->fetch( ) ) {
