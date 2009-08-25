@@ -85,7 +85,7 @@ WHERE  entity_id = %1
 
     static function &getStudentsByGrade( $extendedCareOnly = false ) {
         $sql = "
-SELECT     c.id, c.display_name, sis.grade_2 
+SELECT     c.id, c.display_name, sis.grade 
 FROM       civicrm_contact c
 INNER JOIN civicrm_value_school_information_1 sis ON sis.entity_id = c.id
 ";
@@ -100,7 +100,7 @@ INNER JOIN civicrm_value_school_information_1 sis ON sis.entity_id = c.id
         $students = array( '' => array( '' => '- First Select Grade -') );
 
         while ( $dao->fetch( ) ) {
-            if ( ! array_key_exists( $dao->grade_2, $students ) ) {
+            if ( ! array_key_exists( $dao->grade, $students ) ) {
                 $students[$dao->grade] = array( '' => '- Select Student -' );
             }
             $students[$dao->grade][$dao->id] = $dao->display_name;
