@@ -1,6 +1,6 @@
 <?php
 
-function sfschool_help( $section ) {
+function sfschool_help( $section = null ) {
     switch ($section) { 
     case 'admin/modules#description': 
         return t('Implements hooks for CiviCRM to customize the SFSchool site');
