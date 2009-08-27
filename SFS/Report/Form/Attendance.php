@@ -114,7 +114,7 @@ WHERE option_group_id =(SELECT option_group_id FROM civicrm_custom_field where c
                                 'operatorType' => CRM_Report_Form::OP_SELECT,
                                 'options'      => $this->_optionFields[$this->_colMapper['dayOfWeek']] ),
                          'session'       =>
-                         array( 'title'        => ts('Sessions'),
+                         array( 'title'        => ts('Sign Out Columns'),
                                 'default'      => array( 'First', 'Second' ),
                                 'operatorType' => CRM_Report_Form::OP_MULTISELECT,
                                 'options'      => $oOptions ),
@@ -143,7 +143,7 @@ WHERE option_group_id =(SELECT option_group_id FROM civicrm_custom_field where c
         $sesionOrder = array( 'First'  => '3.30pm- 4.30pm',
                               'Second' => '4.30pm- 5.15pm',
                               'Third'  => '5.15pm- 6.15pm',
-                              'Forth'  => '6.15pmx- 7.00pm');
+                              'Forth'  => '6.15pm- 7.00pm');
         
         $sessionHeaders = array();
         if( empty($this->_params['session_value']) ) {
@@ -198,6 +198,9 @@ WHERE  value_extended_care_2_civireport.{$this->_colMapper['sessionName']} = '{$
             }
             for ($i = 1; $i <= $this->_params['extra_rows_value']; $i++) {
                 $rows[$sname->session_name][] = array('contact_civireport_display_name' => '&nbsp;<br/>&nbsp;');
+            }
+            if ( empty($rows[$sname->session_name]) ) {
+                unset($rows[$sname->session_name]);
             }
         }
         $this->formatDisplay( $rows );
