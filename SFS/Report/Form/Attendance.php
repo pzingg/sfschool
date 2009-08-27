@@ -93,6 +93,18 @@ AND    term = %1
         for ( $i = self::EXTRA_ROWS_MIN; $i <= self::EXTRA_ROWS_MAX; $i++ ) {
             $eOptions[$i] = $i;
         }
+
+        $query   = "
+SELECT value,label  
+FROM  civicrm_option_value op_value 
+WHERE option_group_id =(SELECT option_group_id FROM civicrm_custom_field where column_name='".$this->_colMapper['sessionOrder']."')";
+        
+        $dao = CRM_Core_DAO::executeQuery( $query );
+        $oOptions = array();
+        while( $dao->fetch( ) ) {
+            $oOptions[$dao->value] = $dao->label;
+        }
+
         $this->_columns[$this->_customTable] = 
             array( 'dao'     => 'CRM_Contact_DAO_Contact',
                    'filters' =>             
@@ -101,6 +113,11 @@ AND    term = %1
                          array( 'title'   => ts( 'Day Of Week' ),
                                 'operatorType' => CRM_Report_Form::OP_SELECT,
                                 'options'      => $this->_optionFields[$this->_colMapper['dayOfWeek']] ),
+                         'session'       =>
+                         array( 'title'        => ts('Sessions'),
+                                'default'      => array( 'First', 'Second' ),
+                                'operatorType' => CRM_Report_Form::OP_MULTISELECT,
+                                'options'      => $oOptions ),
                          'extra_rows'    => 
                          array( 'title'   => ts( 'Extra Rows' ),
                                 'default' => self::EXTRA_ROWS_DEFAULT,
@@ -121,6 +138,22 @@ AND    term = %1
     
     function postProcess( ) {
         $this->beginPostProcess( );
+        
+        //set time for session order keys
+        $sesionOrder = array( 'First'  => '3.30pm-4.30pm',
+                              'Second' => '4.30pm-5.15pm',
+                              'Third'  => '5.15pm-6.15pm',
+                              'Forth'  => '6.15pm-7.00pm');
+        
+        $sessionHeaders = array();
+        if( empty($this->_params['session_value']) ) {
+            //if session filter is empty, display 'Sign Out' header 
+            $sessionHeaders['signOut'] = array('title'=> 'Sign Out' );  
+        } else {
+            foreach( $this->_params['session_value'] as $value ) {
+                $sessionHeaders[$value] = array('title'=> $sesionOrder[$value] );
+            }
+        }
 
         $sql  = "
 SELECT distinct value_extended_care_2_civireport.{$this->_colMapper['sessionName']} as session_name, 
@@ -147,8 +180,8 @@ WHERE  value_extended_care_2_civireport.{$this->_colMapper['sessionName']} = '{$
                 array( 'contact_civireport_id' => array( 'no_display' => true ),
                        'contact_civireport_display_name' => array( 'title' => 'Name' ),
                        'SignIn'  => array( 'title' => 'Sign In&nbsp;' ),
-                       'SignOut' => array( 'title' => 'Sign Out' ),
                        );
+            $this->_columnHeaders = array_merge( $this->_columnHeaders, $sessionHeaders );
             $rows[$sname->session_name] = $sessionInfo[$sname->session_name] = array( );
             $sessionInfo[$sname->session_name ] = $sname->session_order;
 
