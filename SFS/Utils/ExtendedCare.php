@@ -201,9 +201,11 @@ AND    %2 <= max_grade
 
             if ( strstr($dao->url, 'http:') || strstr($dao->url, 'https:') ) {
                 $url = $dao->url;
-            } else {
+            } else if ( $dao->url ) {
                 $urlParts = explode(';;', $dao->url);
-                $url      = CRM_Utils_System::url( $urlParts[0], $urlParts[1] );
+                $url = CRM_Utils_System::url( $urlParts[0], $urlParts[1] );
+            } else {
+                $url = null;
             }
 
             $_all[$grade][$dao->day_of_week][$dao->session]['select'][$id]  = $title;
