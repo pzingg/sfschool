@@ -11,4 +11,9 @@
      <page_callback>SFS_Page_Class</page_callback>
      <access_arguments>profile listings and forms</access_arguments>
   </item>  
+  <item>
+     <path>civicrm/sfschool/info</path>
+     <page_callback>SFS_Page_Info</page_callback>
+     <access_arguments>profile listings and forms</access_arguments>
+  </item>  
 </menu>

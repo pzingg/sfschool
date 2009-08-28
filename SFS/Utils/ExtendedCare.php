@@ -199,6 +199,13 @@ AND    %2 <= max_grade
                 $title .= " - {$dao->fee} activity blocks";
             }
 
+            if ( strstr($dao->url, 'http:') || strstr($dao->url, 'https:') ) {
+                $url = $dao->url;
+            } else {
+                $urlParts = explode(';;', $dao->url);
+                $url      = CRM_Utils_System::url( $urlParts[0], $urlParts[1] );
+            }
+
             $_all[$grade][$dao->day_of_week][$dao->session]['select'][$id]  = $title;
             $_all[$grade][$dao->day_of_week][$dao->session]['details'][$id] =
                 array( 'id'               => $id,
@@ -215,7 +222,7 @@ AND    %2 <= max_grade
                        'end_date'         => $dao->end_date,
                        'min_grade'        => $dao->min_grade,
                        'max_grade'        => $dao->max_grade,
-                       'url'              => $dao->url,
+                       'url'              => $url,
                        'location'         => $dao->location
                        );
                    
