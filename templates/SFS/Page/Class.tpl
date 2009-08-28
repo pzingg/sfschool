@@ -3,13 +3,13 @@
 <fieldset><legend>Activities for {$day}</legend>
 <table class="report-layout">
   <tr>
-     <th>Class Name</th>
-     <th>Time</th>
-     <th>Instructor</th>
-     <th>Fees</th>
-     <th>Grade(s)</th>
-     <th>Location</th>
-     <th>&nbsp;</th>
+     <th style="width: 20%">Class Name</th>
+     <th style="width: 15%">Time</th>
+     <th style="width: 15%">Instructor</th>
+     <th style="width: 5%">Fees</th>
+     <th style="width: 15%">Grade(s)</th>
+     <th style="width: 20%">Location</th>
+     <th style="width: 10%">&nbsp;</th>
   </tr>
   {foreach from=$dayValues item=class}
   <tr class="{cycle values="odd-row,even-row"}">
