@@ -56,10 +56,12 @@ class SFS_Page_Class extends CRM_Core_Page {
 
         $this->assign( 'schedule', $values );
 
+        $this->assign( 'editClass', false );
         if( CRM_Core_Permission::check( 'Administer Extended Care Information' ) ) {
             $disableActivities = array( );
             $disableActivities =& SFS_Utils_ExtendedCare::getActivities( null,
-                                                                         CRM_Core_DAO::$_nullObject , false );
+                                                                         CRM_Core_DAO::$_nullObject ,
+                                                                         false );
             $disable = array( );
             foreach ( $disableActivities as $day => $valueDay ) {
                 $values[$day] = array( );
@@ -73,7 +75,9 @@ class SFS_Page_Class extends CRM_Core_Page {
             if( !empty( $disable ) ) {
                 $this->assign('disableActivities', $disable );
             }
+            $this->assign( 'editClass', true );
         }
+         
         parent::run( );
     }
     

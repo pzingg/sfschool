@@ -10,6 +10,9 @@
      <th style="width: 15%">Grade(s)</th>
      <th style="width: 20%">Location</th>
      <th style="width: 10%">&nbsp;</th>
+{if $editClass}
+     <th style="width: 10%">&nbsp;</th>
+{/if}
   </tr>
   {foreach from=$dayValues item=class}
   <tr class="{cycle values="odd-row,even-row"}">
@@ -32,7 +35,9 @@
 {else}
     <td>&nbsp;</td>
 {/if}
+{if $editClass}
   <td><a href='{$config->userFrameworkBaseURL}civicrm/sfschool/class/edit?index={$class.index}&reset=1'>Edit</a></td>	
+{/if}
   </tr>
   {/foreach}
 </table>
@@ -55,6 +60,9 @@
      <th style="width: 15%">Grade(s)</th>
      <th style="width: 20%">Location</th>
      <th style="width: 10%">&nbsp;</th>
+{if $editClass}
+     <th style="width: 10%">&nbsp;XXXX</th>
+{/if}
   </tr>
   {foreach from=$dayValues item=class}
   <tr class="{cycle values="odd-row,even-row"}">
@@ -77,7 +85,9 @@
 {else}
     <td>&nbsp;</td>
 {/if}
+{if $editClass}
   <td><a href='{$config->userFrameworkBaseURL}civicrm/sfschool/class/edit?index={$class.index}&reset=1'>Edit</a></td>	
+{/if}
   </tr>
   {/foreach}
 </table>
