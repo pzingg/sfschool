@@ -246,3 +246,5 @@ cj(document).ready(function(){
 });
 </script>
 {/literal}
+
+{include file="SFS/common/footer.tpl"}

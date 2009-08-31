@@ -4,3 +4,5 @@
     	 {$group.content}
     </div>
 {/foreach}
+
+{include file="SFS/common/footer.tpl"}
