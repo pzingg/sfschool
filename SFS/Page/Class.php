@@ -39,7 +39,6 @@ class SFS_Page_Class extends CRM_Core_Page {
 
     function run( ) {
         require_once 'SFS/Utils/ExtendedCare.php';
-        
         $activities =  array( );
         $activities =& SFS_Utils_ExtendedCare::getActivities( null,
                                                               CRM_Core_DAO::$_nullObject );
@@ -55,9 +54,27 @@ class SFS_Page_Class extends CRM_Core_Page {
             }
         }
 
-        $this->assign_by_ref( 'schedule', $values );
+        $this->assign( 'schedule', $values );
 
+        if( CRM_Core_Permission::check( 'Administer Extended Care Information' ) ) {
+            $disableActivities = array( );
+            $disableActivities =& SFS_Utils_ExtendedCare::getActivities( null,
+                                                                         CRM_Core_DAO::$_nullObject , false );
+            $disable = array( );
+            foreach ( $disableActivities as $day => $valueDay ) {
+                $values[$day] = array( );
+                foreach ( $valueDay as $session => $valueSession ) {
+                    foreach ( $valueSession['details'] as $id => $valueId ) {
+                        $valueId['session'] = $valueId['session'] == 'First' ? '3:30 pm - 4:30 pm' : "4:30 pm - 5:30 pm";
+                        $disable[$day][] = $valueId;
+                    }
+                }
+            }
+            if( !empty( $disable ) ) {
+                $this->assign('disableActivities', $disable );
+            }
+        }
         parent::run( );
     }
-
+    
 }

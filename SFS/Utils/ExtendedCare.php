@@ -133,27 +133,32 @@ WHERE  entity_id = %1 AND has_cancelled = 0
         $form->setDefaults( $defaults );
     }
 
-    static function &getActivities( $grade, &$classInfo ) {
+    static function &getActivities( $grade, &$classInfo, $is_active = true ) {
         static $_all = array( );
 
         if ( empty( $grade ) ) {
             $grade = 'ALL';
         }
+        $grade .= $is_active ? "_1" : "_0";
 
         if ( array_key_exists( $grade, $_all ) ) {
             return $_all[$grade];
         }
-
         $_all[$grade] = array( );
 
         $term       =  self::getTerm( $term );
-
+        
         $sql = "
 SELECT * 
 FROM   sfschool_extended_care_source
 WHERE  term  = %1
-AND    is_active = 1
 ";
+        if( $is_active ) {
+            $sql .= " AND  is_active = 1";
+        } else {
+            $sql .= " AND  is_active = 0";
+        }
+        
         $params = array( 1 => array( $term , 'String'  ) );
 
         if ( is_numeric( $grade ) ) {
@@ -207,7 +212,7 @@ AND    %2 <= max_grade
             } else {
                 $url = null;
             }
-
+           
             $_all[$grade][$dao->day_of_week][$dao->session]['select'][$id]  = $title;
             $_all[$grade][$dao->day_of_week][$dao->session]['details'][$id] =
                 array( 'id'               => $id,
@@ -227,6 +232,9 @@ AND    %2 <= max_grade
                        'url'              => $url,
                        'location'         => $dao->location
                        );
+            if( CRM_Core_Permission::check( 'Administer Extended Care Information' ) ) {
+                $_all[$grade][$dao->day_of_week][$dao->session]['details'][$id]['index'] = $dao->id;
+            }
                    
         }
 
