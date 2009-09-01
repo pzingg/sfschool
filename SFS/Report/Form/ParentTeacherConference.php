@@ -173,8 +173,11 @@ class SFS_Report_Form_ParentTeacherConference extends CRM_Report_Form {
                 foreach ( $table['fields'] as $fieldName => $field ) {
                     if ( CRM_Utils_Array::value( 'required', $field ) ||
                          CRM_Utils_Array::value( $fieldName, $this->_params['fields'] ) ) {
-                        
-                        $select[] = "{$field['dbAlias']} as {$tableName}_{$fieldName}";
+                        if( $tableName == 'civicrm_contact_parent' ) {
+                            $select[] = "GROUP_CONCAT(DISTINCT {$field['dbAlias']}  ORDER BY {$field['dbAlias']} ) as {$tableName}_{$fieldName}";
+                        } else {
+                            $select[] = "{$field['dbAlias']} as {$tableName}_{$fieldName}";
+                        }
                         $this->_columnHeaders["{$tableName}_{$fieldName}"]['type']  = CRM_Utils_Array::value( 'type', $field );
                         $this->_columnHeaders["{$tableName}_{$fieldName}"]['title'] = $field['title'];
                     }
@@ -258,7 +261,7 @@ class SFS_Report_Form_ParentTeacherConference extends CRM_Report_Form {
     
     function groupBy( ) {
         
-        $this->_groupBy = " GROUP BY {$this->_aliases['civicrm_contact']}.id,{$this->_aliases['civicrm_contact_student']}.id,{$this->_aliases['civicrm_contact_parent']}.id,{$this->_aliases['civicrm_activity']}.id";
+        $this->_groupBy = " GROUP BY {$this->_aliases['civicrm_contact']}.id,{$this->_aliases['civicrm_contact_student']}.id,{$this->_aliases['civicrm_activity']}.id";
     }
     
     function postProcess( ) {

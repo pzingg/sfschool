@@ -47,10 +47,10 @@
 
 {if $disableActivities}
 
-<fieldset><legend>Disable Activities </legend>
+<fieldset><legend>Disabled Activities </legend>
 {foreach from=$disableActivities key=day item=dayValues}
 <div>
-<fieldset><legend>Disable Activities  for {$day}</legend>
+<fieldset><legend>Disabled Activities for {$day}</legend>
 <table class="report-layout">
   <tr>
      <th style="width: 20%">Class Name</th>
