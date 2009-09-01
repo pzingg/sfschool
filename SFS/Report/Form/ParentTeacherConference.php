@@ -43,78 +43,9 @@ class SFS_Report_Form_ParentTeacherConference extends CRM_Report_Form {
     protected $_typeField   = array( 'column_name'  => 'subtype',
                                      'value'        => 'Student' );
     protected $_gradeField  = array( 'column_name'  => 'grade' );
-
-    const
-        ROW_COUNT_LIMIT =10;
-
+ 
     function __construct( ) {
-        $this->_columns = array( 
-                                'civicrm_contact' =>
-                                array( 'dao'       => 'CRM_Contact_DAO_Contact',
-                                       'fields'    => 
-                                       array( 'display_name' =>
-                                              array(
-                                                    'no_display' => true,
-                                                    'required'   => true,
-                                                    'title'      => ts('Student')
-                                                    ),
-                                              'id' =>
-                                              array(
-                                                    'no_display' => true,
-                                                    'required'   => true,
-                                                    ),
-                                              ),
-                                       'filters'   =>
-                                       array( 'sort_name' =>
-                                              array('title' => ts('Student')
-                                                    ) ) ),
-                                
-                                'civicrm_contact_parent' =>
-                                array( 'dao'       => 'CRM_Contact_DAO_Contact',
-                                       'fields'   =>
-                                       array( 'display_name' =>
-                                              array(
-                                                    'no_display' => true,
-                                                    'required'   => true,
-                                                    'title'      => ts('Parent')
-                                                    ),
-                                              'id' =>
-                                              array(
-                                                    'no_display' => true,
-                                                    'required'   => true,
-                                                    ),
-                                              ) ),
 
-                                'civicrm_activity'      =>
-                                array( 'dao'     => 'CRM_Activity_DAO_Activity',
-                                       'fields'  =>
-                                       array(
-                                             'subject' => array( 'title'      => ts('Activity'),
-                                                                 'required'   => true,
-                                                                 'no_display' => true),
-                                             'activity_date_time' => array( 'title'      => ts('Date'),
-                                                                            'no_display' => true, 
-                                                                            'required'   => true ),
-                                             ),
-                                       ),
-                                       
-                                 'civicrm_contact_teacher' =>
-                                array( 'dao'       => 'CRM_Contact_DAO_Contact',
-                                       'fields'   =>
-                                       array( 'display_name' =>
-                                              array(
-                                                    'no_display' => true,
-                                                    'required'   => true,
-                                                    'title'      => ts('Staff')
-                                                    ),
-                                              'id' =>
-                                              array(
-                                                    'no_display' => true,
-                                                    'required'   => true,
-                                                    ),
-                                              ) ),
-                                       );
-        
         $fields = array( );
         $query  = " 
                    SELECT column_name, label , option_group_id 
@@ -125,9 +56,9 @@ class SFS_Report_Form_ParentTeacherConference extends CRM_Report_Form {
         $this->_optionFields = $this->_textFields = array( );
 
         while ( $dao_column->fetch( ) ) {
-            $fields[$dao_column->column_name] = array('required' => true, 
-                                                      'title' => $dao_column->label,
-                                                      'no_display' =>true
+            $fields[$dao_column->column_name] = array('required'   => true, 
+                                                      'title'      => $dao_column->label,
+                                                      'no_display' => true
                                                         );
                 $this->_gradeField['op_group_id'] = $dao_column->option_group_id;
         }
@@ -147,12 +78,84 @@ class SFS_Report_Form_ParentTeacherConference extends CRM_Report_Form {
                                                             'options'      => $options,
                                                             );
 
+        $this->_columns = array(
+                                'civicrm_activity'      =>
+                                array( 'dao'     => 'CRM_Activity_DAO_Activity',
+                                       'fields'  =>
+                                       array( 'activity_date_time' => array( 'title'      => ts('Date'),
+                                                                             'no_display' => true, 
+                                                                             'required'   => true ),
+                                              'subject' => array( 'title'      => ts('Activity'),
+                                                                  'required'   => true,
+                                                                  'no_display' => true),
+                                             ), ),
 
-        $this->_columns[$this->_customTable] = array( 'dao'     => 'CRM_Contact_DAO_Contact',
-                                                      'fields'  => $fields ,
-                                                      'filters' => $filters,
-                                                      );
-        $this->_columnHeaders = array( );
+                                $this->_customTable   =>
+                                array( 'dao'     => 'CRM_Contact_DAO_Contact',
+                                       'fields'  => $fields ,
+                                       'filters' => $filters,
+                                       ),
+
+                                'civicrm_contact' =>
+                                array( 'dao'       => 'CRM_Contact_DAO_Contact',
+                                       'fields'    => 
+                                       array( 'display_name' =>
+                                              array(
+                                                    'no_display' => true,
+                                                    'required'   => true,
+                                                    'title'      => ts('Teacher')
+                                                    ),
+                                              'id' =>
+                                              array(
+                                                    'no_display' => true,
+                                                    'required'   => true,
+                                                    ),
+                                              ),
+                                       'filters'   =>
+                                       array( 'sort_name_teacher' =>
+                                              array('name'  => 'sort_name',
+                                                    'title' => ts('Teacher Name'),
+                                                    'type'  => CRM_Utils_Type::T_STRING,
+                                                    ) ) ),
+                                                                
+                                 'civicrm_contact_student' =>
+                                array( 'dao'       => 'CRM_Contact_DAO_Contact',
+                                       'fields'   =>
+                                       array( 'display_name' =>
+                                              array(
+                                                    'no_display' => true,
+                                                    'required'   => true,
+                                                    'title'      => ts('Student')
+                                                    ),
+                                              'id' =>
+                                              array(
+                                                    'no_display' => true,
+                                                    'required'   => true,
+                                                    ), ),
+                                       'filters'   =>
+                                       array( 'sort_name_student' =>
+                                              array( 'name'  => 'sort_name',
+                                                     'title' => ts('Student Name'),
+                                                     'type'  => CRM_Utils_Type::T_STRING,
+                                                    ) )  ),
+
+                                'civicrm_contact_parent' =>
+                                array( 'dao'       => 'CRM_Contact_DAO_Contact',
+                                       'fields'   =>
+                                       array( 'display_name' =>
+                                              array(
+                                                    'no_display' => true,
+                                                    'required'   => true,
+                                                    'title'      => ts('Parent')
+                                                    ),
+                                              'id' =>
+                                              array(
+                                                    'no_display' => true,
+                                                    'required'   => true,
+                                                    ),
+                                              ) ),
+                                       );
+  
         parent::__construct( );
     }
 
@@ -161,16 +164,7 @@ class SFS_Report_Form_ParentTeacherConference extends CRM_Report_Form {
         parent::preProcess( );
     }
   
-    function select( $value ) {
-        $parentInfo = array( 'civicrm_contact', 'civicrm_contact_parent' , $this->_customTable );
-        $activityInfo = array( 'civicrm_contact', 'civicrm_contact_teacher', 'civicrm_activity' );
-        $fieldArray = array();
-        if( $value == 'parentInfo' ){
-            $fieldArray = $parentInfo;
-        } else {
-            $fieldArray = $activityInfo;
-        }
-        
+    function select( ) {
         $select = array( );
         $this->_columnHeaders = array( );
         foreach ( $this->_columns as $tableName => $table ) {
@@ -178,51 +172,39 @@ class SFS_Report_Form_ParentTeacherConference extends CRM_Report_Form {
                 foreach ( $table['fields'] as $fieldName => $field ) {
                     if ( CRM_Utils_Array::value( 'required', $field ) ||
                          CRM_Utils_Array::value( $fieldName, $this->_params['fields'] ) ) {
-                        if ( in_array( $tableName, $fieldArray  ) ) {
-                            
-                            $select[] = "{$field['dbAlias']} as {$tableName}_{$fieldName}";
-                            $this->_columnHeaders["{$tableName}_{$fieldName}"]['type']  = CRM_Utils_Array::value( 'type', $field );
-                            $this->_columnHeaders["{$tableName}_{$fieldName}"]['title'] = $field['title'];
-                        }
+                        
+                        $select[] = "{$field['dbAlias']} as {$tableName}_{$fieldName}";
+                        $this->_columnHeaders["{$tableName}_{$fieldName}"]['type']  = CRM_Utils_Array::value( 'type', $field );
+                        $this->_columnHeaders["{$tableName}_{$fieldName}"]['title'] = $field['title'];
                     }
                 }
-                }
+            }
         }
         
         $this->_select = "SELECT " . implode( ', ', $select ) . " ";
     }
     
 
-    function from( $value ) {
-
+    function from(  ) {
         $alias = $this->_aliases[$this->_customTable];
-        
-         $this->_from = " 
-                         FROM
-                            {$this->_customTable} {$alias} 
-                            INNER JOIN civicrm_contact {$this->_aliases['civicrm_contact']} 
-                                       ON  {$this->_aliases['civicrm_contact']}.id = {$alias}.entity_id";
-         
-         if( $value == 'parentInfo' ) {
-             
-             $this->_from .= " 
+        $this->_from = "FROM
+                              civicrm_activity_assignment activity_assignment
+                              INNER JOIN $this->_customTable sfschool
+                                           ON sfschool.entity_id = activity_assignment.assignee_contact_id  AND (sfschool.subtype='Teacher' OR sfschool.subtype='Staff')
+                              INNER JOIN civicrm_contact {$this->_aliases['civicrm_contact']}
+                                           ON {$this->_aliases['civicrm_contact']}.id = activity_assignment.assignee_contact_id
+                              INNER  JOIN civicrm_activity {$this->_aliases['civicrm_activity']}
+                                            ON ({$this->_aliases['civicrm_activity']}.id = activity_assignment.activity_id AND  {$this->_aliases['civicrm_activity']}.is_deleted=0 AND {$this->_aliases['civicrm_activity']}.is_test=0 )
+                              INNER JOIN civicrm_activity_target activity_target 
+                                            ON {$this->_aliases['civicrm_activity']}.id = activity_target.activity_id
+                              INNER JOIN civicrm_contact  {$this->_aliases['civicrm_contact_student']}
+                                            ON {$this->_aliases['civicrm_contact_student']}.id = activity_target.target_contact_id
+                              INNER JOIN $this->_customTable {$alias} 
+                                            ON ({$alias}.entity_id={$this->_aliases['civicrm_contact_student']}.id AND {$alias}.subtype='Student')
                               LEFT JOIN civicrm_relationship relationship
-                                        ON ( relationship.contact_id_a = {$alias}.entity_id AND
-                                             relationship.relationship_type_id = 1)
-                              INNER JOIN civicrm_contact {$this->_aliases['civicrm_contact_parent']}
-                                        ON ( {$this->_aliases['civicrm_contact_parent']}.id = relationship.contact_id_b )";
-         } else {
-             $this->_from .= "
-                              LEFT JOIN civicrm_activity_target target
-                                        ON target.target_contact_id = {$alias}.entity_id
-                              LEFT JOIN civicrm_activity_assignment assignment
-                                        ON assignment.activity_id =  target.activity_id 
-                              LEFT JOIN civicrm_activity {$this->_aliases['civicrm_activity']}
-                                        ON {$this->_aliases['civicrm_activity']}.id = target.activity_id
-                              INNER JOIN civicrm_contact {$this->_aliases['civicrm_contact_teacher']}
-                                        ON {$this->_aliases['civicrm_contact_teacher']}.id = assignment.assignee_contact_id ";
-                               
-         }
+                                             ON (relationship.relationship_type_id = 1 AND relationship.contact_id_a = {$this->_aliases['civicrm_contact_student']}.id AND relationship.is_active=1)
+                              LEFT JOIN civicrm_contact  {$this->_aliases['civicrm_contact_parent']}
+                                             ON {$this->_aliases['civicrm_contact_parent']}.id =  relationship.contact_id_b ";
     }
     
     function where( ) {
@@ -265,152 +247,47 @@ class SFS_Report_Form_ParentTeacherConference extends CRM_Report_Form {
                 }
             }
         }
-        
         if ( empty( $clauses ) ) {
-            $this->_where = "WHERE {$alias}.{$this->_typeField['column_name']}= '".$this->_typeField['value']."'";
+            $this->_where = "WHERE ( 1 ) ";
         } else {
-            $this->_where = "WHERE {$alias}.{$this->_typeField['column_name']}= '".$this->_typeField['value']."' AND " . implode( ' AND ', $clauses );
-        }
+            $this->_where = "WHERE " . implode( ' AND ', $clauses );
+        } 
+
     }
     
-    function groupBy( $value ) {
+    function groupBy( ) {
         
-        $alias = $this->_aliases[$this->_customTable];
-        $this->_groupBy = "";
-        
-        $groupBy = array( );
-        
-        $groupBy[] = " $alias.entity_id ";
-        
-        if( $value == 'parentInfo' ){
-            $groupBy[] = "{$this->_aliases['civicrm_contact_parent']}.id ";
-            
-        } else {
-            $groupBy[] = "target.activity_id ";
-        }
-        if( !empty($groupBy) ) {
-            $this->_groupBy = " GROUP BY ".implode(',', $groupBy );
-        }
-        
-    }
-    
-    function limit( $rowCount = self::ROW_COUNT_LIMIT ) {
-        parent::limit( $rowCount );
-    }
-    function setPager( $rowCount = self::ROW_COUNT_LIMIT ) {
-        parent::setPager( $rowCount );
+        $this->_groupBy = " GROUP BY {$this->_aliases['civicrm_contact']}.id,{$this->_aliases['civicrm_contact_student']}.id,{$this->_aliases['civicrm_contact_parent']}.id,{$this->_aliases['civicrm_activity']}.id";
     }
     
     function postProcess( ) {
-        $this->beginPostProcess( );
+        $this->beginPostProcess( ); 
         
-        $this->selectContacts( );
+        $removeHeaders = array ( 'civicrm_contact_id', 'civicrm_contact_parent_id', 'civicrm_contact_student_id');
         
-        $gradeAlias  = $this->_customTable.'_'.$this->_gradeField['column_name'];
-        $getData     = array( 'parentInfo', 'activityInfo' );
-        $columnUnset = array( 'civicrm_contact_display_name', 'civicrm_contact_id', $gradeAlias,'civicrm_contact_parent_id' ,'civicrm_contact_teacher_id');
-        
-        if ( !empty($this->studentsIds) ) {
-            $studentsIds = implode( ',', $this->studentsIds );
-            foreach( $getData as $value) {
-                $sql  = $this->buildQuery( $value );
-                
-                $rows = array( ); 
-                $dao  = CRM_Core_DAO::executeQuery( $sql );
-                
-                if( $value == 'parentInfo' ) {
-                    $contactSelected = array( );
-                    $headersParentInfo =  $this->_columnHeaders;     
-                    foreach( $headersParentInfo as $headKey => $header) {
-                        if( in_array( $headKey,  $columnUnset ) ) {
-                            unset( $headersParentInfo[$headKey] );
-                        }
-                    }
-                    $parentInfo = array( );
-                    
-                    while( $dao->fetch( ) ) {
-                        $contactSelected[$dao->civicrm_contact_id] = array ( 'display_name' =>  $dao->civicrm_contact_display_name,
-                                                                             'grade'=> $dao->$gradeAlias );
-                        $row = array( );
-                        foreach ( $headersParentInfo as $key => $val ) {
-                            if ( property_exists( $dao, $key ) ) {
-                                $row[$key] = $dao->$key;
-                            }
-                        }
-                        $rows[$dao->civicrm_contact_id][] = $row;
-                    }
-                    
-                    $this->assign( 'headersParentInfo', $headersParentInfo );
-                    $this->assign( 'contactSelected', $contactSelected );
-                    $this->assign( 'paraentInfo' , $rows );
-                    $this->_columnHeaders= array();
-                    $dao->free();
-                } else { 
-                    $headersActivityInfo =  $this->_columnHeaders;
-                    foreach( $headersActivityInfo as $headKey => $header) {
-                        if( in_array( $headKey,  $columnUnset ) ) {
-                            unset( $headersActivityInfo[$headKey] );
-                        }
-                    }
-                    
-                    while( $dao->fetch( ) ) {
-                        $row = array( );
-                        foreach ( $headersActivityInfo as $key => $val ) {
-                            if ( property_exists( $dao, $key ) ) {
-                                $row[$key] = $dao->$key;
-                            }
-                        }
-                        
-                        $rows[$dao->civicrm_contact_id][] = $row;
-                    }
-                    
-                    $this->assign( 'headersActivityInfo', $headersActivityInfo );
-                    $this->assign( 'activityInfo', $rows );
-                    $dao->free();
-                }
+        $sql = $this->buildQuery( );
+        $this->buildRows ( $sql, $rows );
+        $tempHeaders = $this->_columnHeaders;
+
+        foreach( $tempHeaders as $field => $header ) {
+            if( in_array($field, $removeHeaders) ) {
+                unset($tempHeaders[$field]);
             }
         }
 
-        $this->formatDisplay( $this->studentsIds , false );
+        // add activity subject in last column
+        $field = 'civicrm_activity_subject';
+        $lastColumn[$field] = $tempHeaders[$field];
+        unset($tempHeaders[$field]);
         
-        $this->doTemplateAssignment( $this->studentsIds );
+        $this->formatDisplay($rows );
+        $this->_columnHeaders = array_merge( $tempHeaders,$lastColumn );
         
-        $this->endPostProcess( $this->studentsIds );
+        $this->doTemplateAssignment($rows );
         
-    }
-    
-    function buildQuery( $value ) {
-        $studentsIds = implode( ',',$this->studentsIds );
-        $alias = $this->_aliases[$this->_customTable];
-        $this->select ($value );
-        $this->from   ($value );
-        $this->_where = "WHERE $alias.entity_id IN ($studentsIds) ";
-        $this->groupBy($value );
-        $this->orderBy($value );
-        
-        $sql = "{$this->_select} {$this->_from} {$this->_where} {$this->_groupBy} {$this->_having} {$this->_orderBy} ";
-        
-        return $sql;
-    }
-    
-    function selectContacts( ) {
-        $this->studentsIds = array();
-        $alias = $this->_aliases[$this->_customTable];
-        $this->_select = "SELECT DISTINCT({$alias}.entity_id)";
-        $this->_from   = "FROM {$this->_customTable} $alias
-                               INNER JOIN civicrm_contact {$this->_aliases['civicrm_contact']}
-                                   ON {$this->_aliases['civicrm_contact']}.id = {$alias}.entity_id";
-        $this->where() ;
-        $this->limit();
-        
-        $query = "{$this->_select}{$this->_from} {$this->_where}{$this->_limit}";
-        $dao   = CRM_Core_DAO::executeQuery( $query );
-        while( $dao->fetch( ) ) {
-            $this->studentsIds[] = $dao->entity_id;
-        }
-        
-        $this->setPager( );   
-    }
+        $this->endPostProcess($rows );
+
+    } 
 
     
 }
