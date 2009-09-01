@@ -43,7 +43,9 @@ class SFS_Report_Form_ParentTeacherConference extends CRM_Report_Form {
     protected $_typeField   = array( 'column_name'  => 'subtype',
                                      'value'        => 'Student' );
     protected $_gradeField  = array( 'column_name'  => 'grade' );
- 
+    
+    protected $_actvityTypeId = 20;
+
     function __construct( ) {
 
         $fields = array( );
@@ -82,12 +84,11 @@ class SFS_Report_Form_ParentTeacherConference extends CRM_Report_Form {
                                 'civicrm_activity'      =>
                                 array( 'dao'     => 'CRM_Activity_DAO_Activity',
                                        'fields'  =>
-                                       array( 'activity_date_time' => array( 'title'      => ts('Date'),
-                                                                             'no_display' => true, 
-                                                                             'required'   => true ),
-                                              'subject' => array( 'title'      => ts('Activity'),
-                                                                  'required'   => true,
-                                                                  'no_display' => true),
+                                       array( 'activity_date_time' => array( 'title'        => ts('Date'),
+                                                                             'no_display'   => true, 
+                                                                             'required'     => true,
+                                                                             'type'         => CRM_Utils_Type::T_TIME,
+                                                                             ),
                                              ), ),
 
                                 $this->_customTable   =>
@@ -194,7 +195,7 @@ class SFS_Report_Form_ParentTeacherConference extends CRM_Report_Form {
                               INNER JOIN civicrm_contact {$this->_aliases['civicrm_contact']}
                                            ON {$this->_aliases['civicrm_contact']}.id = activity_assignment.assignee_contact_id
                               INNER  JOIN civicrm_activity {$this->_aliases['civicrm_activity']}
-                                            ON ({$this->_aliases['civicrm_activity']}.id = activity_assignment.activity_id AND  {$this->_aliases['civicrm_activity']}.is_deleted=0 AND {$this->_aliases['civicrm_activity']}.is_test=0 )
+                                            ON ({$this->_aliases['civicrm_activity']}.id = activity_assignment.activity_id AND  {$this->_aliases['civicrm_activity']}.is_deleted=0 AND {$this->_aliases['civicrm_activity']}.is_test=0 AND {$this->_aliases['civicrm_activity']}.activity_type_id={$this->_actvityTypeId} )
                               INNER JOIN civicrm_activity_target activity_target 
                                             ON {$this->_aliases['civicrm_activity']}.id = activity_target.activity_id
                               INNER JOIN civicrm_contact  {$this->_aliases['civicrm_contact_student']}
@@ -274,20 +275,95 @@ class SFS_Report_Form_ParentTeacherConference extends CRM_Report_Form {
                 unset($tempHeaders[$field]);
             }
         }
-
-        // add activity subject in last column
-        $field = 'civicrm_activity_subject';
-        $lastColumn[$field] = $tempHeaders[$field];
-        unset($tempHeaders[$field]);
-        
+       
         $this->formatDisplay($rows );
-        $this->_columnHeaders = array_merge( $tempHeaders,$lastColumn );
+        $this->_columnHeaders = $tempHeaders;
         
         $this->doTemplateAssignment($rows );
         
         $this->endPostProcess($rows );
 
     } 
+    
+    function alterDisplay( &$rows ) {
+        $entryFound = false;
+       
+      	$flag_teacher   = $flag_student = 0;
+        
+        foreach ( $rows as $rowNum => $row ) {
+            if ( array_key_exists('civicrm_activity_activity_date_time', $row) ) {
+                $rows[$rowNum]['civicrm_activity_activity_date_time'] = 
+                    CRM_Utils_Date::customFormat( $row['civicrm_activity_activity_date_time'] );
+                $entryFound = true;
+            }
+            
+            // remove repeat for  Teacher
+            if ( array_key_exists('civicrm_contact_display_name', $row) ) {
+                if ( $value = $row['civicrm_contact_id'] ) {
+                    if( $rowNum == 0 ) {
+                        $privious_teacher = $value;
+                    } else {
+                        if( $privious_teacher == $value ) {
+                            $flag_teacher     = 1;
+                            $privious_teacher = $value;
+                        } else { $flag_teacher =0; $privious_teacher=$value; }
+                    }
+                    
+                    if(  $flag_teacher == 1 ) {
+                        // hide columns for Teacher
+                        $rows[$rowNum]['civicrm_contact_display_name'] = "";          
+                    } else {
+                        $url = CRM_Utils_System::url( "civicrm/contact/view",  
+                                                      'reset=1&cid=' . $value );
+                        $rows[$rowNum]['civicrm_contact_display_name_link' ] = $url;
+                        $rows[$rowNum]['civicrm_contact_display_name_hover'] = 
+                            ts("View Contact Summary for this Contact");
+                    }
+                    $entryFound = true;
+                }
+            }
+
+            // remove repeat for Student
+            if ( array_key_exists('civicrm_contact_student_display_name', $row) ) {
+                if ( $value = $row['civicrm_contact_student_id'] ) {
+                    if ( $rowNum == 0 ) {
+                        $privious_student = $value;
+                    } else {
+                        if( $privious_student == $value ) {
+                            $flag_student     = 1;
+                            $privious_student = $value;
+                        } else { 
+                            $flag_student     = 0;
+                            $privious_student = $value;
+                        }
+                    }
+
+                    if( $flag_teacher == 1 && $flag_student == 1 ) {
+                        // hide columns for student
+                        $rows[$rowNum]['civicrm_contact_student_display_name']     = "";
+                        $rows[$rowNum]['civicrm_activity_activity_date_time']      = "";
+                        $rows[$rowNum]['civicrm_value_school_information_1_grade'] = "";
+                        $rows[$rowNum]['civicrm_activity_subject']                 = "";
+
+                    } else {
+                        $url = CRM_Utils_System::url( "civicrm/contact/view",  
+                                                      'reset=1&cid=' . $value );
+                        $rows[$rowNum]['civicrm_contact_student_display_name_link' ] = $url;
+                        $rows[$rowNum]['civicrm_contact_student_display_name_hover'] = 
+                            ts("View Contact Summary for this Contact");
+                    }
+                    $entryFound = true;
+                }
+            }
+
+            
+            // skip looking further in rows, if first row itself doesn't 
+            // have the column we need
+            if ( !$entryFound ) {
+                        break;
+            }
+        }
+    }
 
     
 }
