@@ -36,7 +36,7 @@
     <td>&nbsp;</td>
 {/if}
 {if $editClass}
-  <td><a href='{$config->userFrameworkBaseURL}civicrm/sfschool/class/edit?index={$class.index}&reset=1'>Edit</a></td>	
+  <td>{$class.action}</a></td>	
 {/if}
   </tr>
   {/foreach}
@@ -86,7 +86,7 @@
     <td>&nbsp;</td>
 {/if}
 {if $editClass}
-  <td><a href='{$config->userFrameworkBaseURL}civicrm/sfschool/class/edit?index={$class.index}&reset=1'>Edit</a></td>	
+  <td>{$class.action}</td>	
 {/if}
   </tr>
   {/foreach}

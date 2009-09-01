@@ -16,9 +16,4 @@
      <page_callback>SFS_Page_Info</page_callback>
      <access_arguments>profile listings and forms</access_arguments>
   </item>
-  <item>
-     <path>civicrm/sfschool/class/edit</path>
-     <page_callback>SFS_Form_ClassEdit</page_callback>
-     <access_arguments>profile listings and forms</access_arguments>
-  </item>  
 </menu>

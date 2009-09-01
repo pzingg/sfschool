@@ -230,12 +230,10 @@ AND    %2 <= max_grade
                        'min_grade'        => $dao->min_grade,
                        'max_grade'        => $dao->max_grade,
                        'url'              => $url,
-                       'location'         => $dao->location
+                       'location'         => $dao->location,
+                       'index'            => $dao->id
                        );
-            if( CRM_Core_Permission::check( 'Administer Extended Care Information' ) ) {
-                $_all[$grade][$dao->day_of_week][$dao->session]['details'][$id]['index'] = $dao->id;
-            }
-                   
+
         }
 
         return $_all[$grade];
