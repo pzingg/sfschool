@@ -61,7 +61,7 @@
      <th style="width: 20%">Location</th>
      <th style="width: 10%">&nbsp;</th>
 {if $editClass}
-     <th style="width: 10%">&nbsp;XXXX</th>
+     <th style="width: 10%">&nbsp;</th>
 {/if}
   </tr>
   {foreach from=$dayValues item=class}
