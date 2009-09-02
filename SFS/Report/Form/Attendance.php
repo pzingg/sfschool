@@ -36,11 +36,7 @@
 require_once 'CRM/Report/Form.php';
 
 class SFS_Report_Form_Attendance extends CRM_Report_Form {
-    const 
-        EXTRA_ROWS_MIN = 0,
-        EXTRA_ROWS_MAX = 10,
-        EXTRA_ROWS_DEFAULT = 5;
-    
+
     // set custom table name
     protected $_customTable   = 'civicrm_value_extended_care_2';  
     
@@ -96,11 +92,6 @@ AND    term = %1
             $sOptions[$dao->session_name] = $dao->session_name;
         }
 
-        $eOptions = array( );
-        for ( $i = self::EXTRA_ROWS_MIN; $i <= self::EXTRA_ROWS_MAX; $i++ ) {
-            $eOptions[$i] = $i;
-        }
-
         $this->_columns[$this->_customTable] = 
             array( 'dao'     => 'CRM_Contact_DAO_Contact',
                    'filters' =>             
@@ -109,17 +100,6 @@ AND    term = %1
                          array( 'title'   => ts( 'Day Of Week' ),
                                 'operatorType' => CRM_Report_Form::OP_SELECT,
                                 'options'      => $this->_optionFields[$this->_colMapper['dayOfWeek']] ),
-                         'session'       =>
-                         array( 'title'        => ts('Sign Out Columns'),
-                                'default'      => array( 'first', 'second', 'third' ),
-                                'operatorType' => CRM_Report_Form::OP_MULTISELECT,
-                                'options'      => $this->_sesionOrder ),
-                         'extra_rows'    => 
-                         array( 'title'   => ts( 'Extra Rows' ),
-                                'default' => self::EXTRA_ROWS_DEFAULT,
-                                'type'         => CRM_Utils_Type::T_INT,
-                                'operatorType' => CRM_Report_Form::OP_SELECT,
-                                'options'      => $eOptions ),
                           ),
                    );
         parent::__construct( );
@@ -136,19 +116,14 @@ AND    term = %1
         $this->beginPostProcess( );
 
         $sessionHeaders = array();
-        if( empty($this->_params['session_value']) ) {
-            //if session filter is empty, display 'Sign Out' header 
-            $sessionHeaders['signOut'] = array('title'=> 'Sign Out' );  
-        } else {
-            foreach( $this->_params['session_value'] as $value ) {
-                $sessionHeaders[$value] = array('title'=> $this->_sesionOrder[$value],
-                                                'type' => 'signout');
-            }
+        foreach( $this->_sesionOrder as $value => $time ) {
+            $sessionHeaders[$value] = array( 'title'=> $time ,
+                                             'type' => 'signout' );
         }
-
+        
         $sql  = "
 SELECT distinct value_extended_care_2_civireport.{$this->_colMapper['sessionName']} as session_name, 
-       value_extended_care_2_civireport.{$this->_colMapper['sessionOrder']} as session_order 
+       value_extended_care_2_civireport.{$this->_colMapper['sessionOrder']} as session_order,  additional_rows as extra_rows
 FROM   sfschool_extended_care_source value_extended_care_2_civireport
 WHERE  is_active = 1
 AND    term = %1
@@ -200,9 +175,13 @@ GROUP BY contact_civireport.id;
                 }
                 $rows[$sname->session_name][] = $row;
             } 
-            for ($i = 1; $i <= $this->_params['extra_rows_value']; $i++) {
-                $rows[$sname->session_name][] = array('contact_civireport_display_name' => '&nbsp;<br/>&nbsp;');
+
+            if( $sname->extra_rows ) {
+                for ($i = 1; $i <= $sname->extra_rows ; $i++) {
+                    $rows[$sname->session_name][] = array('contact_civireport_display_name' => '&nbsp;<br/>&nbsp;');
+                }
             }
+
             if ( empty($rows[$sname->session_name]) ) {
                 unset($rows[$sname->session_name]);
             }
