@@ -35,7 +35,7 @@
 
 class SFS_Utils_Query {
 
-    static function checkSubType( $id, $subType = 'Student', $abort = true ) {
+    static function checkSubType( $id, $subType = 'Student', $redirect = true ) {
         $entitySubType = self::getSubType( $id );
 
         if ( ! is_array( $subType ) ) {
@@ -43,10 +43,12 @@ class SFS_Utils_Query {
         }
 
         if ( ! in_array( $entitySubType, $subType ) ) {
-            if ( $abort ) {
-                $subType = implode( ',', $subType );
-                CRM_Core_Error::fatal( "The subtypes of the contact and the profile do not match: ( $id, Expected: $subType Actual: $entitySubType )" );
-                exit( );
+            if ( $redirect ) {
+                $config = CRM_Core_Config::singleton( );
+                CRM_Utils_System::redirect( $config->userFrameworkBaseURL );
+                // $subType = implode( ',', $subType );
+                // CRM_Core_Error::fatal( "The subtypes of the contact and the profile do not match: ( $id, Expected: $subType Actual: $entitySubType )" );
+                // exit( );
             }
             return false;
         }
