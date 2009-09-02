@@ -119,23 +119,16 @@ class SFS_Form_Class extends CRM_Core_Form
         $dao = CRM_Core_DAO::executeQuery( $sql );
         while( $dao->fetch( ) ) {
             $options[$dao->column_name] = CRM_Core_OptionGroup::valuesByID($dao->option_group_id);
-            
         }
-        
         
         $this->add('select', 'term',  ts( 'Term' ), array(''=>'-select')+$options['term'] , true );
         $this->add('select', 'day_of_week', ts( 'Day Of Week:' ), array(''=>'-select')+$options['day_of_week'], true );
-        
         $this->add('select', 'session', ts( 'Session:' ), array(''=>'-select')+ $options['session'], true );
-        
         $this->add('select', 'max_grade', ts( 'Max Grade:' ), array(''=>'-select')+ $options['grade'],true );
         $this->add('select', 'min_grade', ts( 'Min Grade:' ), array(''=>'-select')+$options['grade'],true );
-        
         $this->add('text', 'name', ts( 'Class Name:' ),null, true);
-        
         $this->add('date', 'start_date',  ts('Start Date'), CRM_Core_SelectValues::date( 'custom', 10, 2 ) );
         $this->add('date', 'end_date',  ts('End Date'), CRM_Core_SelectValues::date( 'custom', 10, 2 ) );
-        
         $this->add('text', 'instructor', ts( 'Instructor:' ) );
         $this->add('text', 'fee_block', ts( 'Fee Block:' ) );
         $this->add('text', 'max_participants', ts( 'Max Participant:' ) );
@@ -152,8 +145,6 @@ class SFS_Form_Class extends CRM_Core_Form
                           );    
         
         $this->assign( 'elements', $this->_customFields );
-        
-        
     }
      
      
@@ -163,19 +154,15 @@ class SFS_Form_Class extends CRM_Core_Form
 
              if( $this->_indexID )  { 
                  $sql = "UPDATE sfschool_extended_care_source SET is_active=0 WHERE id=".$this->_indexID;
-                  CRM_Core_DAO::executeQuery( $sql);
-                
+                 CRM_Core_DAO::executeQuery( $sql);
                  CRM_Core_Session::setStatus( ts('Class has been has been Disabled.') );
-                 CRM_Utils_System::redirect( CRM_Utils_System::url('civicrm/sfschool/class', "reset=1") );
              } 
 
          } elseif( $this->_action & CRM_Core_Action::ENABLE ) {
              if( $this->_indexID )  {
                  $sql = "UPDATE sfschool_extended_care_source SET is_active=1 WHERE id=".$this->_indexID;
-                  CRM_Core_DAO::executeQuery( $sql);
-                
+                 CRM_Core_DAO::executeQuery( $sql);
                  CRM_Core_Session::setStatus( ts('Class has been has been Enabled.') );
-                 CRM_Utils_System::redirect( CRM_Utils_System::url('civicrm/sfschool/class', "reset=1") );
              }
 
          }else {
@@ -198,9 +185,8 @@ class SFS_Form_Class extends CRM_Core_Form
                  $statusMsg = ts("Class Has been edited Successfully");
                  CRM_Core_Session::setStatus( $statusMsg );
              }
-             
          }
-         
+         CRM_Utils_System::redirect( CRM_Utils_System::url('civicrm/sfschool/class', "reset=1") );
      }
 }   
      

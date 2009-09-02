@@ -71,39 +71,24 @@ function &actionLinks()
     function run( ) {
 
         $action = CRM_Utils_Request::retrieve('action', 'String',
-                                              $this, false, 0 ); // default to 'browse'
-        // assign vars to templates
+                                              $this, false, 0 ); 
         $this->assign('action', $action);
+
         $id = CRM_Utils_Request::retrieve('id', 'Positive',
                                           $this, false, 0);
-        // set breadcrumb
-        $breadCrumb = array( array('title' => ts('Class Information'),
-                                   'url'   => CRM_Utils_System::url( CRM_Utils_System::currentPath( ), 
-                                                                     'reset=1' )) );
-        if ( $action ) {
-            $validAction = false;
+ 
+        if ( $action  && array_key_exists( $action, self::actionLinks( ) ) ) {
+            // set breadcrumb
+            $breadCrumb = array( array('title' => ts('Class Information'),
+                                       'url'   => CRM_Utils_System::url( CRM_Utils_System::currentPath( ), 'reset=1' )) );
+                                                                         
             CRM_Utils_System::appendBreadCrumb( $breadCrumb );
+             CRM_Utils_System::setTitle( ts('Configure Class') );
             $session =& CRM_Core_Session::singleton();
-            if ($action & CRM_Core_Action::UPDATE ) {
-                $session->pushUserContext( CRM_Utils_System::url( CRM_Utils_System::currentPath( ), 'reset=1&action=update' ) );  
-                CRM_Utils_System::setTitle( ts('Edit Class') );
-                $validAction = true;
-            } else if ($action & CRM_Core_Action::DISABLE ) { 
-                $session->pushUserContext( CRM_Utils_System::url( CRM_Utils_System::currentPath( ), 'reset=1&action=disable' ) );
-                CRM_Utils_System::setTitle( ts('Disable Class') );
-                $validAction = true;
-            } else if ($action & CRM_Core_Action::ENABLE ) { 
-                $session->pushUserContext( CRM_Utils_System::url( CRM_Utils_System::currentPath( ), 'reset=1&action=enable' ) );
-                CRM_Utils_System::setTitle( ts('Enable Class') );
-                $validAction = true;
-            }
-            
-            if ( $validAction ) {
-                $controller =& new CRM_Core_Controller_Simple( 'SFS_Form_Class' ,'Configure Class');
-                $controller->set('id', $id);
-                $controller->process( );
-                return $controller->run( );
-            }
+            $session->pushUserContext( CRM_Utils_System::url( CRM_Utils_System::currentPath( ), 'reset=1' ) );
+            $controller =& new CRM_Core_Controller_Simple( 'SFS_Form_Class' ,'Configure Class');
+            $controller->process( );
+            return $controller->run( );
         } else {
             $this->browse();
             CRM_Utils_System::setTitle( ts('Class') );
