@@ -5,18 +5,38 @@
 <div class="messages status"> 
         <dl> 
             <dt><img src="{$config->resourceBase}i/Inform.gif" alt="{ts}status{/ts}" /></dt> 
-            <dd>{ts}Do you want to Disable selected Class?{/ts}
-        </dl> 
-    </div> 
+            <dd>{ts}Do you want to Disable following Class?{/ts}</dd>
+       </dl>
+</div>
+<fieldset><legend>Class Deatils</legend>
+          <dl>
+	      {foreach from=$classDetail item=field }
+	          <dt>{$field.title} :</dt><dd> {$field.value}</dd>
+	      {/foreach}
+              {if $moreInfo}
+                 <dt></dt><dd><a href="javascript:popUp('{$moreInfo}')">More Info</a></dd>
+              {/if}
+         </dl>
+</fieldset>
 {/if}
 {if $action eq 32}
 <legend> Enable Class </legend>
 <div class="messages status"> 
         <dl> 
             <dt><img src="{$config->resourceBase}i/Inform.gif" alt="{ts}status{/ts}" /></dt> 
-            <dd>{ts}Do you want to Enable selected Class?{/ts}
+            <dd>{ts}Do you want to Enable following Class?{/ts}</dd>
         </dl> 
-    </div> 
+</div> 
+<fieldset><legend>Class Deatils</legend>
+          <dl>
+	      {foreach from=$classDetail item=field }
+	          <dt>{$field.title} :</dt><dd> {$field.value}</dd>
+	      {/foreach}
+              {if $moreInfo}
+                 <dt></dt><dd><a href="javascript:popUp('{$moreInfo}')">More Info</a></dd>
+              {/if}
+         </dl>
+</fieldset>
 {/if}
 {if $action eq 2}
 <legend> Edit Class Information </legend>

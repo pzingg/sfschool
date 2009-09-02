@@ -57,7 +57,7 @@ class SFS_Form_Class extends CRM_Core_Form
             return;
         } 
   
-        $this->_customFields =  array('term','session','name','day_of_week','min_grade','max_grade','start_date','end_date','instructor','fee_block','max_participants','location','url');
+        $this->_customFields =  array('term','session','name','day_of_week','min_grade','max_grade','start_date','end_date','instructor','fee_block','max_participants','location','url','additional_rows' );
         
         parent::preProcess();
         
@@ -94,6 +94,32 @@ class SFS_Form_Class extends CRM_Core_Form
     {
         if ( ( $this->_action & CRM_Core_Action::DISABLE ) ||
               ( $this->_action & CRM_Core_Action::ENABLE ) ) {
+            
+            $classDetail = array( );
+            if( $this->_indexID ) {
+                $classDetail = array( 'name'        => array( 'title' => ts('Class')),
+                                      'day_of_week' => array( 'title' => ts('Day Of week'),),
+                                      'session'     => array( 'title' => ts('Session'),),
+                                      'term' 	    => array( 'title' => ts('Term'),), ) ;               
+                
+                $sql = "SELECT * FROM sfschool_extended_care_source where id=".$this->_indexID;
+                $dao = CRM_Core_DAO::executeQuery( $sql);
+                while( $dao->fetch() ) {
+                    foreach( $classDetail as $field => $value ) {
+                        $classDetail[$field]['value'] = $dao->$field;
+                    }
+                    if ( strstr($dao->url, 'http:') || strstr($dao->url, 'https:') ) {
+                        $url = $dao->url;
+                    } else if ( $dao->url ) {
+                        $urlParts = explode(';;', $dao->url);
+                        $url = CRM_Utils_System::url( $urlParts[0], $urlParts[1] );
+                    } else {
+                        $url = null;
+                    }
+                    $this->assign( 'moreInfo', $url );
+                }
+            }
+            $this->assign( 'classDetail', $classDetail );
             
             if( $this->_action & CRM_Core_Action::DISABLE ) {
                 $buttonLabel = ts('Disable');
@@ -134,6 +160,8 @@ class SFS_Form_Class extends CRM_Core_Form
         $this->add('text', 'max_participants', ts( 'Max Participant:' ) );
         $this->add('text', 'location', ts( 'Location:' ) );
         $this->add('text', 'url', ts( 'Url:' ));
+        $this->add('text', 'additional_rows', ts( 'Additional Rows:' ) );
+        $this->addRule( 'additional_rows', ts('Please enter valid Rows'), 'positiveInteger' );
         
         $this->addButtons(array(
                                 array ( 'type'      => 'submit',
