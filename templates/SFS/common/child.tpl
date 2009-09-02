@@ -34,5 +34,9 @@
 <a href="{$childInfo.extendedCareEdit}">Manage extended care schedule for {$childInfo.name}</a>
 </div>
 {/if}
+<div>
+<br/>
+<a href="http://www.sfschool.org/programs/extended/extended_day_schedule.pdf">Download the Extended Care Program Schedule and Details</a>
+</div>
 </fieldset>
 {/if}

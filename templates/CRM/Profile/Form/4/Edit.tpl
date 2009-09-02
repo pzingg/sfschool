@@ -139,7 +139,7 @@
 {if $extendedCareElements}
 
 <fieldset>
-<legend>Extended Care Information</legend>
+<legend>Extended Care Information (<a href="http://www.sfschool.org/programs/extended/extended_day_schedule.pdf">Program Schedule and Details</a>)</legend>
 <table class="form-layout-compressed">
 {foreach from=$extendedCareElements item=extendedCareName}
 <tr>
