@@ -152,6 +152,7 @@ SELECT distinct value_extended_care_2_civireport.{$this->_colMapper['sessionName
 FROM   sfschool_extended_care_source value_extended_care_2_civireport
 WHERE  is_active = 1
 AND    term = %1
+AND   {$this->_colMapper['dayOfWeek']} = '{$this->_params['weekday_value']}'
 ";
         $params = array( 1 => array( SFS_Utils_ExtendedCare::getTerm( ), 'String' ) );
         $sname = CRM_Core_DAO::executeQuery( $sql, $params );
@@ -170,7 +171,9 @@ LEFT   JOIN civicrm_relationship relationship ON
 LEFT   JOIN civicrm_contact parent ON parent.id=relationship.contact_id_b 
 WHERE  value_extended_care_2_civireport.{$this->_colMapper['sessionName']} = '{$sname->session_name}' AND 
        value_extended_care_2_civireport.{$this->_colMapper['dayOfWeek']} = '{$this->_params['weekday_value']}' AND
-       value_extended_care_2_civireport.{$this->_colMapper['isCancelled']} != 1";
+       value_extended_care_2_civireport.{$this->_colMapper['isCancelled']} != 1
+GROUP BY contact_civireport.id;
+";
 
             $this->_columnHeaders = 
                 array( 'contact_civireport_id' => array( 'no_display' => true ),
