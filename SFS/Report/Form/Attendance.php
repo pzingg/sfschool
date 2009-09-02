@@ -50,6 +50,13 @@ class SFS_Report_Form_Attendance extends CRM_Report_Form {
                                     'sessionOrder' => 'session',
                                     'isCancelled'  => 'has_cancelled',
                                     );
+    
+    //set time for Sign out columns
+    protected $_sesionOrder = array( 'first'  => '3.30pm- 4.30pm',
+                                     'second' => '4.30pm- 5.15pm',
+                                     'third'  => '5.15pm- 6.15pm',
+                                     );
+    
     function __construct( ) {
         $this->_columns = array( );
         
@@ -94,17 +101,6 @@ AND    term = %1
             $eOptions[$i] = $i;
         }
 
-        $query   = "
-SELECT value,label  
-FROM  civicrm_option_value op_value 
-WHERE option_group_id =(SELECT option_group_id FROM civicrm_custom_field where column_name='".$this->_colMapper['sessionOrder']."')";
-        
-        $dao = CRM_Core_DAO::executeQuery( $query );
-        $oOptions = array();
-        while( $dao->fetch( ) ) {
-            $oOptions[$dao->value] = $dao->label;
-        }
-
         $this->_columns[$this->_customTable] = 
             array( 'dao'     => 'CRM_Contact_DAO_Contact',
                    'filters' =>             
@@ -115,9 +111,9 @@ WHERE option_group_id =(SELECT option_group_id FROM civicrm_custom_field where c
                                 'options'      => $this->_optionFields[$this->_colMapper['dayOfWeek']] ),
                          'session'       =>
                          array( 'title'        => ts('Sign Out Columns'),
-                                'default'      => array( 'First', 'Second' ),
+                                'default'      => array( 'first', 'second', 'third' ),
                                 'operatorType' => CRM_Report_Form::OP_MULTISELECT,
-                                'options'      => $oOptions ),
+                                'options'      => $this->_sesionOrder ),
                          'extra_rows'    => 
                          array( 'title'   => ts( 'Extra Rows' ),
                                 'default' => self::EXTRA_ROWS_DEFAULT,
@@ -138,20 +134,15 @@ WHERE option_group_id =(SELECT option_group_id FROM civicrm_custom_field where c
     
     function postProcess( ) {
         $this->beginPostProcess( );
-        
-        //set time for session order keys
-        $sesionOrder = array( 'First'  => '3.30pm- 4.30pm',
-                              'Second' => '4.30pm- 5.15pm',
-                              'Third'  => '5.15pm- 6.15pm',
-                              'Forth'  => '6.15pm- 7.00pm');
-        
+
         $sessionHeaders = array();
         if( empty($this->_params['session_value']) ) {
             //if session filter is empty, display 'Sign Out' header 
             $sessionHeaders['signOut'] = array('title'=> 'Sign Out' );  
         } else {
             foreach( $this->_params['session_value'] as $value ) {
-                $sessionHeaders[$value] = array('title'=> $sesionOrder[$value] );
+                $sessionHeaders[$value] = array('title'=> $this->_sesionOrder[$value],
+                                                'type' => 'signout');
             }
         }
 
@@ -169,9 +160,14 @@ AND    term = %1
         while( $sname->fetch( ) ) {
             $sql  = "
 SELECT contact_civireport.id as contact_civireport_id, 
-       contact_civireport.display_name as contact_civireport_display_name, '' as SignIn, '' as SignOut
+       contact_civireport.display_name as contact_civireport_display_name, '' as SignIn, '' as SignOut , 
+       GROUP_CONCAT(DISTINCT parent.display_name ORDER BY parent.display_name SEPARATOR ',<br/>') as parent_name
 FROM   civicrm_value_extended_care_2 value_extended_care_2_civireport
 INNER  JOIN civicrm_contact as contact_civireport ON value_extended_care_2_civireport.entity_id = contact_civireport.id
+LEFT   JOIN civicrm_relationship relationship ON 
+       (relationship.contact_id_a=contact_civireport.id AND 
+        relationship.relationship_type_id=1 AND relationship.is_active=1)
+LEFT   JOIN civicrm_contact parent ON parent.id=relationship.contact_id_b 
 WHERE  value_extended_care_2_civireport.{$this->_colMapper['sessionName']} = '{$sname->session_name}' AND 
        value_extended_care_2_civireport.{$this->_colMapper['dayOfWeek']} = '{$this->_params['weekday_value']}' AND
        value_extended_care_2_civireport.{$this->_colMapper['isCancelled']} != 1";
@@ -179,6 +175,7 @@ WHERE  value_extended_care_2_civireport.{$this->_colMapper['sessionName']} = '{$
             $this->_columnHeaders = 
                 array( 'contact_civireport_id' => array( 'no_display' => true ),
                        'contact_civireport_display_name' => array( 'title' => 'Name' ),
+                       'parent_name' => array( 'title' => 'Parent' ),
                        'SignIn'  => array( 'title' => 'Sign In&nbsp;' ),
                        );
             $this->_columnHeaders = array_merge( $this->_columnHeaders, $sessionHeaders );
@@ -188,6 +185,10 @@ WHERE  value_extended_care_2_civireport.{$this->_colMapper['sessionName']} = '{$
             $dao  = CRM_Core_DAO::executeQuery( $sql );
             
             while( $dao->fetch( ) ) {
+                if( property_exists( $dao, 'contact_civireport_id' ) ) {
+                    if( !$dao->contact_civireport_id ) 
+                         continue;
+                }
                 $row = array( );
                 foreach ( $this->_columnHeaders as $key => $value ) {
                     if ( property_exists( $dao, $key ) ) {
@@ -195,14 +196,14 @@ WHERE  value_extended_care_2_civireport.{$this->_colMapper['sessionName']} = '{$
                     }
                 }
                 $rows[$sname->session_name][] = $row;
-            }
+            } 
             for ($i = 1; $i <= $this->_params['extra_rows_value']; $i++) {
                 $rows[$sname->session_name][] = array('contact_civireport_display_name' => '&nbsp;<br/>&nbsp;');
             }
             if ( empty($rows[$sname->session_name]) ) {
                 unset($rows[$sname->session_name]);
             }
-        }
+        }        
         $this->formatDisplay( $rows );
 
         $this->assign_by_ref( 'sessionInfo', $sessionInfo );

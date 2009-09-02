@@ -1,13 +1,14 @@
 {include file="CRM/Report/Form/Fields.tpl"}
-    
+ 
+{if $outputMode eq 'html'}   
 {*Statistics at the Top of the page*}
 {include file="CRM/Report/Form/Statistics.tpl" top=true}
-{*if $printOnly}
+{/if}
+{if $printOnly}
     <h1>{$reportTitle}</h1>
     <div id="report-date">{$reportDate}</div>
 {/if}
 <br/>
-*}
     
 {*include the graph*}
 {include file="CRM/Report/Form/Layout/Graph.tpl"}
@@ -24,7 +25,7 @@
     {foreach from=$rows item=rows key=sfield}
     <table class="report-layout" style="width: 48%; float: left; margin: 0 10px 10px 0px;">
         <thead>
-        <tr><th style="width: 70%;"><u>{$sfield}</u>&nbsp;{if $sessionInfo.$sfield eq 'First'}3:30 pm - 4:30 pm{else}4:30 pm - 5:30 pm{/if}</th></tr>
+        <tr><th style="width: 70%;" colspan=2><u>{$sfield}</u>&nbsp;{if $sessionInfo.$sfield eq 'First'}3:30 pm - 4:30 pm{else}4:30 pm - 5:30 pm{/if}</th></tr>
         <tr> 
             {foreach from=$columnHeaders item=header key=field}
                 {assign var=class value=""}
@@ -40,7 +41,11 @@
                       {assign var=skipCount value=`$header.colspan`}
                       {assign var=skipMade  value=1}
                    {else}
-                       <th {$class}>{$header.title}</th> 
+		       {if $header.type eq 'signout'}
+                           <th style="font-size:72%">{$header.title}</th>
+		       {else} 
+                           <th {$class}>{$header.title}</th>
+                       {/if}
                    {assign var=skip value=false}
                    {/if}
                 {else} {* for skip case *}
