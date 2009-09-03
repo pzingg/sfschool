@@ -178,19 +178,43 @@ class SFS_Form_Class extends CRM_Core_Form
      
      public  function postProcess() 
      { 
-         if($this->_action & CRM_Core_Action::DISABLE) {
+         $mappingColumns = array( 'term', 'name', 'day_of_week', 'session');
+         $class_source   = 'class_source';
+         $student_class  = 'student_class';
+         $addQuery = array( );
+         foreach( $mappingColumns as $field ) {
+             $addQuery[]  = $class_source.".".$field."=".$student_class.".".$field;
+         }
+         $addQuery = implode( ' AND ', $addQuery )." AND {$class_source}.id=".$this->_indexID;
 
+         if($this->_action & CRM_Core_Action::DISABLE) {
+             
              if( $this->_indexID )  { 
                  $sql = "UPDATE sfschool_extended_care_source SET is_active=0 WHERE id=".$this->_indexID;
                  CRM_Core_DAO::executeQuery( $sql);
                  CRM_Core_Session::setStatus( ts('Class has been has been Disabled.') );
+                 
+                 //update student Data
+                 $curentDate = date('Y-m-d');
+                 $query = "UPDATE civicrm_value_extended_care_2 {$student_class} 
+                           INNER JOIN sfschool_extended_care_source {$class_source} ON  ( {$addQuery} )
+                           SET {$student_class}.end_date='{$curentDate}' , {$student_class}.has_cancelled=1
+                           ";
+                 CRM_Core_DAO::executeQuery( $query );
              } 
-
+             
          } elseif( $this->_action & CRM_Core_Action::ENABLE ) {
              if( $this->_indexID )  {
                  $sql = "UPDATE sfschool_extended_care_source SET is_active=1 WHERE id=".$this->_indexID;
                  CRM_Core_DAO::executeQuery( $sql);
                  CRM_Core_Session::setStatus( ts('Class has been has been Enabled.') );
+
+                 //update student Data
+                 $query = "UPDATE civicrm_value_extended_care_2 {$student_class} 
+                           INNER JOIN sfschool_extended_care_source {$class_source} ON ( {$addQuery} )
+                           SET {$student_class}.end_date=NULL , {$student_class}.has_cancelled=0
+                           ";
+                 CRM_Core_DAO::executeQuery( $query );
              }
 
          }else {
@@ -211,10 +235,10 @@ class SFS_Form_Class extends CRM_Core_Form
                  CRM_Core_DAO::executeQuery( $sql);
                  
                  $statusMsg = ts("Class Has been edited Successfully");
-                 CRM_Core_Session::setStatus( $statusMsg );
+                 CRM_Core_Session::setStatus( $statusMsg );            
              }
          }
-         CRM_Utils_System::redirect( CRM_Utils_System::url('civicrm/sfschool/class', "reset=1") );
+         CRM_Utils_System::redirect( CRM_Utils_System::url('civicrm/sfschool/extended/class', "reset=1") );
      }
 }   
      
