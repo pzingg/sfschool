@@ -45,6 +45,9 @@ class SFS_Report_Form_ParentTeacherConference extends CRM_Report_Form {
     protected $_gradeField  = array( 'column_name'  => 'grade' );
     
     protected $_actvityTypeId = 20;
+    
+    protected $_teacherRelationship = 10;
+    protected $_teacherRelContact   = 'contact_id_a';
 
     function __construct( ) {
 
@@ -76,9 +79,25 @@ class SFS_Report_Form_ParentTeacherConference extends CRM_Report_Form {
         }
         $filters[$this->_gradeField['column_name']] = array(
                                                             'title'        => ts('Grade'),
-                                                            'operatorType' => CRM_Report_Form::OP_MULTISELECT,
-                                                            'options'      => $options,
+                                                            'operatorType' => CRM_Report_Form::OP_SELECT,
+                                                            'options'      => array( '' => '-select-' ) + $options ,
+                                                            'type'         => CRM_Utils_Type::T_STRING
                                                             );
+
+        //get teacher with relatioship 
+        $teacherOptions = array( );
+        $query = " SELECT DISTINCT(contact.id) ,contact.display_name 
+                   FROM civicrm_contact contact 
+                   INNER JOIN civicrm_relationship relationship 
+                         ON ( contact.id=relationship.{$this->_teacherRelContact} AND relationship.is_active=1 )  
+                   INNER JOIN {$this->_customTable} school_information
+                         ON ( school_information.entity_id = contact.id AND (school_information.subtype='Staff' OR school_information.subtype='Teacher') )
+                   WHERE relationship.relationship_type_id={$this->_teacherRelationship} ";
+        $dao  = CRM_Core_DAO::executeQuery( $query );
+
+        while( $dao->fetch( ) ) {
+            $teacherOptions[$dao->id] = $dao->display_name;
+        }
 
         $this->_columns = array(
                                 'civicrm_activity'      =>
@@ -113,10 +132,12 @@ class SFS_Report_Form_ParentTeacherConference extends CRM_Report_Form {
                                                     ),
                                               ),
                                        'filters'   =>
-                                       array( 'sort_name_teacher' =>
-                                              array('name'  => 'sort_name',
-                                                    'title' => ts('Teacher Name'),
-                                                    'type'  => CRM_Utils_Type::T_STRING,
+                                       array( 'id_teacher' =>
+                                              array('name'         => 'id',
+                                                    'title'        => ts('Teacher'),
+                                                    'operatorType' => CRM_Report_Form::OP_SELECT,
+                                                    'options'      => array( '' => '-select-' ) + $teacherOptions ,
+                                                    'type'         => CRM_Utils_Type::T_INT,
                                                     ) ) ),
                                                                 
                                  'civicrm_contact_student' =>
@@ -133,12 +154,7 @@ class SFS_Report_Form_ParentTeacherConference extends CRM_Report_Form {
                                                     'no_display' => true,
                                                     'required'   => true,
                                                     ), ),
-                                       'filters'   =>
-                                       array( 'sort_name_student' =>
-                                              array( 'name'  => 'sort_name',
-                                                     'title' => ts('Student Name'),
-                                                     'type'  => CRM_Utils_Type::T_STRING,
-                                                    ) )  ),
+                                       ),
 
                                 'civicrm_contact_parent' =>
                                 array( 'dao'       => 'CRM_Contact_DAO_Contact',
