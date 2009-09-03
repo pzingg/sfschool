@@ -22,14 +22,14 @@
     {/if}
     <br />
 
-    <table style="border: 0;">
+    <table style="border: 0; width: 100%">
     {assign  var="count" value="0"}
     {foreach from=$rows item=rows key=sfield}
     {assign var="count" value=`$count+1`}
     {if $count is not div by 2}<tr>{/if}
     <td style="padding: 4px">
 
-    <table class="report-layout" {if $printOnly}style="font-size:75%"{/if}>
+    <table class="report-layout">
         <thead>
         <tr><th {if $printOnly}colspan=6{else}colspan=2{/if}><u>{$sfield}</u>&nbsp;&nbsp;{if $sessionInfo.$sfield eq 'First'}3:30 pm - 4:30 pm{else}4:30 pm - 5:30 pm{/if}</th></tr>
         <tr> 
@@ -48,7 +48,7 @@
                       {assign var=skipMade  value=1}
                    {else}
 		       {if $header.type eq 'signout' or $header.type eq 'signin'}
-                           <th style="width: 1%;font-size:90%">{$header.title}</th>
+                           <th style="width: 1%; font-size:72%">{$header.title}</th>
 		       {else} 
                            <th {$class}>{$header.title}</th>
                        {/if}
