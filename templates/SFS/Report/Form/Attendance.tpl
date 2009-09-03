@@ -9,7 +9,7 @@
     <div id="report-date">{$reportDate}</div>
 {/if}
 <br/>
-    
+
 {*include the graph*}
 {include file="CRM/Report/Form/Layout/Graph.tpl"}
     
@@ -22,10 +22,16 @@
     {/if}
     <br />
 
+    <table style="border: 0;">
+    {assign  var="count" value="0"}
     {foreach from=$rows item=rows key=sfield}
-    <table class="report-layout" style="width: 48%; float: left; margin: 0 10px 10px 0px;">
+    {assign var="count" value=`$count+1`}
+    {if $count is not div by 2}<tr>{/if}
+    <td style="padding: 4px">
+
+    <table class="report-layout" {if $printOnly}style="font-size:75%"{/if}>
         <thead>
-        <tr><th style="width: 70%;" colspan=2><u>{$sfield}</u>&nbsp;{if $sessionInfo.$sfield eq 'First'}3:30 pm - 4:30 pm{else}4:30 pm - 5:30 pm{/if}</th></tr>
+        <tr><th {if $printOnly}colspan=6{else}colspan=2{/if}><u>{$sfield}</u>&nbsp;&nbsp;{if $sessionInfo.$sfield eq 'First'}3:30 pm - 4:30 pm{else}4:30 pm - 5:30 pm{/if}</th></tr>
         <tr> 
             {foreach from=$columnHeaders item=header key=field}
                 {assign var=class value=""}
@@ -41,8 +47,8 @@
                       {assign var=skipCount value=`$header.colspan`}
                       {assign var=skipMade  value=1}
                    {else}
-		       {if $header.type eq 'signout'}
-                           <th style="font-size:72%">{$header.title}</th>
+		       {if $header.type eq 'signout' or $header.type eq 'signin'}
+                           <th style="width: 1%;font-size:90%">{$header.title}</th>
 		       {else} 
                            <th {$class}>{$header.title}</th>
                        {/if}
@@ -104,7 +110,14 @@
             {* /foreach*}
         {/if}
     </table>
+
+    </td>
+    {if $count is div by 2}</tr>{/if}
     {/foreach}
+    {if $count is not div by 2}<td>&nbsp;</td></tr>{/if}
+
+    </table>
+
 {/if}        
 
     

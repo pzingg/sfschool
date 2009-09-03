@@ -128,6 +128,7 @@ FROM   sfschool_extended_care_source value_extended_care_2_civireport
 WHERE  is_active = 1
 AND    term = %1
 AND   {$this->_colMapper['dayOfWeek']} = '{$this->_params['weekday_value']}'
+ORDER BY additional_rows
 ";
         $params = array( 1 => array( SFS_Utils_ExtendedCare::getTerm( ), 'String' ) );
         $sname = CRM_Core_DAO::executeQuery( $sql, $params );
@@ -154,7 +155,7 @@ GROUP BY contact_civireport.id;
                 array( 'contact_civireport_id' => array( 'no_display' => true ),
                        'contact_civireport_display_name' => array( 'title' => 'Name' ),
                        'parent_name' => array( 'title' => 'Parent' ),
-                       'SignIn'  => array( 'title' => 'Sign In&nbsp;' ),
+                       'SignIn'  => array( 'title' => 'Sign In', 'type' => 'signin' ),
                        );
             $this->_columnHeaders = array_merge( $this->_columnHeaders, $sessionHeaders );
             $rows[$sname->session_name] = $sessionInfo[$sname->session_name] = array( );
