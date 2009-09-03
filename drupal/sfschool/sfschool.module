@@ -199,6 +199,7 @@ function sfschool_civicrm_xmlMenu( &$files ) {
 }
 
 function sfschool_user( $op, &$edit, &$account, $category = null ) {
+    return;
     switch ( $op ) {
     case 'login':
         _sfschool_initialize( );

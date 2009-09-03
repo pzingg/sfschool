@@ -106,6 +106,11 @@ function &actionLinks()
         }
         
         require_once 'SFS/Utils/ExtendedCare.php';
+
+        if ( $permission ) {
+            $classInfo = SFS_Utils_ExtendedCare::getClassCount( null, true );
+        }
+
         $activities =  array( );
         $activities =& SFS_Utils_ExtendedCare::getActivities( null,
                                                               CRM_Core_DAO::$_nullObject );
@@ -116,10 +121,20 @@ function &actionLinks()
             foreach ( $dayValues as $session => &$sessionValues ) {
                 foreach ( $sessionValues['details'] as $id => &$idValues ) {
                     if( $permission ) {
-                        $idValues['action' ] = CRM_Core_Action::formLink(self::actionLinks(),$actionEnable, 
-                                                                         array('id' =>$idValues['index'] ));
+                        $idValues['action' ] = CRM_Core_Action::formLink( self::actionLinks(),
+                                                                          $actionEnable, 
+                                                                          array('id' =>$idValues['index'] ) );
                     }
-                    $idValues['session'] = $idValues['session'] == 'First' ? '3:30 pm - 4:30 pm' : "4:30 pm - 5:30 pm";
+                    
+                    if ( $permission &&
+                         isset( $classInfo[$idValues['id']] ) ) {
+                        $name = urlencode( $idValues['name'] );
+                        $url = CRM_Utils_System::url( 'civicrm/sfschool/extended/detail',
+                                                      "reset=1&name={$name}&day={$idValues['day']}&sess={$idValues['session']}" );
+                        $idValues['num_url']      = $url;
+                        $idValues['num_students'] = $classInfo[$idValues['id']]['current'];
+                    }
+                    $idValues['session'] = SFS_Utils_ExtendedCare::getTime( $idValues['session'] );
                     $values[$day][] =& $idValues;
                 }
             }
@@ -140,7 +155,14 @@ function &actionLinks()
                     foreach ( $valueSession['details'] as $id => $valueId ) {
                         $valueId['action' ] = CRM_Core_Action::formLink(self::actionLinks(),$actionDisable, 
                                                                         array('id' =>$valueId['index'] ));
-                        $valueId['session'] = $valueId['session'] == 'First' ? '3:30 pm - 4:30 pm' : "4:30 pm - 5:30 pm";
+                        if ( isset( $classInfo[$valueId['id']] ) ) {
+                            $name = urlencode( $valueId['name'] );
+                            $url = CRM_Utils_System::url( 'civicrm/sfschool/extended/detail',
+                                                          "reset=1&name={$name}&day={$valueId['day']}&sess={$valueId['session']}" );
+                            $valueId['num_url']      = $url;
+                            $valueId['num_students'] = $classInfo[$valueId['id']]['current'];
+                        }
+                        $valueId['session'] = SFS_Utils_ExtendedCare::getTime( $valueId['session'] );
                         $disable[$day][] = $valueId;
                     }
                 }

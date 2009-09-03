@@ -49,7 +49,7 @@ class SFS_Utils_ExtendedCare {
         END_POSITION = 11,
         TERM = 'Fall 2009',
         COORDINATOR_NAME  = 'Gilbert Bagaman',
-        COORDINATOR_EMAIL = 'anybagaman@aol.com';
+        COORDINATOR_EMAIL = 'gbagaman@sfschool.org';
 
     static
         $_extendedCareElements = null,
@@ -89,7 +89,7 @@ class SFS_Utils_ExtendedCare {
         foreach ( $activities as $day => $dayValues ) {
             foreach ( $dayValues as $session => $values ) {
                 if ( ! empty( $values['select'] ) ) {
-                    $time = $session == 'First' ? '3:30 pm - 4:30 pm' : "4:30 pm - 5:30 pm";
+                    $time = self::getTime( $session );
                     $select = array( '' => '- select -' ) + $values['select'];
 
                     $element =& $form->addElement( 'select',
@@ -275,7 +275,7 @@ AND    %2 <= max_grade
             : "{$dao->day_of_week}_{$dao->session}_{$dao->name}";
 
         return preg_replace( '/\s+|\W+/', '_',
-                             $id );
+                             trim( $id ) );
     }
 
 
@@ -506,7 +506,7 @@ ORDER BY  c.id, e.day_of_week, e.session
                     $values[$dao->contact_id]['extendedCareDay'][$dao->day_of_week] = array( );
                 }
             
-                $time = $dao->session == 'First' ? '3:30 pm - 4:30 pm' : "4:30 pm - 5:30 pm";
+                $time = self::getTime( $dao->session );
                 $title = "{$dao->day_of_week} $time";
                 $title .= " : {$dao->name}";
                 if ( $dao->instructor ) {
@@ -545,19 +545,27 @@ ORDER BY  c.id, e.day_of_week, e.session
 
     }
 
-    static function &getClassCount( $grade ) {
+    static function &getClassCount( $grade, $all = false ) {
         $sql = "
 SELECT     count(entity_id) as current, s.max_participants as max, s.term, s.day_of_week, s.session, s.name
 FROM       civicrm_value_extended_care_2 e
 INNER JOIN sfschool_extended_care_source s ON ( s.term = e.term AND s.day_of_week = e.day_of_week AND s.session = e.session AND s.name = e.name ) 
 WHERE      e.has_cancelled = 0
-AND        %1 >= s.min_grade
-AND        %1 <= s.max_grade
-AND        s.is_active = 1
-GROUP BY term, day_of_week, session, name
 ";
-        $params = array( 1 => array( $grade, 'Integer' ) );
+        $params = array( );
+        if ( $grade ) {
+            $params[1] = array( $grade, 'Integer' );
+            $sql .= "
+AND %1 >= s.min_grade
+AND %1 <= s.max_grade
+";
+        }
+        if ( ! $all ) {
+            $sql .= " AND s.is_active = 1";
+        }
 
+        $sql .= " GROUP BY term, day_of_week, session, name";
+        
         $values = array( );
         $dao = CRM_Core_DAO::executeQuery( $sql, $params );
         while ( $dao->fetch( ) ) {
@@ -642,6 +650,10 @@ WHERE  entity_id = %1 AND has_cancelled = 0
         }
 
         $details[$childID] = $newDetail;
+    }
+
+    static function getTime( $session ) {
+        return $session == 'Second' ? "4:30 pm - 5:30 pm" : '3:30 pm - 4:30 pm';
     }
 
 

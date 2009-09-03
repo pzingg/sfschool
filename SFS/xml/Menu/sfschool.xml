@@ -7,8 +7,13 @@
      <access_arguments>profile listings and forms</access_arguments>
   </item>  
   <item>
-     <path>civicrm/sfschool/class</path>
+     <path>civicrm/sfschool/extended/class</path>
      <page_callback>SFS_Page_Class</page_callback>
+     <access_arguments>profile listings and forms</access_arguments>
+  </item>  
+  <item>
+     <path>civicrm/sfschool/extended/detail</path>
+     <page_callback>SFS_Page_Detail</page_callback>
      <access_arguments>profile listings and forms</access_arguments>
   </item>  
   <item>

@@ -11,6 +11,7 @@
      <th style="width: 20%">Location</th>
      <th style="width: 10%">&nbsp;</th>
 {if $editClass}
+     <th style="width: 10%">#</th>
      <th style="width: 10%">&nbsp;</th>
 {/if}
   </tr>
@@ -36,6 +37,7 @@
     <td>&nbsp;</td>
 {/if}
 {if $editClass}
+  <td><a href="{$class.num_url}">{$class.num_students}</a></td>	
   <td>{$class.action}</a></td>	
 {/if}
   </tr>
@@ -61,6 +63,7 @@
      <th style="width: 20%">Location</th>
      <th style="width: 10%">&nbsp;</th>
 {if $editClass}
+     <th style="width: 10%">#</th>
      <th style="width: 10%">&nbsp;</th>
 {/if}
   </tr>
@@ -86,6 +89,7 @@
     <td>&nbsp;</td>
 {/if}
 {if $editClass}
+  <td><a href="{$class.num_url}">{$class.num_students}</a></td>	
   <td>{$class.action}</td>	
 {/if}
   </tr>
