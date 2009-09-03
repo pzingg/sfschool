@@ -16,7 +16,9 @@
                  </div> 
               </th>
             {foreach from=$rows item=day}
-               <th>{$day} </td>
+	       {assign var=startDate value=$activityFree.$day.0.sfschool_extended_care_source_start_date}
+	       {assign var=endDate   value=$activityFree.$day.0.sfschool_extended_care_source_end_date}
+               <th>{$day}<br>{$startDate|date_format:"%m/%d"} - {$endDate|date_format:"%m/%d"}</th>
 	    {/foreach}
             </tr>
             {foreach from=$freeRows item=flds key=index}
