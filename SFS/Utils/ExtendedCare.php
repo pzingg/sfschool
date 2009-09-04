@@ -82,7 +82,9 @@ class SFS_Utils_ExtendedCare {
         $classInfo = self::getClassCount( $grade );
         self::getCurrentClasses( $childID, $classInfo );
 
+
         $activities = self::getActivities( $grade, $classInfo );
+
         self::$_extendedCareElements = array( );
         self::$_registeredElements   = array( );
 
@@ -189,6 +191,7 @@ AND    %2 <= max_grade
                  array_key_exists( $id, $classInfo ) ) {
                 // check if the person is not enrolled and the class is full
                 if ( ! $classInfo[$id]['enrolled'] &&
+                     $classInfo[$id]['max'] > 0 &&
                      $classInfo[$id]['current'] >= $classInfo[$id]['max'] ) {
                     continue;
                 }
