@@ -137,14 +137,9 @@ ORDER BY additional_rows
         while( $sname->fetch( ) ) {
             $sql  = "
 SELECT contact_civireport.id as contact_civireport_id, 
-       contact_civireport.display_name as contact_civireport_display_name, '' as SignIn, '' as SignOut , 
-       GROUP_CONCAT(DISTINCT parent.display_name ORDER BY parent.display_name SEPARATOR ',<br/>') as parent_name
+       contact_civireport.display_name as contact_civireport_display_name, '' as SignIn, '' as SignOut, '' as parent_initial
 FROM   civicrm_value_extended_care_2 value_extended_care_2_civireport
 INNER  JOIN civicrm_contact as contact_civireport ON value_extended_care_2_civireport.entity_id = contact_civireport.id
-LEFT   JOIN civicrm_relationship relationship ON 
-       (relationship.contact_id_a=contact_civireport.id AND 
-        relationship.relationship_type_id=1 AND relationship.is_active=1)
-LEFT   JOIN civicrm_contact parent ON parent.id=relationship.contact_id_b 
 WHERE  value_extended_care_2_civireport.{$this->_colMapper['sessionName']} = '{$sname->session_name}' AND 
        value_extended_care_2_civireport.{$this->_colMapper['dayOfWeek']} = '{$this->_params['weekday_value']}' AND
        value_extended_care_2_civireport.{$this->_colMapper['isCancelled']} != 1
@@ -154,8 +149,8 @@ GROUP BY contact_civireport.id;
             $this->_columnHeaders = 
                 array( 'contact_civireport_id' => array( 'no_display' => true ),
                        'contact_civireport_display_name' => array( 'title' => 'Name' ),
-                       'parent_name' => array( 'title' => 'Parent' ),
                        'SignIn'  => array( 'title' => 'Sign In', 'type' => 'signin' ),
+                       'parent_initial' => array( 'title' => 'Parent<br/>Initial' ),
                        );
             $this->_columnHeaders = array_merge( $this->_columnHeaders, $sessionHeaders );
             $rows[$sname->session_name] = $sessionInfo[$sname->session_name] = array( );
@@ -179,7 +174,7 @@ GROUP BY contact_civireport.id;
 
             if( $sname->extra_rows ) {
                 for ($i = 1; $i <= $sname->extra_rows ; $i++) {
-                    $rows[$sname->session_name][] = array('contact_civireport_display_name' => '&nbsp;<br/>&nbsp;');
+                    $rows[$sname->session_name][] = array('contact_civireport_display_name' => '&nbsp;');
                 }
             }
 

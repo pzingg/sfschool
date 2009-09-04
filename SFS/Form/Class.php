@@ -42,7 +42,7 @@ class SFS_Form_Class extends CRM_Core_Form
 
     public  function preProcess( ) 
     {
-        if( !CRM_Core_Permission::check( 'Administer Extended Care Information' ) ) {
+        if( !CRM_Core_Permission::check( 'access CiviCRM' ) ) {
             CRM_Utils_System::permissionDenied( );
             exit();
         }

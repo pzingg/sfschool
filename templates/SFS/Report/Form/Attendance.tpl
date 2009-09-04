@@ -47,11 +47,7 @@
                       {assign var=skipCount value=`$header.colspan`}
                       {assign var=skipMade  value=1}
                    {else}
-		       {if $header.type eq 'signout' or $header.type eq 'signin'}
                            <th style="width: 1%; font-size:72%">{$header.title}</th>
-		       {else} 
-                           <th {$class}>{$header.title}</th>
-                       {/if}
                    {assign var=skip value=false}
                    {/if}
                 {else} {* for skip case *}
