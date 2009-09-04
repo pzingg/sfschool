@@ -274,9 +274,12 @@ class SFS_Report_Form_ParentTeacherConference extends CRM_Report_Form {
         } 
 
     }
-    
+
+    function orderBy( ) {
+        $this->_orderBy = " ORDER BY civicrm_activity_activity_date_time asc ";
+    }
+
     function groupBy( ) {
-        
         $this->_groupBy = " GROUP BY {$this->_aliases['civicrm_contact']}.id,{$this->_aliases['civicrm_contact_student']}.id,{$this->_aliases['civicrm_activity']}.id";
     }
     

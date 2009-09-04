@@ -100,7 +100,7 @@ function &actionLinks()
     { 
         $this->assign( 'editClass', false );
         $permission = false;
-        if( CRM_Core_Permission::check( 'Administer Extended Care Information' ) ) {
+        if( CRM_Core_Permission::check( 'access CiviCRM' ) ) {
             $this->assign( 'editClass', true );
             $permission = true;
         }
