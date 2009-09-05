@@ -141,12 +141,12 @@ WHERE  entity_id = %1 AND has_cancelled = 0
         if ( empty( $grade ) ) {
             $grade = 'ALL';
         }
-        $grade .= $is_active ? "_1" : "_0";
+        $gradeStr .= $is_active ? "_1" : "_0";
 
-        if ( array_key_exists( $grade, $_all ) ) {
-            return $_all[$grade];
+        if ( array_key_exists( $gradeStr, $_all ) ) {
+            return $_all[$gradeStr];
         }
-        $_all[$grade] = array( );
+        $_all[$gradeStr] = array( );
 
         $term       =  self::getTerm( $term );
         
@@ -175,10 +175,10 @@ AND    %2 <= max_grade
         $sessions   =& self::sessions( );
 
         foreach ( $daysOfWeek as $day )  {
-            $_all[$grade][$day] = array( );
+            $_all[$gradeStr][$day] = array( );
             foreach ( $sessions as $session ) {
-                $_all[$grade][$day][$session] = array( 'select'  => array( ),
-                                                       'details' => array( ) );
+                $_all[$gradeStr][$day][$session] = array( 'select'  => array( ),
+                                                          'details' => array( ) );
             }
         }
 
@@ -216,8 +216,8 @@ AND    %2 <= max_grade
                 $url = null;
             }
            
-            $_all[$grade][$dao->day_of_week][$dao->session]['select'][$id]  = $title;
-            $_all[$grade][$dao->day_of_week][$dao->session]['details'][$id] =
+            $_all[$gradeStr][$dao->day_of_week][$dao->session]['select'][$id]  = $title;
+            $_all[$gradeStr][$dao->day_of_week][$dao->session]['details'][$id] =
                 array( 'id'               => $id,
                        'title'            => $title,
                        'name'             => $dao->name,
@@ -239,7 +239,7 @@ AND    %2 <= max_grade
 
         }
 
-        return $_all[$grade];
+        return $_all[$gradeStr];
     }
 
     static function &daysOfWeek( ) {
