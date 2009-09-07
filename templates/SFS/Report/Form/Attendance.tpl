@@ -31,8 +31,8 @@
 
     <table class="report-layout">
         <thead>
-        <tr><th {if $printOnly}colspan=6{else}colspan=2{/if}><u>{$sfield}</u>&nbsp;&nbsp;{if $sessionInfo.$sfield eq 'First'}3:30 pm - 4:30 pm{else}4:30 pm - 5:30 pm{/if}</th></tr>
-        <tr> 
+        <tr><th {if $printOnly}colspan=6{else}colspan=3{/if}><u>{$sfield}</u>&nbsp;&nbsp;{if $sessionInfo.$sfield eq 'First'}3:30 pm - 4:30 pm{else}4:30 pm - 5:30 pm{/if}</th></tr>
+        <tr style="font-size:72%"> 
             {foreach from=$columnHeaders item=header key=field}
                 {assign var=class value=""}
                 {if $header.type eq 1024 OR $header.type eq 1}
@@ -47,7 +47,11 @@
                       {assign var=skipCount value=`$header.colspan`}
                       {assign var=skipMade  value=1}
                    {else}
-                           <th style="width: 1%; font-size:72%">{$header.title}</th>
+		       {if $header.type eq 'signout' or $header.type eq 'signin'}
+                           <th style="width: 1%">{$header.title}</th>
+		       {else} 
+                           <th {$class}>{$header.title}</th>
+                       {/if}
                    {assign var=skip value=false}
                    {/if}
                 {else} {* for skip case *}
