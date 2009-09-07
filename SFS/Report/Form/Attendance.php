@@ -107,10 +107,12 @@ AND    term = %1
 
     function preProcess( ) {
         parent::preProcess( );
-        if ( CRM_Utils_Array::value( 'title', $_POST ) ) {
-            $this->assign('reportTitle', $_POST['title']);
-        } else if ( !$this->_id ) {
-            $this->assign('reportTitle', "EXTENDED CARE FOR " . strtoupper($_POST['weekday_value']));
+        if ( !$this->_id ) {
+            if ( CRM_Utils_Array::value( 'title', $_POST ) ) {
+                $this->assign('reportTitle', $_POST['title']);
+            } else if ( CRM_Utils_Array::value( 'weekday_value', $_POST ) ) {
+                $this->assign('reportTitle', "EXTENDED CARE FOR " . strtoupper($_POST['weekday_value']));
+            }
         }
 
     }
