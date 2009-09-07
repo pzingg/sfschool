@@ -72,9 +72,14 @@
 	       {/foreach}
                </tr>
             {/foreach}
+	    <tr><th>Fee Based</th><th>Tutoring</th><th>Contact</th><th>Elyse Wolland @</th<th colspan=2>ewolland@sfschool.org</th></tr>
 	</table>
-          {include file="CRM/Report/Form/Statistics.tpl" bottom=true}                
-     {/if}
-
+	 {* hidden bottom statistics
+         {include file="CRM/Report/Form/Statistics.tpl" bottom=true} *}              
+     <br/>	
+     <div>
+       {$node->body}
+     </div>
+ {/if}
                           
  {include file="CRM/Report/Form/ErrorMessage.tpl"}

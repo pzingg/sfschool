@@ -39,7 +39,9 @@ class SFS_Report_Form_ExtendedDaySchedule extends CRM_Report_Form {
     
     // set custom table name
     protected $_customTable          = 'sfschool_extended_care_source';  
-
+   
+    // node id to be display bellow the report  
+    protected $_nodeId               = 15;
 
     function __construct( ) {
         
@@ -72,6 +74,7 @@ class SFS_Report_Form_ExtendedDaySchedule extends CRM_Report_Form {
 
     function preProcess( ) {
         $this->_csvSupported = false;
+        $this->_add2groupSupported = false;
         parent::preProcess( );
     }
     
@@ -120,7 +123,9 @@ class SFS_Report_Form_ExtendedDaySchedule extends CRM_Report_Form {
         require_once 'SFS/Utils/ExtendedCare.php';
 
         $this->beginPostProcess( ); 
- 
+        
+        $this->assign('node', node_load( $this->_nodeId ) );
+
         $sql = $this->buildQuery( false);
 
         $daysOfWeek = SFS_Utils_ExtendedCare::daysOfWeek();
