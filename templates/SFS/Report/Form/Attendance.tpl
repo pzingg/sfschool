@@ -1,12 +1,12 @@
 {include file="CRM/Report/Form/Fields.tpl"}
  
+{*if $printOnly*}
+    <h1>{$reportTitle}</h1>
+    <div id="report-date">{$reportDate}</div>
+{*/if*}
 {if $outputMode eq 'html'}   
 {*Statistics at the Top of the page*}
 {include file="CRM/Report/Form/Statistics.tpl" top=true}
-{/if}
-{if $printOnly}
-    <h1>{$reportTitle}</h1>
-    <div id="report-date">{$reportDate}</div>
 {/if}
 <br/>
 

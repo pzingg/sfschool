@@ -107,9 +107,12 @@ AND    term = %1
 
     function preProcess( ) {
         parent::preProcess( );
-        if ( !$this->_id ) {
+        if ( CRM_Utils_Array::value( 'title', $_POST ) ) {
+            $this->assign('reportTitle', $_POST['title']);
+        } else if ( !$this->_id ) {
             $this->assign('reportTitle', "EXTENDED CARE FOR " . strtoupper($_POST['weekday_value']));
         }
+
     }
     
     function postProcess( ) {
@@ -174,6 +177,12 @@ GROUP BY contact_civireport.id;
 
             if( $sname->extra_rows ) {
                 for ($i = 1; $i <= $sname->extra_rows ; $i++) {
+                    $rows[$sname->session_name][] = array('contact_civireport_display_name' => '&nbsp;');
+                }
+            }
+            if( strtolower($this->_params['weekday_value']) == 'monday' ) {
+                // hack to add additional 5 rows for first day of week
+                for ($i = 1; $i <= 5 ; $i++) {
                     $rows[$sname->session_name][] = array('contact_civireport_display_name' => '&nbsp;');
                 }
             }
