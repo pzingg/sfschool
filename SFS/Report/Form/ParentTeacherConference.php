@@ -85,7 +85,7 @@ class SFS_Report_Form_ParentTeacherConference extends CRM_Report_Form {
                                                             );
 
         //get teacher with relatioship 
-        $teacherOptions = array( );
+        $this->teacherOptions = array( );
         $query = " SELECT DISTINCT(contact.id) ,contact.display_name 
                    FROM civicrm_contact contact 
                    INNER JOIN civicrm_relationship relationship 
@@ -96,7 +96,7 @@ class SFS_Report_Form_ParentTeacherConference extends CRM_Report_Form {
         $dao  = CRM_Core_DAO::executeQuery( $query );
 
         while( $dao->fetch( ) ) {
-            $teacherOptions[$dao->id] = $dao->display_name;
+            $this->teacherOptions[$dao->id] = $dao->display_name;
         }
 
         $this->_columns = array(
@@ -123,7 +123,7 @@ class SFS_Report_Form_ParentTeacherConference extends CRM_Report_Form {
                                               array(
                                                     'no_display' => true,
                                                     'required'   => true,
-                                                    'title'      => ts('Teacher')
+                                                    'title'      => ts('Advisor')
                                                     ),
                                               'id' =>
                                               array(
@@ -134,9 +134,9 @@ class SFS_Report_Form_ParentTeacherConference extends CRM_Report_Form {
                                        'filters'   =>
                                        array( 'id_teacher' =>
                                               array('name'         => 'id',
-                                                    'title'        => ts('Teacher'),
+                                                    'title'        => ts('Advisor'),
                                                     'operatorType' => CRM_Report_Form::OP_SELECT,
-                                                    'options'      => array( '' => '-select-' ) + $teacherOptions ,
+                                                    'options'      => array( '' => '-select-' ) + $this->teacherOptions ,
                                                     'type'         => CRM_Utils_Type::T_INT,
                                                     ) ) ),
                                                                 
@@ -177,7 +177,7 @@ class SFS_Report_Form_ParentTeacherConference extends CRM_Report_Form {
     }
 
     function preProcess( ) {
-        $this->_csvSupported = false;
+        $this->_add2groupSupported = false;
         parent::preProcess( );
     }
   
@@ -282,14 +282,33 @@ class SFS_Report_Form_ParentTeacherConference extends CRM_Report_Form {
     function groupBy( ) {
         $this->_groupBy = " GROUP BY {$this->_aliases['civicrm_contact']}.id,{$this->_aliases['civicrm_contact_student']}.id,{$this->_aliases['civicrm_activity']}.id";
     }
-    
+     
+    function statistics( &$rows ) {
+        $statistics =  parent::statistics( &$rows );
+        //replace Advisor id by name
+        if ( CRM_Utils_Array::value( 'filters' , $statistics ) ) {
+            foreach ( $statistics['filters'] as $key => $fields ) {
+                if ( CRM_Utils_Array::value( 'title', $fields ) == 'Advisor' ) {
+                    $statistics['filters'][$key]['value'] = 'Is equal to '. $this->teacherOptions[$this->_params['id_teacher_value']];
+                }
+            }
+        }
+       return $statistics;
+    }
+
     function postProcess( ) {
-        $this->beginPostProcess( ); 
-        
+        $this->beginPostProcess( );
+
         $removeHeaders = array ( 'civicrm_contact_id', 'civicrm_contact_parent_id', 'civicrm_contact_student_id');
         
         $sql = $this->buildQuery( );
         $this->buildRows ( $sql, $rows );
+
+        // hide Advisor column if filter Advisor is selected
+        if( CRM_Utils_Array::value( 'id_teacher_value' , $this->_params ) ) {
+            unset( $this->_columnHeaders['civicrm_contact_display_name'] );
+        }
+
         $tempHeaders = $this->_columnHeaders;
 
         foreach( $tempHeaders as $field => $header ) {
