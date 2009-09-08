@@ -284,6 +284,10 @@ GROUP BY r.contact_id_b
                                                   'Integer',
                                                   CRM_Core_DAO::$_nullObject,
                                                   true );
+        $duration  = CRM_Utils_Request::retrieve( 'duration',
+                                                  'Integer',
+                                                  CRM_Core_DAO::$_nullObject,
+                                                  true );
 
         // perform validation on the parameters
     
@@ -291,7 +295,7 @@ GROUP BY r.contact_id_b
         require_once 'CRM/Activity/DAO/ActivityAssignment.php';
 
         for ( $time = $start; $time < $end; $time++ ) {
-            // skip lunch hour
+            // skip lunch hour for 6th grade conference
             if ( $time == 12 ) {
                 continue;
             }
@@ -300,10 +304,14 @@ GROUP BY r.contact_id_b
                 $time = "0{$time}";
 
             }
-            self::createConference( $adminID, $teacherID,
-                                    self::CONFERENCE_ACTIVITY_TYPE_ID,
-                                    "{$date}{$time}0000",
-                                    $subject, $location, $statusID );
+            
+            // skip 3:00 pm slot for elementary school intake conference
+            if ( $time != 15 ) {
+                self::createConference( $adminID, $teacherID,
+                                        self::CONFERENCE_ACTIVITY_TYPE_ID,
+                                        "{$date}{$time}0000",
+                                        $subject, $location, $statusID, $duration );
+            }
 
             self::createConference( $adminID, $teacherID,
                                     self::CONFERENCE_ACTIVITY_TYPE_ID,
@@ -320,7 +328,8 @@ GROUP BY r.contact_id_b
                                       $activityDateTime,
                                       $subject,
                                       $location,
-                                      $statusID ) {
+                                      $statusID,
+                                      $duration = 30 ) {
 
         $activity = new CRM_Activity_DAO_Activity( );
 
@@ -329,7 +338,7 @@ GROUP BY r.contact_id_b
         $activity->activity_date_time = $activityDateTime;
         $activity->status_id          = $statusID;
         $activity->subject            = $subject;
-        $activity->duration           = 30;
+        $activity->duration           = $duration;
         $activity->location           = $location;
         $activity->save( );
 
