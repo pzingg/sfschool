@@ -50,7 +50,11 @@
 		       {if $header.type eq 'signout' or $header.type eq 'signin'}
                            <th style="width: 1%">{$header.title}</th>
 		       {else} 
-                           <th {$class}>{$header.title}</th>
+		           {if $header.type eq 'parent'}
+                               <th style="width: 18%">{$header.title}</th>
+                           {else}
+                               <th {$class}>{$header.title}</th>
+                           {/if}
                        {/if}
                    {assign var=skip value=false}
                    {/if}

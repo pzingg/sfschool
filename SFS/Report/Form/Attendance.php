@@ -155,7 +155,7 @@ GROUP BY contact_civireport.id;
                 array( 'contact_civireport_id' => array( 'no_display' => true ),
                        'contact_civireport_display_name' => array( 'title' => 'Name' ),
                        'SignIn'  => array( 'title' => 'Sign In', 'type' => 'signin' ),
-                       'parent_initial' => array( 'title' => 'Parent<br/>Initial' ),
+                       'parent_initial' => array( 'title' => 'Parent<br/>Initial', 'type' => 'parent' ),
                        );
             $this->_columnHeaders = array_merge( $this->_columnHeaders, $sessionHeaders );
             $rows[$sname->session_name] = $sessionInfo[$sname->session_name] = array( );
@@ -182,8 +182,8 @@ GROUP BY contact_civireport.id;
                     $rows[$sname->session_name][] = array('contact_civireport_display_name' => '&nbsp;');
                 }
             }
-            if( strtolower($this->_params['weekday_value']) == 'monday' ) {
-                // hack to add additional 5 rows for first day of week
+            if( date('Ymd') <= '20090913' ) {
+                // hack to add additional 5 rows for first week
                 for ($i = 1; $i <= 5 ; $i++) {
                     $rows[$sname->session_name][] = array('contact_civireport_display_name' => '&nbsp;');
                 }
