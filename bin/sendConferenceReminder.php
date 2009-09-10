@@ -36,15 +36,12 @@
 require_once 'Utils.php';
 
 function run( ) {
-    sfs_bin_Utils_auth( );
+    SFS_bin_Utils_auth( );
 
-    require_once '../sfs/Utils/Conference.php';
+    require_once '../SFS/Utils/Conference.php';
 
-    // send reminder email for 2 days out
-    sfs_Utils_Conference::sendReminderEmail( 2 );
-
-    // send reminder email for 1 day out
-    sfs_Utils_Conference::sendReminderEmail( 1 );
+    // send reminder email for all
+    SFS_Utils_Conference::sendReminderEmail( 1 );
 }
 
 run( );
