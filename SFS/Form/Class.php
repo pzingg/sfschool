@@ -59,6 +59,9 @@ class SFS_Form_Class extends CRM_Core_Form
   
         $this->_customFields =  array('term','session','name','day_of_week','min_grade','max_grade','start_date','end_date','instructor','fee_block','max_participants','location','url','additional_rows' );
         
+        if( $this->_action & CRM_Core_Action::ADD ) {
+            $this->_customFields[] = 'is_active';
+        }
         parent::preProcess();
         
         
@@ -69,7 +72,8 @@ class SFS_Form_Class extends CRM_Core_Form
          $defaults = array();
          
          if ( ( $this->_action & CRM_Core_Action::DISABLE ) ||
-              ( $this->_action & CRM_Core_Action::ENABLE ) ) {
+              ( $this->_action & CRM_Core_Action::ENABLE )  ||
+              ( $this->_action & CRM_Core_Action::ADD ) ) {
              return $defaults;
          }
          
@@ -162,7 +166,8 @@ class SFS_Form_Class extends CRM_Core_Form
         $this->add('text', 'url', ts( 'Url:' ));
         $this->add('text', 'additional_rows', ts( 'Additional Rows:' ) );
         $this->addRule( 'additional_rows', ts('Please enter valid Rows'), 'positiveInteger' );
-        
+        $this->addRule( 'max_participants', ts('Please enter valid Max Participants'), 'positiveInteger' );
+
         $this->addButtons(array(
                                 array ( 'type'      => 'submit',
                                         'name'      => ts('Save'),
@@ -172,7 +177,14 @@ class SFS_Form_Class extends CRM_Core_Form
                                 )
                           );    
         
+
+        
+        if( $this->_action & CRM_Core_Action::ADD ) {
+             $this->add('checkbox', 'is_active', ts('Enabled?'));
+        }
+
         $this->assign( 'elements', $this->_customFields );
+
     }
      
      
@@ -217,7 +229,35 @@ class SFS_Form_Class extends CRM_Core_Form
                  CRM_Core_DAO::executeQuery( $query );
              }
 
-         }else {
+         } elseif( $this->_action & CRM_Core_Action::ADD ) {
+             $params = $this->controller->exportValues( $this->_name );
+             $updateValues  = array( );
+             foreach( $this->_customFields as $field ) {
+                 $value = CRM_Utils_Array::value( $field , $params );
+                 if( $value ) {
+                     if( $field == 'start_date' || $field == 'end_date' ) {
+                         if( !empty( $value ) ) {
+                                 $updateValues[$field]  = "'".CRM_Utils_date::format($params[$field])."' ";
+                         }
+                         continue;
+                     } 
+                     $updateValues[$field]  =  "'".$value."' ";
+                 }
+             }
+             if( !CRM_Utils_Array::value( 'is_active', $params ) ) {
+                 $updateValues['is_active']  = 0;
+             } else {
+                 $updateValues['is_active']  = 1;
+             }   
+
+             // add new class
+             $sql = "INSERT INTO sfschool_extended_care_source (".implode(',', array_keys($updateValues) ).") VALUES (". implode(',', $updateValues ).") ";
+             CRM_Core_DAO::executeQuery( $sql);
+             
+             $statusMsg = ts("Class %1 for %2 has been added successfully",array( 1 => $updateValues['name'], 2 => $updateValues['day_of_week'] ));
+             CRM_Core_Session::setStatus( $statusMsg );
+
+         } else {
              $params = $this->controller->exportValues( $this->_name );
              $updateValues = array();
              foreach( $this->_customFields as $field ) {

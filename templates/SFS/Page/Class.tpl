@@ -101,3 +101,9 @@
 </fieldset>
 {/if}
 
+{if $editClass}
+    <div class="action-link">
+        <a href="{$addClass}" class="button"><span>&raquo; {ts}Add New Class{/ts}</span></a>
+    </div>
+    <div class="spacer"></div>
+{/if}

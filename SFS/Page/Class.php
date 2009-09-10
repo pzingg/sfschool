@@ -77,7 +77,7 @@ function &actionLinks()
         $id = CRM_Utils_Request::retrieve('id', 'Positive',
                                           $this, false, 0);
  
-        if ( $action  && array_key_exists( $action, self::actionLinks( ) ) ) {
+        if ( $action  && ( array_key_exists( $action, self::actionLinks( ) ) || ( $action & CRM_Core_Action::ADD ) ) ) {
             // set breadcrumb
             $breadCrumb = array( array('title' => ts('Class Information'),
                                        'url'   => CRM_Utils_System::url( CRM_Utils_System::currentPath( ), 'reset=1' )) );
@@ -103,6 +103,8 @@ function &actionLinks()
         if( CRM_Core_Permission::check( 'access CiviCRM' ) ) {
             $this->assign( 'editClass', true );
             $permission = true;
+            $addClassUrl = CRM_Utils_System::url( CRM_Utils_System::currentPath( ),'reset=1&action=add');
+            $this->assign( 'addClass', $addClassUrl);
         }
         
         require_once 'SFS/Utils/ExtendedCare.php';

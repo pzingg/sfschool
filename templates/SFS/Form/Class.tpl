@@ -28,8 +28,12 @@
          </dl>
 </fieldset>
 {/if}
+{if $action eq 2 or $action eq 1}
 {if $action eq 2}
 <legend> Edit Class Information </legend>
+{else}
+<legend> Add Class</legend>
+{/if}
 <dl>
 {foreach from=$elements item=field}
 <dt>{$form.$field.label}</dt><dd>{$form.$field.html}</dd>
