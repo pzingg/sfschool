@@ -20,7 +20,7 @@
     <td>{$class.name}</td>
     <td>{$class.session}</td>
     <td>{$class.instructor}</td>
-{if $class.fee_block > 0}
+{if $class.fee_block gte 0}
     <td>{$class.fee_block}</td>
 {else}
     <td>&nbsp;</td>
@@ -72,7 +72,7 @@
     <td>{$class.name}</td>
     <td>{$class.session}</td>
     <td>{$class.instructor}</td>
-{if $class.fee_block > 0}
+{if $class.fee_block gte 0}
     <td>{$class.fee_block}</td>
 {else}
     <td>&nbsp;</td>
