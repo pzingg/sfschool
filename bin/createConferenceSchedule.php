@@ -37,10 +37,10 @@
 require_once 'Utils.php';
 
 function run( ) {
-    sfs_bin_Utils_auth( );
+    SFS_bin_Utils_auth( );
 
-    require_once '../sfs/Utils/Conference.php';
-    sfs_Utils_Conference::createConferenceSchedule( 1,
+    require_once '../SFS/Utils/Conference.php';
+    SFS_Utils_Conference::createConferenceSchedule( 1,
                                                     'Fall 2009 Parent Teacher Conference',
                                                     'San Francisco School' );
 }
