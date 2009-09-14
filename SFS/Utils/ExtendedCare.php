@@ -160,7 +160,11 @@ WHERE  term  = %1
         } else {
             $sql .= " AND  is_active = 0";
         }
-        
+
+        if ( ! CRM_Core_Permission::check( 'access CiviCRM' ) ) {
+            $sql .= " AND is_hidden = 0";
+        }
+
         $params = array( 1 => array( $term , 'String'  ) );
 
         if ( is_numeric( $grade ) ) {
