@@ -74,8 +74,6 @@ class SFS_Utils_Mail {
         $template = CRM_Core_Smarty::singleton( );
         $template->assign( $templateVars );
 
-        echo "Sending email to $toDisplayName, $toEmail<p>";
-
         require_once 'CRM/Utils/Mail.php';
         require_once 'CRM/Utils/String.php';
         CRM_Utils_Mail::send( self::SFS_FROM_EMAIL,

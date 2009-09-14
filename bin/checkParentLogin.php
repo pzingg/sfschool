@@ -94,15 +94,22 @@ ORDER BY p_id
     }
 
     $families = array( );
+    $emailAddress = array( );
     foreach ( $parentsDoNotHaveLogin as $cid => $pValues ) {
         $familyKey = $familyValue = array( );
         foreach ( $pValues as $pValue ) {
             $familyKey[]   = $pValue[2];
-            $familyValue[] = "{$pValue[3]} <{$pValue[4]}>";
+            if ( ! empty( $pValue[4] ) ) {
+                $familyValue[]  = "{$pValue[3]} <{$pValue[4]}>";
+                $emailAddress[$pValue[4]] = "{$pValue[3]} <{$pValue[4]}>";
+            } else {
+                $familyValue[]  = $pValue[3];
+            }
         }
         $families[implode('_', $familyKey )] = implode( ', ', $familyValue );
     }
 
+    CRM_Core_Error::debug( count( $emailAddress ), implode( ', ', $emailAddress ) );
     CRM_Core_Error::debug( count( $families ), $families );
 
     $familiesLoggedIn = array( );
