@@ -167,6 +167,8 @@ class SFS_Form_Class extends CRM_Core_Form
         $this->add('text', 'additional_rows', ts( 'Additional Rows:' ) );
         $this->addRule( 'additional_rows', ts('Please enter valid Rows'), 'positiveInteger' );
         $this->addRule( 'max_participants', ts('Please enter valid Max Participants'), 'positiveInteger' );
+        $this->addRule( 'start_date', ts('Select a valid date.'), 'qfDate');
+        $this->addRule( 'end_date', ts('Select a valid date.'), 'qfDate');
 
         $this->addButtons(array(
                                 array ( 'type'      => 'submit',
@@ -237,7 +239,8 @@ class SFS_Form_Class extends CRM_Core_Form
                  if( $value ) {
                      if( $field == 'start_date' || $field == 'end_date' ) {
                          if( !empty( $value ) ) {
-                                 $updateValues[$field]  = "'".CRM_Utils_date::format($params[$field])."' ";
+                             $value = CRM_Utils_date::format($params[$field])?CRM_Utils_date::format($params[$field]):'NULL';
+                             $updateValues[$field]  = $value;
                          }
                          continue;
                      } 
@@ -264,7 +267,8 @@ class SFS_Form_Class extends CRM_Core_Form
                  $value = CRM_Utils_Array::value( $field , $params );
                  if( $value) {
                      if( $field == 'start_date' || $field == 'end_date' ) {
-                         $updateValues[] = $field."='".CRM_Utils_date::format($params[$field])."' ";
+                         $value = CRM_Utils_date::format($params[$field])?CRM_Utils_date::format($params[$field]):'NULL';
+                         $updateValues[] = $field."=".$value." ";
                          continue;
                      } 
                      $updateValues[] =  $field."='".$value."' ";

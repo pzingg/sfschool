@@ -30,7 +30,6 @@
     <td style="padding: 4px">
 
     <table class="report-layout">
-        <thead>
         <tr><th {if $printOnly}colspan=6{else}colspan=3{/if}><u>{$sfield}</u>&nbsp;&nbsp;{if $sessionInfo.$sfield eq 'First'}3:30 pm - 4:30 pm{else}4:30 pm - 5:30 pm{/if}</th></tr>
         <tr style="font-size:72%"> 
             {foreach from=$columnHeaders item=header key=field}
@@ -64,7 +63,6 @@
                 {/if}
             {/foreach}
         </tr>          
-        </thead>
        
         {foreach from=$rows item=row}
             <tr>
