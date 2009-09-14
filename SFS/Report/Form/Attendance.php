@@ -182,12 +182,6 @@ GROUP BY contact_civireport.id;
                     $rows[$sname->session_name][] = array('contact_civireport_display_name' => '&nbsp;');
                 }
             }
-            if( date('Ymd') <= '20090913' ) {
-                // hack to add additional 5 rows for first week
-                for ($i = 1; $i <= 5 ; $i++) {
-                    $rows[$sname->session_name][] = array('contact_civireport_display_name' => '&nbsp;');
-                }
-            }
 
             if ( empty($rows[$sname->session_name]) ) {
                 unset($rows[$sname->session_name]);
