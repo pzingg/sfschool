@@ -91,7 +91,7 @@ class SFS_Report_Form_ParentTeacherConference extends CRM_Report_Form {
                    INNER JOIN civicrm_relationship relationship 
                          ON ( contact.id=relationship.{$this->_teacherRelContact} AND relationship.is_active=1 )  
                    INNER JOIN {$this->_customTable} school_information
-                         ON ( school_information.entity_id = contact.id AND (school_information.subtype='Staff' OR school_information.subtype='Teacher') )
+                         ON ( school_information.entity_id = contact.id AND (school_information.subtype='Staff' OR school_information.subtype='Parent') )
                    WHERE relationship.relationship_type_id={$this->_teacherRelationship} ";
         $dao  = CRM_Core_DAO::executeQuery( $query );
 
@@ -210,7 +210,7 @@ class SFS_Report_Form_ParentTeacherConference extends CRM_Report_Form {
         $this->_from = "FROM
                               civicrm_activity_assignment activity_assignment
                               INNER JOIN $this->_customTable sfschool
-                                           ON sfschool.entity_id = activity_assignment.assignee_contact_id  AND (sfschool.subtype='Teacher' OR sfschool.subtype='Staff')
+                                           ON sfschool.entity_id = activity_assignment.assignee_contact_id  AND (sfschool.subtype='Parent' OR sfschool.subtype='Staff')
                               INNER JOIN civicrm_contact {$this->_aliases['civicrm_contact']}
                                            ON {$this->_aliases['civicrm_contact']}.id = activity_assignment.assignee_contact_id
                               INNER  JOIN civicrm_activity {$this->_aliases['civicrm_activity']}
@@ -284,7 +284,7 @@ class SFS_Report_Form_ParentTeacherConference extends CRM_Report_Form {
     }
      
     function statistics( &$rows ) {
-        $statistics =  parent::statistics( &$rows );
+        $statistics =  parent::statistics( $rows );
         //replace Advisor id by name
         if ( CRM_Utils_Array::value( 'filters' , $statistics ) ) {
             foreach ( $statistics['filters'] as $key => $fields ) {
