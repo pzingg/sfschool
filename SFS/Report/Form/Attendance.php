@@ -128,7 +128,8 @@ AND    term = %1
         
         $sql  = "
 SELECT distinct value_extended_care_2_civireport.{$this->_colMapper['sessionName']} as session_name, 
-       value_extended_care_2_civireport.{$this->_colMapper['sessionOrder']} as session_order,  additional_rows as extra_rows
+       value_extended_care_2_civireport.{$this->_colMapper['sessionOrder']} as session_order,  
+       additional_rows as extra_rows, instructor, location
 FROM   sfschool_extended_care_source value_extended_care_2_civireport
 WHERE  is_active = 1
 AND    term = %1
@@ -159,7 +160,9 @@ GROUP BY contact_civireport.id;
                        );
             $this->_columnHeaders = array_merge( $this->_columnHeaders, $sessionHeaders );
             $rows[$sname->session_name] = $sessionInfo[$sname->session_name] = array( );
-            $sessionInfo[$sname->session_name ] = $sname->session_order;
+            $sessionInfo[$sname->session_name ]['session']  = $sname->session_order;
+            $sessionInfo[$sname->session_name ]['instRoom'] = $sname->instructor ? 
+                $sname->instructor . ' - ' . $sname->location : $sname->location;
 
             $dao  = CRM_Core_DAO::executeQuery( $sql );
             
