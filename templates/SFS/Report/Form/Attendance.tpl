@@ -30,7 +30,7 @@
     <td style="padding: 4px">
 
     <table class="report-layout">
-        <tr><th style="text-align: left" {if $printOnly}colspan=6{else}colspan=6{/if}>{$sfield}&nbsp;&nbsp;{if $sessionInfo.$sfield.session eq 'First'}3:30 pm - 4:30 pm{else}4:30 pm - 5:30 pm{/if}<br/><u>{$sessionInfo.$sfield.instRoom}</u>&nbsp;</th></tr>
+        <tr><th style="text-align: left" colspan=6>{$sessionInfo.$sfield.title}&nbsp;&nbsp;{if $sessionInfo.$sfield.session eq 'First'}3:30 pm - 4:30 pm{else}4:30 pm - 5:30 pm{/if}<br/><u>{$sessionInfo.$sfield.instRoom}</u>&nbsp;</th></tr>
         <tr style="font-size:72%"> 
             {foreach from=$columnHeaders item=header key=field}
                 {assign var=class value=""}

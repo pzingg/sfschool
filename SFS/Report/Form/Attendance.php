@@ -159,10 +159,9 @@ GROUP BY contact_civireport.id;
                        'parent_initial' => array( 'title' => 'Parent<br/>Initial', 'type' => 'parent' ),
                        );
             $this->_columnHeaders = array_merge( $this->_columnHeaders, $sessionHeaders );
-            $rows[$sname->session_name] = $sessionInfo[$sname->session_name] = array( );
-            $sessionInfo[$sname->session_name ]['session']  = $sname->session_order;
-            $sessionInfo[$sname->session_name ]['instRoom'] = $sname->instructor ? 
-                $sname->instructor . ' - ' . $sname->location : $sname->location;
+
+            $index = $sname->session_order . '_' . $sname->session_name;
+            $rows[$index] = array( );
 
             $dao  = CRM_Core_DAO::executeQuery( $sql );
             
@@ -177,19 +176,33 @@ GROUP BY contact_civireport.id;
                         $row[$key] = $dao->$key;
                     }
                 }
-                $rows[$sname->session_name][] = $row;
+                $rows[$index][] = $row;
             } 
 
+            // add extra rows
             if( $sname->extra_rows ) {
                 for ($i = 1; $i <= $sname->extra_rows ; $i++) {
-                    $rows[$sname->session_name][] = array('contact_civireport_display_name' => '&nbsp;');
+                    $rows[$index][] = array('contact_civireport_display_name' => '&nbsp;');
                 }
             }
 
-            if ( empty($rows[$sname->session_name]) ) {
-                unset($rows[$sname->session_name]);
+            $classRowCount = count($rows[$index]);
+            if ( empty($rows[$index]) ) {
+                unset($rows[$index]);
+            } else {
+                $rows[$classRowCount . '_' . $index] = $rows[$index];
+                unset($rows[$index]);
             }
+
+            $sessionInfo[$classRowCount . '_' . $index] = array( );
+            $sessionInfo[$classRowCount . '_' . $index]['title'   ] = $sname->session_name;
+            $sessionInfo[$classRowCount . '_' . $index]['session' ] = $sname->session_order;
+            $sessionInfo[$classRowCount . '_' . $index]['instRoom'] = $sname->instructor ? 
+                $sname->instructor . ' - ' . $sname->location : $sname->location;
         }        
+        // maximize space utilization
+        ksort($rows, SORT_NUMERIC);
+
         $this->formatDisplay( $rows );
 
         $this->assign_by_ref( 'sessionInfo', $sessionInfo );
