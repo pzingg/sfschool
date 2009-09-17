@@ -197,8 +197,9 @@ GROUP BY contact_civireport.id;
             $sessionInfo[$classRowCount . '_' . $index] = array( );
             $sessionInfo[$classRowCount . '_' . $index]['title'   ] = $sname->session_name;
             $sessionInfo[$classRowCount . '_' . $index]['session' ] = $sname->session_order;
-            $sessionInfo[$classRowCount . '_' . $index]['instRoom'] = $sname->instructor ? 
-                $sname->instructor . ' - ' . $sname->location : $sname->location;
+            $sessionInfo[$classRowCount . '_' . $index]['instRoom'] = ($sname->instructor && $sname->location) ? 
+                $sname->instructor . ' - ' . $sname->location : 
+                ($sname->instructor ? $sname->instructor : $sname->location);
         }        
         // maximize space utilization
         ksort($rows, SORT_NUMERIC);
