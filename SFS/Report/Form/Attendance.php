@@ -187,12 +187,8 @@ GROUP BY contact_civireport.id;
             }
 
             $classRowCount = count($rows[$index]);
-            if ( empty($rows[$index]) ) {
-                unset($rows[$index]);
-            } else {
-                $rows[$classRowCount . '_' . $index] = $rows[$index];
-                unset($rows[$index]);
-            }
+            $rows[$classRowCount . '_' . $index] = $rows[$index];
+            unset($rows[$index]);
 
             $sessionInfo[$classRowCount . '_' . $index] = array( );
             $sessionInfo[$classRowCount . '_' . $index]['title'   ] = $sname->session_name;
