@@ -46,9 +46,6 @@ class SFS_Utils_Query {
             if ( $redirect ) {
                 $config = CRM_Core_Config::singleton( );
                 CRM_Utils_System::redirect( $config->userFrameworkBaseURL );
-                // $subType = implode( ',', $subType );
-                // CRM_Core_Error::fatal( "The subtypes of the contact and the profile do not match: ( $id, Expected: $subType Actual: $entitySubType )" );
-                // exit( );
             }
             return false;
         }

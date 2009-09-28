@@ -78,8 +78,8 @@ function _sfschool_civicrm_pageRun_Profile_Page_Dynamic_3( &$page, $gid ) {
 
     require_once 'SFS/Utils/Relationship.php';
     SFS_Utils_Relationship::getChildren( $parentID,
-                                              $values,
-                                              true );
+                                         $values,
+                                         true );
 
     $childrenIDs = array_keys( $values );
 
@@ -90,6 +90,15 @@ function _sfschool_civicrm_pageRun_Profile_Page_Dynamic_3( &$page, $gid ) {
     SFS_Utils_ExtendedCare::getValues( $childrenIDs, $values, $parentID );
 
     $page->assign( 'childrenInfo', $values );
+
+    $subType = SFS_Utils_Query::getSubType( $parentID );
+    if ( $subType == 'Staff' ) {
+        $ptcValues = array( );
+        SFS_Utils_Conference::getPTCValuesOccupied( $parentID, $ptcValues );
+
+        $page->assign( 'ptcValues', $ptcValues );
+    }
+
 }
 
 
@@ -127,7 +136,10 @@ function sfschool_civicrm_buildForm( $formName, &$form ) {
 
     if ( $formName == 'CRM_Profile_Form_Edit' ) {
         $gid = $form->getVar( '_gid' );
-        if ( $gid == 4 ) {
+        switch ( $gid ) {
+        case 3:
+            return _sfschool_civicrm_buildForm_CRM_Profile_Form_Edit_3( $formName, $form, $gid );
+        case 4:
             return _sfschool_civicrm_buildForm_CRM_Profile_Form_Edit_4( $formName, $form, $gid );
         }
     }
@@ -138,11 +150,20 @@ function sfschool_civicrm_postProcess( $class, &$form ) {
 
     if ( is_a( $form, 'CRM_Profile_Form_Edit' ) ) {
         $gid = $form->getVar( '_gid' );
-        if ( $gid == 4 ) {
-            sfschool_civicrm_postProcess_CRM_Profile_Form_Edit_4( $class, $form, $gid );
-            return;
+        switch ( $gid ) {
+        case 3:
+            return sfschool_civicrm_postProcess_CRM_Profile_Form_Edit_3( $class, $form, $gid );
+        case 4:
+            return sfschool_civicrm_postProcess_CRM_Profile_Form_Edit_4( $class, $form, $gid );
         }
     }
+}
+
+function _sfschool_civicrm_buildForm_CRM_Profile_Form_Edit_3( $formName, &$form, $gid ) {
+    $staffID   = $form->getVar( '_id' );
+
+    require_once 'SFS/Utils/Conference.php';
+    SFS_Utils_Conference::buildPTCForm( $form, $staffID );
 }
 
 function _sfschool_civicrm_buildForm_CRM_Profile_Form_Edit_4( $formName, &$form, $gid ) {

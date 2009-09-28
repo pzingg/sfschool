@@ -26,6 +26,30 @@
 </fieldset>
 {/foreach}
 {/if}
+
+{if $ptcValues}
+<fieldset>
+<legend>Your Parent Teacher Conference Schedule</legend>
+<div>
+<table class="form-layout-compressed">
+  <tr>
+     <th>Student Name</th>
+     <th>Time</th> 
+ </tr>
+{foreach from=$ptcValues item=ptcValue}
+  <tr>
+     <td><a href="{crmURL p='civicrm/profile/view' q="reset=1&gid=4&id=`$ptcValue.id`"}">{$ptcValue.name}</a></td>
+     <td>{$ptcValue.time}</td>
+  </tr>
+{/foreach}
+</table>
+<div>
+<a href="{crmURL p='civicrm/profile/edit' q="reset=1&gid=3&id=`$cid`&mptc=1"}">Manage Parent Teacher Conference Schedule for your class</a>
+</div>
+</div>
+</fieldset>
+{/if}
+
 </div>
 {/if} 
 {* fields array is not empty *}

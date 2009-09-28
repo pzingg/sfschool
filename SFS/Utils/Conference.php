@@ -100,7 +100,6 @@ ORDER BY   a.activity_date_time asc
         }
     }
 
-
     static function postProcess( $class, &$form, $gid ) {
         $advisorID = CRM_Utils_Request::retrieve( 'advisorID', 'Integer', $form, false, null, $_REQUEST );
         $ptc       = CRM_Utils_Request::retrieve( 'ptc'      , 'Integer', $form, false, null, $_REQUEST );
@@ -380,9 +379,9 @@ AND        at.target_contact_id = %1
         $dao = CRM_Core_DAO::executeQuery( $sql, $params );
     }
 
-    static function sendReminderEmail( $days ) {
+    static function sendReminderEmail( $days, $offset = 1 ) {
 
-        $daysMinusOne = $days - 1;
+        $daysOffset = $days - $offset;
 
         $sql = "
 SELECT     a.id, a.activity_date_time,
@@ -396,7 +395,7 @@ AND        a.status_id = 1
 AND        aa.activity_id = a.id
 AND        at.activity_id = a.id
 AND        a.activity_date_time > NOW( )
-AND        a.activity_date_time > ADDDATE( NOW( ), $daysMinusOne )
+AND        a.activity_date_time > ADDDATE( NOW( ), $daysOffset )
 AND        a.activity_date_time < ADDDATE( NOW( ), $days         )
 AND        ( a.phone_number IS NULL OR ROUND( a.phone_number ) > %2 )
 ";
@@ -420,5 +419,128 @@ WHERE  id IN ( $activityIDString )
             CRM_Core_DAO::executeQuery( $sql, $params );
         }
     }
+
+    static function getPTCValuesOccupied( $teacherID, &$values ) {
+        $sql = "
+SELECT     c.id, c.display_name, a.id as activity_id, a.activity_date_time
+FROM       civicrm_contact c
+INNER JOIN civicrm_relationship r ON c.id = r.contact_id_b
+INNER JOIN civicrm_activity_assignment aa ON aa.assignee_contact_id = %1
+INNER JOIN civicrm_activity a ON a.id = aa.activity_id
+INNER JOIN civicrm_activity_target at ON at.target_contact_id = c.id AND at.activity_id = a.id
+WHERE      r.contact_id_a = %1
+AND        aa.assignee_contact_id = %1
+AND        r.relationship_type_id = %2
+ORDER BY   a.activity_date_time
+";
+
+        $params  = array( 1 => array( $teacherID, 'Integer' ),
+                          2 => array( self::ADVISOR_RELATIONSHIP_TYPE_ID, 'Integer' ) );
+
+        $dao = CRM_Core_DAO::executeQuery( $sql, $params );
+        while ( $dao->fetch( ) ) {
+            $values[$dao->id] = array( 'id'          => $dao->id,
+                                       'name'        => $dao->display_name,
+                                       'activity_id' => $dao->activity_id,
+                                       'time'        => CRM_Utils_Date::customFormat( $dao->activity_date_time,
+                                                                                      "%l:%M %P on %b %E%f" ) );
+        }
+    }
+
+    static function getPTCValuesEmpty( $teacherID, &$values ) {
+        $sql = "
+SELECT     a.id as activity_id, a.activity_date_time
+FROM       civicrm_activity a
+INNER JOIN civicrm_activity_assignment aa ON a.id = aa.activity_id
+INNER JOIN civicrm_contact            aac ON aa.assignee_contact_id = aac.id
+INNER JOIN civicrm_relationship         r ON r.contact_id_a = aac.id
+LEFT  JOIN civicrm_activity_target     at ON a.id = at.activity_id
+WHERE      a.activity_type_id = %3
+AND        r.relationship_type_id = %2
+AND        r.is_active = 1
+AND        r.contact_id_a = %1
+AND        a.status_id = 1
+AND        a.activity_date_time > NOW()
+AND        ( at.target_contact_id IS NULL OR at.target_contact_id = %1 )
+ORDER BY   a.activity_date_time asc
+";
+        $params  = array( 1 => array( $teacherID   , 'Integer' ),
+                          2 => array( self::ADVISOR_RELATIONSHIP_TYPE_ID, 'Integer' ),
+                          3 => array( self::CONFERENCE_ACTIVITY_TYPE_ID , 'Integer' ) );
+
+        $dao = CRM_Core_DAO::executeQuery( $sql, $params );
+        while ( $dao->fetch( ) ) {
+            $values[$dao->activity_id] = array( 'id'   => $dao->activity_id,
+                                                'time' => CRM_Utils_Date::customFormat( $dao->activity_date_time,
+                                                                               "%l:%M %P on %b %E%f" ) );
+        }
+    }
+
+    static function &getPTCNeedToScheduleIDs( $staffID,
+                                              $alreadyScheduledIDs ) {
+        $sql = "
+SELECT     c.id, c.display_name
+FROM       civicrm_contact c
+INNER JOIN civicrm_relationship r
+WHERE      c.id = r.contact_id_b
+AND        r.contact_id_a = %1
+AND        r.relationship_type_id = %2
+";
+        if ( ! empty( $alreadyScheduledIDs ) ) {
+            $sql .= "
+AND        c.id NOT IN ( $alreadyScheduledIDs )
+";
+        }
+
+        $sql .= "
+ORDER BY c.display_name
+";
+
+        $params = array( 1 => array( $staffID, 'Integer' ),
+                         2 => array( self::ADVISOR_RELATIONSHIP_TYPE_ID, 'Integer' ) );
+        
+        $dao = CRM_Core_DAO::executeQuery( $sql, $params );
+        $values = array( );
+        while ( $dao->fetch( ) ) {
+            $values[$dao->id] = $dao->display_name;
+        }
+        return $values;
+    }
+
+    static function buildPTCForm( &$form, $staffID ) {
+
+        $occupiedSlots = array( );
+        self::getPTCValuesOccupied( $staffID, $occupiedSlots );
+
+        // create a checkbox to cancel someone's slot
+        foreach ( $occupiedSlots as $id => $values ) {
+            $occupiedSlots[$id]['cb_name'] = "{$id}_{$values['activity_id']}_occupied_cancel";
+            $form->addElement( 'checkbox', $occupiedSlots[$id]['cb_name'], ts( 'Cancel this Meeting?' ) );
+        }
+
+        $emptySlots = array( );
+        self::getPTCValuesEmpty( $staffID, $emptySlots );
+
+        $needToScheduleIDs = self::getPTCNeedToScheduleIDs( $staffID,
+                                                            implode( ',', array_keys( $occupiedSlots ) ) );
+        $needToScheduleIDs[$staffID] = CRM_Core_DAO::getFieldValue( 'CRM_Contact_DAO_Contact',
+                                                                    $staffID,
+                                                                    'display_name' );
+        $needToScheduleIDs = array( '' => ' - select - ' ) + $needToScheduleIDs;
+
+        // create a checkbox to cancel someone's slot
+        foreach ( $emptySlots as $id => $values ) {
+            $emptySlots[$id]['cb_name'] = "{$id}_empty_delete";
+            $form->addElement( 'checkbox', $emptySlots[$id]['cb_name'], ts( 'Delete this timeslot?' ) );
+
+            // also add a select box so they can slot a student (or themselves in there)
+            $emptySlots[$id]['select_name'] = "{$id}_empty_select";
+            $form->add( 'select', $emptySlots[$id]['select_name'], null, $needToScheduleIDs );
+        }
+
+        $form->assign_by_ref( 'occupiedSlots', $occupiedSlots );
+        $form->assign_by_ref( 'emptySlots'   , $emptySlots );
+    }
+
 
 }

@@ -41,7 +41,7 @@ function run( ) {
     require_once '../SFS/Utils/Conference.php';
 
     // send reminder email for all
-    SFS_Utils_Conference::sendReminderEmail( 1 );
+    SFS_Utils_Conference::sendReminderEmail( 7, 7 );
 }
 
 run( );
