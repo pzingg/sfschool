@@ -21,4 +21,24 @@
      <page_callback>SFS_Page_Info</page_callback>
      <access_arguments>profile listings and forms</access_arguments>
   </item>
+  <item>
+     <path>civicrm/sfschool/signin</path>
+     <page_callback>SFS_Page_SignIn</page_callback>
+     <access_arguments>profile listings and forms</access_arguments>
+  </item>
+  <item>
+     <path>civicrm/ajax/sfschool/signin</path>
+     <page_callback>SFS_Page_SignIn::addRecord</page_callback>
+     <access_arguments>profile listings and forms</access_arguments>
+  </item>
+  <item>
+     <path>civicrm/ajax/sfschool/contactlist</path>
+     <page_callback>SFS_Page_SignIn::getStudents</page_callback>
+     <access_arguments>profile listings and forms</access_arguments>
+  </item>
+  <item>
+     <path>civicrm/ajax/sfschool/addnew</path>
+     <page_callback>SFS_Page_SignIn::addNewStudents</page_callback>
+     <access_arguments>profile listings and forms</access_arguments>
+  </item>
 </menu>
