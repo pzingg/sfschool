@@ -64,7 +64,7 @@ class SFS_Page_SignIn extends CRM_Core_Page {
     * Function to add attendance data
     */
     static function addRecord( ) {
-        // currently you get contact id and day
+        // currently you get contact id, day, if checkbox was checked or unchecked (true or false)
         // crm_core_error::debug( $_POST );
         exit();
     }

@@ -51,7 +51,7 @@
     
         cj(".status").click( function( ) {
             var dataUrl = {/literal}"{crmURL p='civicrm/ajax/sfschool/signin' h=0 }"{literal};
-            cj.post( dataUrl, { contactID: cj(this).val(), day: "Monday" },
+            cj.post( dataUrl, { contactID: cj(this).val(), day: "Monday", checked: cj(this).attr('checked') },
                function(data){
                   cj("#existing-status").show( );
             });
