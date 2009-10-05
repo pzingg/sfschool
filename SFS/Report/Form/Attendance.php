@@ -147,6 +147,7 @@ SELECT contact_civireport.id as contact_civireport_id,
 FROM   civicrm_value_extended_care_2 value_extended_care_2_civireport
 INNER  JOIN civicrm_contact as contact_civireport ON value_extended_care_2_civireport.entity_id = contact_civireport.id
 WHERE  value_extended_care_2_civireport.{$this->_colMapper['sessionName']} = '{$sname->session_name}' AND 
+       value_extended_care_2_civireport.{$this->_colMapper['sessionOrder']} = '{$sname->session_order}' AND
        value_extended_care_2_civireport.{$this->_colMapper['dayOfWeek']} = '{$this->_params['weekday_value']}' AND
        value_extended_care_2_civireport.{$this->_colMapper['isCancelled']} != 1
 GROUP BY contact_civireport.id;
