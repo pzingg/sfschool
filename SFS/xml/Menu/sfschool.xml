@@ -37,6 +37,11 @@
      <access_arguments>profile listings and forms</access_arguments>
   </item>
   <item>
+     <path>civicrm/ajax/sfschool/classlist</path>
+     <page_callback>SFS_Page_SignIn::getClasses</page_callback>
+     <access_arguments>profile listings and forms</access_arguments>
+  </item>
+  <item>
      <path>civicrm/ajax/sfschool/addnew</path>
      <page_callback>SFS_Page_SignIn::addNewStudents</page_callback>
      <access_arguments>profile listings and forms</access_arguments>

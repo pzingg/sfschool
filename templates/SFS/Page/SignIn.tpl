@@ -4,6 +4,7 @@
     <thead>
         <tr>
             <th>{ts}Student Name{/ts}</th>
+            <th>{ts}Grade{/ts}</th>
             <th>{ts}Class Name{/ts}</th>
             <th>{ts}Attended{/ts}</th>
         </tr>
@@ -13,8 +14,9 @@
         {foreach from=$studentDetails item=row}
         <tr>
             <td>{$row.display_name}</td>	
+            <td>{$row.grade}</td>	
             <td>{$row.course_name}</td>	
-            <td><input type="checkbox" class="status" name="check{$row.contact_id}" value="{$row.contact_id}"></td>
+            <td><input type="checkbox" class="status" name="check_{$row.contact_id}" value="{$row.contact_id}:::{$row.course_name}"></td>
         </tr>
         {/foreach}
     </tbody>
@@ -30,6 +32,7 @@
                 {ts}Student Name{/ts}&nbsp;<input type="text" name="contact" id="contact">
                 <input type="hidden" name="contact_id">
                 &nbsp;&nbsp;{ts}Class Name{/ts}&nbsp;<input type="text" name="course" id="course">
+                <input type="hidden" name="course_name">
                 &nbsp;&nbsp;<input type="submit" name="Add" id="Add" value="Add">
             </td>
         </tr>
@@ -51,9 +54,10 @@
             "aoColumns": [
                           null,
                           null,
+                          null,
                           { "bSortable": false }
                          ],
-            "aaSorting": [[1,'asc'], [0,'asc']]
+            "aaSorting": [[2,'asc'], [0,'asc']]
         } );        
     
         cj(".status").click( function( ) {
@@ -67,7 +71,8 @@
         });
     
         {/literal}    
-        var contactUrl = "{crmURL p='civicrm/ajax/sfschool/contactlist' q="context=newcontact&dayOfWeek=`$dayOfWeek`" h=0 }"
+        var contactUrl = "{crmURL p='civicrm/ajax/sfschool/contactlist' q="dayOfWeek=`$dayOfWeek`" h=0 }"
+        var classUrl  = "{crmURL p='civicrm/ajax/sfschool/classlist' q="dayOfWeek=`$dayOfWeek`" h=0 }"
 
         {literal};
         cj("#contact").autocomplete( contactUrl, {
@@ -75,7 +80,14 @@
             matchContains: true 
           }).result(function(event, data, formatted) {
           	 cj("input[name=contact_id]").val(data[1]);
-          });
+        });
+
+        cj("#course").autocomplete( classUrl, {
+            selectFirst: false, 
+            matchContains: true 
+          }).result(function(event, data, formatted) {
+          	 cj("input[name=course_name]").val(data[1]);
+        });
         
           cj("#Add").click( function( ) {
               var dataUrl = {/literal}"{crmURL p='civicrm/ajax/sfschool/addnew' h=0 }"{literal};

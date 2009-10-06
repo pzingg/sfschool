@@ -57,10 +57,12 @@ class SFS_Page_SignIn extends CRM_Core_Page {
 
     function run( ) {
         $sql = "
-SELECT  c.id as contact_id, c.display_name as display_name, s.name as course_name
+SELECT  c.id as contact_id, c.display_name as display_name, s.name as course_name, v.grade as grade
 FROM    civicrm_contact c,
-        civicrm_value_extended_care_2 s
+        civicrm_value_extended_care_2 s,
+        civicrm_value_school_information_1 v
 WHERE   s.entity_id = c.id
+AND     v.entity_id = c.id
 AND     s.has_cancelled = 0
 AND     s.day_of_week = '{$this->_dayOfWeek}'
 ORDER BY s.name";
@@ -70,7 +72,8 @@ ORDER BY s.name";
         $studentDetails = array( );
         while( $dao->fetch( ) ) {
             $studentDetails[ ] = array( 'display_name' => $dao->display_name,
-                                        'course_name'   => $dao->course_name,
+                                        'course_name'  => $dao->course_name,
+                                        'grade'        => $dao->grade,
                                         'contact_id'   => $dao->contact_id
                                       );
         }
@@ -84,11 +87,12 @@ ORDER BY s.name";
     */
     static function addRecord( ) {
         // currently you get contact id, day, if checkbox was checked or unchecked (true or false)
-        $cid       = CRM_Utils_Request::retrieve( 'contactID', 'Integer',
+        $cidString = CRM_Utils_Request::retrieve( 'contactID', 'String',
                                                   CRM_Core_DAO::$_nullObject,
                                                   true,
                                                   null,
                                                   'REQUEST' );
+        list( $cid, $course ) = CRM_Utils_System::explode( ':::', $cidString, 2 );
         $date      = CRM_Utils_Request::retrieve( 'date'     , 'String', 
                                                   CRM_Core_DAO::$_nullObject,
                                                   false, date( 'Ymd' ),
@@ -102,7 +106,7 @@ ORDER BY s.name";
                                                   false, 'true',
                                                   'REQUEST' );
 
-        self::addStudentToClass( $cid, $date, $time, $checked );
+        self::addStudentToClass( $cid, $date, $time, $checked, $course );
     }
 
     static function addStudentToClass( $cid, $date, $time, $checked = 'true', $course = '' ) {
@@ -120,22 +124,31 @@ AND    DATE( signin_time ) = %2
         
         $dao    = CRM_Core_DAO::executeQuery( $sql, $params );
 
+        $sql = null;
         if ( ! $dao->fetch( ) ) {
             if ( $checked != 'false' ) {
                 $sql = "
 INSERT INTO civicrm_value_extended_care_signout_3 ( entity_id, signin_time, class )
 VALUES ( %1, %3, %4 )
 ";
-                $dao = CRM_Core_DAO::executeQuery( $sql, $params );
             }
         } else {
+            $params[5] = array( $dao->id, 'Integer' );
             if ( $checked == 'false' ) {
                 $sql = "
 DELETE FROM civicrm_value_extended_care_signout_3
-WHERE  id = {$dao->id}
+WHERE  id = %5
 ";
-                $dao = CRM_Core_DAO::executeQuery( $sql, $params );
+            } else {
+                $sql = "
+UPDATE civicrm_value_extended_care_signout_3 
+SET    signin_time = %3, class = %4
+WHERE  id = %5
+";
             }
+        }
+        if ( $sql ) {
+            CRM_Core_DAO::executeQuery( $sql, $params );
         }
         exit( );
     }
@@ -156,35 +169,45 @@ WHERE  id = {$dao->id}
             $limit = CRM_Utils_Type::escape( $_GET['limit'], 'Positive' );
         }
 
-        $query = "
-SELECT c.id, c.display_name
+        $sql = "
+SELECT c.id, c.display_name, s.grade
 FROM   civicrm_contact c,
        civicrm_value_school_information_1 s
 WHERE  s.entity_id = c.id
 AND    s.grade_sis >= 1
 AND    s.subtype = 'Student'
-
-AND    c.id NOT IN (
-    SELECT DISTINCT(c.id)
-    FROM   civicrm_contact c,
-           civicrm_value_extended_care_2 s
-    WHERE  s.entity_id = c.id
-    AND    s.has_cancelled = 0
-    AND    s.day_of_week = %1
-  )
-AND c.sort_name LIKE '%$name%'
+AND    c.sort_name LIKE '%$name%'
 ORDER BY sort_name
 LIMIT 0, {$limit}
 ";
         $params = array( 1 => array( $dayOfWeek, 'String' ) );
-        $dao = CRM_Core_DAO::executeQuery( $query, $params );
+        $dao = CRM_Core_DAO::executeQuery( $sql, $params );
         $contactList = null;
         while ( $dao->fetch( ) ) {
-            echo $contactList = "$dao->display_name|$dao->id\n";
+            echo "{$dao->display_name} (Grade {$dao->grade})|{$dao->id}\n";
         }
         exit();        
     }
-    
+
+    static function getClasses( ) {
+        $name = CRM_Utils_Type::escape( $_GET['s'], 'String' );
+
+
+        $sql = "
+SELECT DISTINCT( name )
+FROM   civicrm_value_extended_care_2
+WHERE  has_cancelled != 1
+AND    term = %1
+ORDER BY name
+";
+        require_once 'SFS/Utils/ExtendedCare.php';
+        $params = array( 1 => array( SFS_Utils_ExtendedCare::getTerm( ), 'String' ) );
+        $dao = CRM_Core_DAO::executeQuery( $sql, $params );
+        while ( $dao->fetch( ) ) {
+            echo "{$dao->name}|{$dao->name}\n";
+        }
+    }
+
     /**
     * Function to add attendance data
     */
