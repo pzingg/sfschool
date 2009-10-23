@@ -289,7 +289,6 @@ GROUP BY r.contact_id_b
                                                   true );
 
         // perform validation on the parameters
-    
         require_once 'CRM/Activity/DAO/Activity.php';
         require_once 'CRM/Activity/DAO/ActivityAssignment.php';
 
@@ -304,18 +303,21 @@ GROUP BY r.contact_id_b
 
             }
             
-            // skip 3:00 pm slot for elementary school intake conference
-            if ( $time != 15 ) {
+            // skip 8:00 am slot for middle school
+            if ( $time != '08' ) {
                 self::createConference( $adminID, $teacherID,
                                         self::CONFERENCE_ACTIVITY_TYPE_ID,
                                         "{$date}{$time}0000",
                                         $subject, $location, $statusID, $duration );
             }
 
-            self::createConference( $adminID, $teacherID,
-                                    self::CONFERENCE_ACTIVITY_TYPE_ID,
-                                    "{$date}{$time}3000",
-                                    $subject, $location, $statusID );
+            // skip 5:30 pm slot
+            if ( $time != '17' ) {
+                self::createConference( $adminID, $teacherID,
+                                        self::CONFERENCE_ACTIVITY_TYPE_ID,
+                                        "{$date}{$time}3000",
+                                        $subject, $location, $statusID );
+            }
 
         }
 
