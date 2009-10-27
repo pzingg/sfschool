@@ -1,4 +1,7 @@
 <div style="float: right;"><a href="#addNew">Enroll new student for the course</a></div>
+<div>
+Attendance Sheet for {$dayOfWeek}, {$date} {$time}
+</div>
 <span class="success-status" id="existing-status" style="display:none;">{ts}Attendance is saved.{/ts}</span>
 <table id="records" class="display">
     <thead>
@@ -7,6 +10,9 @@
             <th>{ts}Grade{/ts}</th>
             <th>{ts}Class Name{/ts}</th>
             <th>{ts}Attended{/ts}</th>
+	    {if $signOut}
+            <th>{ts}Sign Out Time{/ts}</th>
+            {/if}
         </tr>
     </thead>
     
@@ -16,7 +22,19 @@
             <td>{$row.display_name}</td>	
             <td>{$row.grade}</td>	
             <td>{$row.course_name}</td>	
-            <td><input type="checkbox" class="status" name="check_{$row.contact_id}" value="{$row.contact_id}:::{$row.course_name}"></td>
+            <td><input type="checkbox" class="status" name="check_{$row.contact_id}" value="{$row.contact_id}:::{$row.course_name}" {if $row.is_marked}checked="1"{/if}"></td>
+	    {if $signOut}
+            <td>
+            <select name="signout_{$row.contact_id}" id="signout_{$row.contact_id}" class="form-select">
+   	      <option value="">- select -</option>
+	      <option value="1">Before 3:30 pm</option>
+	      <option value="2">3:30 - 4:30 pm</option>
+	      <option value="3">4:30 - 5:15 pm</option>
+	      <option value="4">5:15 - 6:00 pm</option>
+	      <option value="5">After 6:00 pm</option>
+            </select> 
+            </td>
+           {/if}
         </tr>
         {/foreach}
     </tbody>

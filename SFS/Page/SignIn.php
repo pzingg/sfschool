@@ -46,35 +46,41 @@ class SFS_Page_SignIn extends CRM_Core_Page {
     function __construct( $title = null, $mode = null ) {
         parent::__construct( $title, $mode );
 
-        $this->_dayOfWeek = CRM_Utils_Request::retrieve( 'dayOfWeek', 'String', $this, false, date( 'l'   ) );
-        $this->_date      = CRM_Utils_Request::retrieve( 'date'     , 'String', $this, false, date( 'Y-m-d' ) );
-        $this->_time      = CRM_Utils_Request::retrieve( 'time'     , 'String', $this, false, date( 'G:i'  ) );
+        $this->_dayOfWeek = CRM_Utils_Request::retrieve( 'dayOfWeek', 'String' , $this, false, date( 'l'   ) );
+        $this->_date      = CRM_Utils_Request::retrieve( 'date'     , 'String' , $this, false, date( 'Y-m-d' ) );
+        $this->_time      = CRM_Utils_Request::retrieve( 'time'     , 'String' , $this, false, date( 'G:i'  ) );
+        $this->_signOut   = CRM_Utils_Request::retrieve( 'signOut'  , 'Integer', $this, false, 0 );
 
         $this->assign( 'dayOfWeek', $this->_dayOfWeek );
-        $this->assign( 'date'     , $this->_date );
-        $this->assign( 'time'     , $this->_time );
+        $this->assign( 'date'     , $this->_date      );
+        $this->assign( 'time'     , $this->_time      );
+        $this->assign( 'signOut'  , $this->_signOut   );
+
     }
 
     function run( ) {
         $sql = "
-SELECT  c.id as contact_id, c.display_name as display_name, s.name as course_name, v.grade as grade
-FROM    civicrm_contact c,
-        civicrm_value_extended_care_2 s,
-        civicrm_value_school_information_1 v
-WHERE   s.entity_id = c.id
-AND     v.entity_id = c.id
-AND     s.has_cancelled = 0
-AND     s.day_of_week = '{$this->_dayOfWeek}'
+SELECT     c.id as contact_id, c.display_name as display_name, s.name as course_name, v.grade as grade, sout.class as sout_class, sout.id as sout_id
+FROM       civicrm_contact c
+INNER JOIN civicrm_value_extended_care_2 s ON s.entity_id = c.id
+INNER JOIN civicrm_value_school_information_1 v ON v.entity_id = c.id
+LEFT  JOIN civicrm_value_extended_care_signout_3 sout ON sout.entity_id = c.id
+WHERE      s.has_cancelled = 0
+AND        s.day_of_week = '{$this->_dayOfWeek}'
+AND        ( DATE( sout.signin_time ) = %1 OR sout.id IS NULL )
 ORDER BY s.name";
 
-        $dao = CRM_Core_DAO::executeQuery( $sql );
+        $params = array( 1 => array( $this->_date, 'String' ) );
+
+        $dao = CRM_Core_DAO::executeQuery( $sql, $params );
         
         $studentDetails = array( );
         while( $dao->fetch( ) ) {
             $studentDetails[ ] = array( 'display_name' => $dao->display_name,
-                                        'course_name'  => $dao->course_name,
+                                        'course_name'  => $dao->sout_class ? $dao->sout_class : $dao->course_name,
                                         'grade'        => $dao->grade,
-                                        'contact_id'   => $dao->contact_id
+                                        'contact_id'   => $dao->contact_id,
+                                        'is_marked'    => $dao->sout_id ? 1 : 0,
                                       );
         }
         

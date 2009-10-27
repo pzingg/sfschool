@@ -36,10 +36,19 @@
 require_once 'CRM/Core/Form.php';
 
 class SFS_Form_Record extends CRM_Core_Form {
+    const
+        MAX_NUMBER = 10;
+
     protected $_grade;
     protected $_students;
 
+    protected $_maxNumber;
+
     function buildQuickForm( ) {
+
+        $this->_maxNumber = self::MAX_NUMBER;
+        $this->assign( 'maxNumber', $this->_maxNumber );
+
         $this->add( 'text',
                     'pickup_name',
                     ts( 'Pickup Person Name' ),
@@ -60,7 +69,7 @@ class SFS_Form_Record extends CRM_Core_Form {
         $this->_students =& SFS_Utils_Query::getStudentsByGrade( true );
 
         $studentElement = array( );
-        for ( $i = 1; $i <= 4; $i++ ) {
+        for ( $i = 1; $i <= $this->_maxNumber; $i++ ) {
             $required = $i == 1 ? true : false;
             $studentElement[$i] =& $this->add( 'hierselect',
                                                "grade_student_id_$i",

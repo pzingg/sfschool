@@ -89,5 +89,22 @@
       <column_name>class</column_name>
       <custom_group_title>Extended Care Signout</custom_group_title>
     </CustomField>
+    <CustomField>
+      <label>Morning Care</label>
+      <data_type>Boolean</data_type>
+      <html_type>Radio</html_type>
+      <is_required>0</is_required>
+      <is_searchable>1</is_searchable>
+      <is_search_range>0</is_search_range>
+      <weight>7</weight>
+      <is_active>1</is_active>
+      <is_view>0</is_view>
+      <text_length>64</text_length>
+      <date_parts>M:;:;:;d:;:;:;Y</date_parts>
+      <note_columns>60</note_columns>
+      <note_rows>4</note_rows>
+      <column_name>is_morning</column_name>
+      <custom_group_title>Extended Care Signout</custom_group_title>
+    </CustomField>
   </CustomFields>
 </CustomData>
