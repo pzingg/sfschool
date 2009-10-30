@@ -36,7 +36,10 @@
 class SFS_Utils_Conference {
     const
         ADVISOR_RELATIONSHIP_TYPE_ID = 10,
-        CONFERENCE_ACTIVITY_TYPE_ID  = 20;
+        CONFERENCE_ACTIVITY_TYPE_ID  = 20,
+        SUBJECT  = 'Fall 2009 Parent Teacher Conference',
+        LOCATION = 'San Francisco School',
+        STATUS   = 1;
 
     static function buildForm( &$form, $gid ) {
         $advisorID = CRM_Utils_Request::retrieve( 'advisorID', 'Integer', $form, false, null, $_REQUEST );
@@ -113,26 +116,8 @@ ORDER BY   a.activity_date_time asc
         $activityID = CRM_Utils_Array::value( 'sfschool_activity_id', $params );
         $childID    = $form->getVar( '_id' );
 
-        if ( empty( $activityID ) || empty( $childID ) ) {
-            return;
-        }
 
-        // first we need to delete all the existing meetings for this childID
-        self::deleteAll( $childID );
-
-        // insert these two into civicrm_target
-        // we actually need to lock this and then ensure the space is available
-        // lets do that at a later stage
-        $sql = "
-REPLACE INTO civicrm_activity_target (activity_id, target_contact_id)
-VALUES
-( %1, %2 )
-";
-        $params = array( 1 => array( $activityID, 'Integer' ),
-                         2 => array( $childID   , 'Integer' ) );
-        CRM_Core_DAO::executeQuery( $sql, $params );
-
-        self::sendConferenceEmail( $activityID, $advisorID, $childID );
+        self::selectPTC( $advisorID, $childID, $activityID );
     }
 
     function sendConferenceEmail( $activityID, $advisorID, $childID, $dateTime = null ) {
@@ -259,7 +244,7 @@ GROUP BY r.contact_id_b
         }
     }
 
-    static function createConferenceSchedule( $statusID, $subject, $location ) {
+    static function createConferenceSchedule( ) {
         require_once 'CRM/Utils/Request.php';
     
         // we need the admin id, teacher id, date, start time and end time
@@ -308,7 +293,10 @@ GROUP BY r.contact_id_b
                 self::createConference( $adminID, $teacherID,
                                         self::CONFERENCE_ACTIVITY_TYPE_ID,
                                         "{$date}{$time}0000",
-                                        $subject, $location, $statusID, $duration );
+                                        self::SUBJECT,
+                                        self::LOCATION,
+                                        self::STATUS,
+                                        $duration );
             }
 
             // skip 5:30 pm slot
@@ -316,7 +304,10 @@ GROUP BY r.contact_id_b
                 self::createConference( $adminID, $teacherID,
                                         self::CONFERENCE_ACTIVITY_TYPE_ID,
                                         "{$date}{$time}3000",
-                                        $subject, $location, $statusID );
+                                        self::SUBJECT,
+                                        self::LOCATION,
+                                        self::STATUS,
+                                        $duration );
             }
 
         }
@@ -331,6 +322,7 @@ GROUP BY r.contact_id_b
                                       $location,
                                       $statusID,
                                       $duration = 30 ) {
+        require_once 'CRM/Activity/DAO/Activity.php';
 
         $activity = new CRM_Activity_DAO_Activity( );
 
@@ -343,6 +335,7 @@ GROUP BY r.contact_id_b
         $activity->location           = $location;
         $activity->save( );
 
+        require_once 'CRM/Activity/DAO/ActivityAssignment.php';
         $assignment = new CRM_Activity_DAO_ActivityAssignment( );
         $assignment->activity_id = $activity->id;
         $assignment->assignee_contact_id = $teacherID;
@@ -424,7 +417,7 @@ WHERE  id IN ( $activityIDString )
 
     static function getPTCValuesOccupied( $teacherID, &$values ) {
         $sql = "
-SELECT     c.id, c.display_name, a.id as activity_id, a.activity_date_time
+SELECT     c.id, c.display_name, a.id as activity_id, a.activity_date_time, at.id as target_id
 FROM       civicrm_contact c
 INNER JOIN civicrm_relationship r ON c.id = r.contact_id_b
 INNER JOIN civicrm_activity_assignment aa ON aa.assignee_contact_id = %1
@@ -433,6 +426,7 @@ INNER JOIN civicrm_activity_target at ON at.target_contact_id = c.id AND at.acti
 WHERE      r.contact_id_a = %1
 AND        aa.assignee_contact_id = %1
 AND        r.relationship_type_id = %2
+AND        a.status_id = 1
 ORDER BY   a.activity_date_time
 ";
 
@@ -441,11 +435,12 @@ ORDER BY   a.activity_date_time
 
         $dao = CRM_Core_DAO::executeQuery( $sql, $params );
         while ( $dao->fetch( ) ) {
-            $values[$dao->id] = array( 'id'          => $dao->id,
-                                       'name'        => $dao->display_name,
-                                       'activity_id' => $dao->activity_id,
-                                       'time'        => CRM_Utils_Date::customFormat( $dao->activity_date_time,
-                                                                                      "%l:%M %P on %b %E%f" ) );
+            $values[$dao->id] = array( 'id'            => $dao->id,
+                                       'name'          => $dao->display_name,
+                                       'activity_id'   => $dao->activity_id,
+                                       'target_id'     => $dao->target_id,
+                                       'time'          => CRM_Utils_Date::customFormat( $dao->activity_date_time,
+                                                                                        "%l:%M %P on %b %E%f" ) );
         }
     }
 
@@ -472,9 +467,9 @@ ORDER BY   a.activity_date_time asc
 
         $dao = CRM_Core_DAO::executeQuery( $sql, $params );
         while ( $dao->fetch( ) ) {
-            $values[$dao->activity_id] = array( 'id'   => $dao->activity_id,
-                                                'time' => CRM_Utils_Date::customFormat( $dao->activity_date_time,
-                                                                               "%l:%M %P on %b %E%f" ) );
+            $values[$dao->activity_id] = array( 'id'        => $dao->activity_id,
+                                                'time'      => CRM_Utils_Date::customFormat( $dao->activity_date_time,
+                                                                                             "%l:%M %P on %b %E%f" ) );
         }
     }
 
@@ -516,7 +511,7 @@ ORDER BY c.display_name
 
         // create a checkbox to cancel someone's slot
         foreach ( $occupiedSlots as $id => $values ) {
-            $occupiedSlots[$id]['cb_name'] = "{$id}_{$values['activity_id']}_occupied_cancel";
+            $occupiedSlots[$id]['cb_name'] = "cancel_{$id}_{$values['target_id']}";
             $form->addElement( 'checkbox', $occupiedSlots[$id]['cb_name'], ts( 'Cancel this Meeting?' ) );
         }
 
@@ -532,17 +527,122 @@ ORDER BY c.display_name
 
         // create a checkbox to cancel someone's slot
         foreach ( $emptySlots as $id => $values ) {
-            $emptySlots[$id]['cb_name'] = "{$id}_empty_delete";
+            $emptySlots[$id]['cb_name'] = "delete_{$id}";
             $form->addElement( 'checkbox', $emptySlots[$id]['cb_name'], ts( 'Delete this timeslot?' ) );
 
             // also add a select box so they can slot a student (or themselves in there)
-            $emptySlots[$id]['select_name'] = "{$id}_empty_select";
+            $emptySlots[$id]['select_name'] = "select_{$id}";
             $form->add( 'select', $emptySlots[$id]['select_name'], null, $needToScheduleIDs );
         }
 
         $form->assign_by_ref( 'occupiedSlots', $occupiedSlots );
         $form->assign_by_ref( 'emptySlots'   , $emptySlots );
+
+        // also expose elements to allow the staff to create a conference
+        // we need a date time and duration
+        $form->add( 'date'    , "slot_date", ts( 'Date' ),
+                    CRM_Core_SelectValues::date('datetime') );
+        $form->add( 'text', "slot_duration" , ts( 'Duration' ),
+                    array( 'size'=> 4,'maxlength' => 8 ) );
+
+        $form->addRule('slot_duration', 
+                       ts('Please enter the duration as number of minutes (integers only).'), 'positiveInteger');  
+        $form->addRule('slot_date', ts('Select a valid date.'), 'qfDate');
     }
 
+    static function validatePTCForm( &$form, &$fields ) {
+        $errors = array( );
+
+        foreach ( $fields as $name => $value ) {
+            $match = preg_match( '/^(select_|delete_|cancel_)(\d+)_?(\d+)?$/', $name, $matches );
+            if ( ! empty( $value ) &&
+                 $match ) {
+                if ( $matches[1] == 'delete_' ) {
+                    if ( array_key_exists( "select_{$matches[2]}", $fields ) &&
+                         ! empty( $fields["select_{$matches[2]}"] ) ) {
+                        $errors["delete_{$matches[2]}"] = ts( 'You cannot schedule and delete a slot at the same time' );
+                    }
+                }
+            }
+        }
+        return empty( $errors ) ? true : $errors;
+    }
+
+    static function postProcessPTC( &$form, $advisorID ) {
+        $params =  $form->controller->exportValues( $form->getVar( '_name' ) );
+
+        // collect all the ids
+        foreach ( $params as $name => $value ) {
+            $match = preg_match( '/^(select_|delete_|cancel_)(\d+)_?(\d+)?$/', $name, $matches );
+            if ( ! empty( $value ) &&
+                 $match ) {
+                if ( $matches[1] == 'delete_' ) {
+                    self::deletePTC( $advisorID, $matches[2] );
+                } else if ( $matches[1] == 'select_' ) {
+                    self::selectPTC( $advisorID, $value, $matches[2] );
+                } else if ( $matches[1] == 'cancel_' ) {
+                    self::cancelPTC( $advisorID, $matches[2], $matches[3] );
+                }
+            }
+        }
+
+        // check if date and duration are filled
+        if ( ! empty( $params['slot_date'] ) &&
+             ! empty( $params['slot_duration'] ) ) {
+            $date =  CRM_Utils_Date::format( $params['slot_date'] );
+            self::createConference( $advisorID, $advisorID,
+                                    self::CONFERENCE_ACTIVITY_TYPE_ID,
+                                    $date,
+                                    self::SUBJECT,
+                                    self::LOCATION,
+                                    self::STATUS,
+                                    $params['slot_duration'] );
+        }
+
+    }
+
+    static function deletePTC( $advisorID, $activityID ) {
+        $sql = "
+DELETE     a.*, aa.*
+FROM       civicrm_activity a
+INNER JOIN civicrm_activity_assignment aa ON a.id = aa.activity_id
+WHERE      a.id = %1
+AND        aa.assignee_contact_id = %2
+";
+        $params = array( 1 => array( $activityID, 'Integer' ),
+                         2 => array( $advisorID , 'Integer' ) );
+        $dao = CRM_Core_DAO::executeQuery( $sql, $params );
+    }
+
+    static function cancelPTC( $advisorID, $childID, $targetID ) {
+        if ( empty( $advisorID ) ) {
+            return;
+        }
+
+        self::deleteAll( $childID );
+    }
+
+    static function selectPTC( $advisorID, $childID, $activityID ) {
+        if ( empty( $activityID ) || empty( $childID ) ) {
+            return;
+        }
+
+        // first we need to delete all the existing meetings for this childID
+        self::deleteAll( $childID );
+
+        // insert these two into civicrm_target
+        // we actually need to lock this and then ensure the space is available
+        // lets do that at a later stage
+        $sql = "
+REPLACE INTO civicrm_activity_target (activity_id, target_contact_id)
+VALUES
+( %1, %2 )
+";
+        $params = array( 1 => array( $activityID, 'Integer' ),
+                         2 => array( $childID   , 'Integer' ) );
+        CRM_Core_DAO::executeQuery( $sql, $params );
+
+        self::sendConferenceEmail( $activityID, $advisorID, $childID );
+    }
 
 }

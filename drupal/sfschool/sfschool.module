@@ -45,10 +45,10 @@ function sfschool_civicrm_pageRun( &$page ) {
     $name = $page->getVar( '_name' );
     if ( $name == 'CRM_Profile_Page_Dynamic' ) {
         $gid = $page->getVar( '_gid' );
-        if ( $gid == 3 ) {
+        switch ( $gid ) {
+        case 3:
             return _sfschool_civicrm_pageRun_Profile_Page_Dynamic_3( $page, $gid );
-        }
-        if ( $gid == 4 ) {
+        case 4:
             return _sfschool_civicrm_pageRun_Profile_Page_Dynamic_4( $page, $gid );
         }
     } else if ( $name == 'CRM_Contact_Page_View_CustomData' ) {
@@ -101,8 +101,6 @@ function _sfschool_civicrm_pageRun_Profile_Page_Dynamic_3( &$page, $gid ) {
 
 }
 
-
-
 function _sfschool_civicrm_pageRun_Profile_Page_Dynamic_4( &$page, $gid ) {
     $childID = $page->getVar( '_id' );
 
@@ -145,6 +143,17 @@ function sfschool_civicrm_buildForm( $formName, &$form ) {
     }
 }
 
+function sfschool_civicrm_validate( $formName, &$fields, &$files, &$form ) {
+    if ( $formName == 'CRM_Profile_Form_Edit' ) {
+        $gid = $form->getVar( '_gid' );
+        if ( $gid = 3 ) {
+            require_once 'SFS/Utils/Conference.php';
+            return SFS_Utils_Conference::validatePTCForm( $form, $fields );
+        }
+    }
+    return null;
+}
+	
 function sfschool_civicrm_postProcess( $class, &$form ) {
     _sfschool_initialize( );
 
@@ -162,6 +171,10 @@ function sfschool_civicrm_postProcess( $class, &$form ) {
 function _sfschool_civicrm_buildForm_CRM_Profile_Form_Edit_3( $formName, &$form, $gid ) {
     $staffID   = $form->getVar( '_id' );
 
+    // freeze first name, last name and grade
+    $elementList = array( 'first_name', 'last_name', 'email-Primary', 'phone-Primary' );
+    $form->freeze( $elementList );
+
     require_once 'SFS/Utils/Conference.php';
     SFS_Utils_Conference::buildPTCForm( $form, $staffID );
 }
@@ -178,6 +191,14 @@ function _sfschool_civicrm_buildForm_CRM_Profile_Form_Edit_4( $formName, &$form,
 
     require_once 'SFS/Utils/ExtendedCare.php';
     SFS_Utils_ExtendedCare::buildForm( $form, $childID );
+}
+
+
+function sfschool_civicrm_postProcess_CRM_Profile_Form_Edit_3( $class, &$form, $gid ) {
+    $staffID   = $form->getVar( '_id' );
+
+    require_once 'SFS/Utils/Conference.php';
+    SFS_Utils_Conference::postProcessPTC( $form, $staffID );
 }
 
 

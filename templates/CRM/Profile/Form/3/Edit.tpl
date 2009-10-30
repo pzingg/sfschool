@@ -154,7 +154,6 @@
  </tr>
 {/foreach}
 </table>
-</fieldset>
 {/if}
 
 {if $emptySlots}
@@ -175,6 +174,22 @@
    <td>{$form.$cb_name.html}</td>
  </tr>
 {/foreach}
+</table>
+</fieldset>
+{/if}
+
+{if $occupiedSlots or $emptySlots}
+<fieldset>
+<legend>Add a New Conference Slot</legend>
+<table class="form-layout-compressed">
+  <tr>
+    <th>Date</th>
+    <th>Duration</th>
+  </tr>
+  <tr>
+     <td>{$form.slot_date.html}</td>
+     <td>{$form.slot_duration.html}</td>
+  </tr>
 </table>
 </fieldset>
 {/if}
