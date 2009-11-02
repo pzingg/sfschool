@@ -340,6 +340,8 @@ GROUP BY r.contact_id_b
         $assignment->activity_id = $activity->id;
         $assignment->assignee_contact_id = $teacherID;
         $assignment->save( );
+
+        return $activity->id;
     }
 
     static function deleteAll( $childID ) {
@@ -544,6 +546,7 @@ ORDER BY c.display_name
                     CRM_Core_SelectValues::date('datetime') );
         $form->add( 'text', "slot_duration" , ts( 'Duration' ),
                     array( 'size'=> 4,'maxlength' => 8 ) );
+        $form->add( 'select', 'slot_contact_id', null, $needToScheduleIDs );
 
         $form->addRule('slot_duration', 
                        ts('Please enter the duration as number of minutes (integers only).'), 'positiveInteger');  
@@ -552,7 +555,8 @@ ORDER BY c.display_name
 
     static function validatePTCForm( &$form, &$fields ) {
         $errors = array( );
-
+        
+        $selectedIDs = array( );
         foreach ( $fields as $name => $value ) {
             $match = preg_match( '/^(select_|delete_|cancel_)(\d+)_?(\d+)?$/', $name, $matches );
             if ( ! empty( $value ) &&
@@ -560,8 +564,15 @@ ORDER BY c.display_name
                 if ( $matches[1] == 'delete_' ) {
                     if ( array_key_exists( "select_{$matches[2]}", $fields ) &&
                          ! empty( $fields["select_{$matches[2]}"] ) ) {
-                        $errors["delete_{$matches[2]}"] = ts( 'You cannot schedule and delete a slot at the same time' );
+                        $errors[$name] = ts( 'You cannot schedule and delete a slot at the same time' );
                     }
+                }
+
+                if ( $matches[1] == 'select_' ) {
+                    if ( array_key_exists( $value, $selectedIDs ) ) {
+                        $errors[$name] = ts( 'You cannot schedule the same person multiple times' );
+                    }
+                    $selectedIDs[$value] = 1;
                 }
             }
         }
@@ -587,18 +598,23 @@ ORDER BY c.display_name
         }
 
         // check if date and duration are filled
-        if ( ! empty( $params['slot_date'] ) &&
-             ! empty( $params['slot_duration'] ) ) {
+        if ( ! empty( $params['slot_date'] ) ) {
+            $duration = empty( $params['slot_duration'] ) ? 30 : $params['slot_duration'];
             $date =  CRM_Utils_Date::format( $params['slot_date'] );
-            self::createConference( $advisorID, $advisorID,
-                                    self::CONFERENCE_ACTIVITY_TYPE_ID,
-                                    $date,
-                                    self::SUBJECT,
-                                    self::LOCATION,
-                                    self::STATUS,
-                                    $params['slot_duration'] );
-        }
 
+            $activityID = self::createConference( $advisorID, $advisorID,
+                                                  self::CONFERENCE_ACTIVITY_TYPE_ID,
+                                                  $date,
+                                                  self::SUBJECT,
+                                                  self::LOCATION,
+                                                  self::STATUS,
+                                                  $duration );
+
+            if ( ! empty( $params['slot_contact_id'] ) &&
+                 $params['slot_contact_id'] > 0 ) {
+                self::selectPTC( $advisorID, $params['slot_contact_id'], $activityID );
+            }
+        }
     }
 
     static function deletePTC( $advisorID, $activityID ) {

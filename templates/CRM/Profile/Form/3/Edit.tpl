@@ -185,10 +185,12 @@
   <tr>
     <th>Date</th>
     <th>Duration</th>
+    <th>Contact</th>
   </tr>
   <tr>
      <td>{$form.slot_date.html}</td>
      <td>{$form.slot_duration.html}</td>
+     <td>{$form.slot_contact_id.html}</td>
   </tr>
 </table>
 </fieldset>

@@ -120,14 +120,15 @@ SELECT     e.*, c.display_name
 FROM       civicrm_value_extended_care_signout_3 e
 INNER JOIN civicrm_contact c ON c.id = e.entity_id
 WHERE  entity_id = %1
-AND    time_of_pickup_17 LIKE '{$date}%'
+AND    signout_time LIKE '{$date}%'
+AND    is_morning = 0
 ";
         $params = array( 1 => array( $studentID, 'Integer' ) );
         
         $dao = CRM_Core_DAO::executeQuery( $sql, $params );
         if ( $dao->fetch( ) ) {
             if ( $returnErrorMessage ) {
-                return "Student {$dao->display_name} was picked up by {$dao->pickup_person_name_15} at {$dao->time_of_pickup_17}";
+                return "Student {$dao->display_name} was picked up by {$dao->pickup_person_name} at {$dao->signout_time}";
             } else {
                 return true;
             }
@@ -159,17 +160,18 @@ AND    time_of_pickup_17 LIKE '{$date}%'
     function postProcessStudent( $pickupName,
                                  $grade,
                                  $studentID,
-                                 $now ) {
+                                 $now,
+                                 $isMorning = 0 ) {
         $sql = "
 INSERT INTO civicrm_value_extended_care_signout_3
-( entity_id, pickup_person_name, time_of_pickup )
+( entity_id, pickup_person_name, signout_time, is_morning )
 VALUES
 ( %1, %2, %3, %4 )
 ";
         $params = array( 1 => array( $studentID , 'Integer'   ),
                          2 => array( $pickupName, 'String'    ),
-                         3 => array( $grade     , 'Integer'   ),
-                         4 => array( $now       , 'Timestamp' ) );
+                         3 => array( $now       , 'Timestamp' ),
+                         4 => array( $isMorning , 'Integer'   ) );
         CRM_Core_DAO::executeQuery( $sql, $params );
     }
 

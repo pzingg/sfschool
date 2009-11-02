@@ -104,8 +104,6 @@ INNER JOIN civicrm_value_school_information_1 sis ON sis.entity_id = c.id
             }
             $students[$dao->grade][$dao->id] = $dao->sort_name;
         }
-        CRM_Core_Error::debug( $students );
-
         return $students;
     }
 
