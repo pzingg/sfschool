@@ -117,7 +117,7 @@ Attendance Sheet for {$dayOfWeek}, {$date} {$time}
         var contactUrl = "{crmURL p='civicrm/ajax/sfschool/contactlist' q="dayOfWeek=`$dayOfWeek`" h=0 }"
         var classUrl  = "{crmURL p='civicrm/ajax/sfschool/classlist' q="dayOfWeek=`$dayOfWeek`" h=0 }"
 
-        {literal};
+        {literal}
         cj("#contact").autocomplete( contactUrl, {
             selectFirst: false, 
             matchContains: true 

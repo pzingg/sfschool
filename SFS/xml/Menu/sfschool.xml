@@ -46,4 +46,9 @@
      <page_callback>SFS_Page_SignIn::addNewStudents</page_callback>
      <access_arguments>profile listings and forms</access_arguments>
   </item>
+  <item>
+     <path>civicrm/ajax/sfschool/signout</path>
+     <page_callback>SFS_Form_SignOut::addSignOutRecord</page_callback>
+     <access_arguments>profile listings and forms</access_arguments>
+  </item>
 </menu>

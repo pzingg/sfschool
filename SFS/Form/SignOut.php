@@ -54,11 +54,19 @@ class SFS_Form_SignOut extends CRM_Core_Form {
         $this->assign( 'maxNumber', $this->_maxNumber );
 
         $this->add( 'text',
+                    'student',
+                    ts( 'Student' ),
+                    null,
+                    true );
+                    
+        $this->add( 'text',
                     'pickup_name',
                     ts( 'Pickup Person Name' ),
                     null,
                     true );
 
+        $this->add( 'hidden','student_id');
+        
         $this->_grade = array( '' => '- Select Grade -',
                                1  => 1,
                                2  => 2,
@@ -209,13 +217,13 @@ VALUES
 
     static function addSignOutRecord( ) {
         $studentID = CRM_Utils_Request::retrieve( 'contactID',
-                                                  'String',
+                                                  'Positive',
                                                   CRM_Core_DAO::$_nullObject,
                                                   true,
                                                   null,
                                                   'REQUEST' );
 
-        $pickup    = CRM_Utils_Request::retrieve( 'contactID',
+        $pickup    = CRM_Utils_Request::retrieve( 'pickupName',
                                                   'String',
                                                   CRM_Core_DAO::$_nullObject,
                                                   true,
