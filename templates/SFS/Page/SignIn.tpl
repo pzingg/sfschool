@@ -22,16 +22,16 @@ Attendance Sheet for {$dayOfWeek}, {$date} {$time}
             <td>{$row.display_name}</td>	
             <td>{$row.grade}</td>	
             <td>{$row.course_name}</td>	
-            <td><input type="checkbox" class="status" name="check_{$row.contact_id}" value="{$row.contact_id}:::{$row.course_name}" {if $row.is_marked}checked="1"{/if}"></td>
+            <td><input type="checkbox" class="status" id="check_{$row.contact_id}" name="check_{$row.contact_id}" value="{$row.contact_id}:::{$row.course_name}" {if $row.is_marked}checked="1"{/if}></td>
 	    {if $signOut}
             <td>
-            <select name="signout_{$row.contact_id}" id="signout_{$row.contact_id}" class="form-select">
-   	      <option value="">- select -</option>
-	      <option value="1" {if $row.signout_block eq 1}selected="selected"{/if}>Before 3:30 pm</option>
-	      <option value="2" {if $row.signout_block eq 2}selected="selected"{/if}>3:30 - 4:30 pm</option>
-	      <option value="3" {if $row.signout_block eq 3}selected="selected"{/if}>4:30 - 5:15 pm</option>
-	      <option value="4" {if $row.signout_block eq 4}selected="selected"{/if}>5:15 - 6:00 pm</option>
-	      <option value="5" {if $row.signout_block eq 5}selected="selected"{/if}>After 6:00 pm</option>
+            <select name="signout_{$row.contact_id}" id="signout_{$row.contact_id}" class="signout_select">
+                <option value="">- select -</option>
+                <option value="1" {if $row.signout_block eq 1}selected="selected"{/if}>Before 3:30 pm</option>
+                <option value="2" {if $row.signout_block eq 2}selected="selected"{/if}>3:30 - 4:30 pm</option>
+                <option value="3" {if $row.signout_block eq 3}selected="selected"{/if}>4:30 - 5:15 pm</option>
+                <option value="4" {if $row.signout_block eq 4}selected="selected"{/if}>5:15 - 6:00 pm</option>
+                <option value="5" {if $row.signout_block eq 5}selected="selected"{/if}>After 6:00 pm</option>
             </select> 
             </td>
            {/if}
@@ -64,6 +64,7 @@ Attendance Sheet for {$dayOfWeek}, {$date} {$time}
         var sDayOfWeek = '{$dayOfWeek}';
         var sDate      = '{$date}';
         var sTime      = '{$time}';
+        var contactID  = '';
         {literal}
 
         cj('#records').dataTable( {
@@ -78,11 +79,35 @@ Attendance Sheet for {$dayOfWeek}, {$date} {$time}
             "aaSorting": [[2,'asc'], [0,'asc']]
         } );        
     
-        cj(".status").click( function( ) {
-            {/literal}
-            var dataUrl = "{crmURL p='civicrm/ajax/sfschool/signin' h=0 }"
-            {literal}
-            cj.post( dataUrl, { contactID: cj(this).val(), dayOfWeek: sDayOfWeek, date: sDate, time: sTime, checked: cj(this).attr('checked') },
+        cj('.status').click( function( ) {
+            var dataUrl = {/literal}"{crmURL p='civicrm/ajax/sfschool/signin' h=0 }"{literal}
+            var selectedValues = cj(this).val();
+            var values = selectedValues.split( ':::');
+            contactID = values[0];
+
+            cj.post( dataUrl, { contactID: cj('#check_' + contactID ).val(), 
+                                dayOfWeek: sDayOfWeek, 
+                                date: sDate, 
+                                time: sTime, 
+                                checked: cj(this).attr('checked'),
+                                signout: cj('#signout_' + contactID ).val() },
+               function(data){
+                  cj("#existing-status").show( );
+            });
+        });
+
+        cj('.signout_select').change( function( ) {
+            var dataUrl = {/literal}"{crmURL p='civicrm/ajax/sfschool/signin' h=0 }"{literal}
+            var selectedValues = cj(this).attr('id');
+            var values = selectedValues.split( '_');
+            contactID = values[1];
+
+            cj.post( dataUrl, { contactID: cj('#check_' + contactID ).val(), 
+                                dayOfWeek: sDayOfWeek, 
+                                date: sDate, 
+                                time: sTime, 
+                                checked: cj(this).attr('checked'),
+                                signout: cj('#signout_' + contactID ).val() },
                function(data){
                   cj("#existing-status").show( );
             });
