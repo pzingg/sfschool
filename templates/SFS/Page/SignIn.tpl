@@ -61,9 +61,9 @@ Attendance Sheet for {$dayOfWeek}, {$date} {$time}
 <script type="text/javascript">
     cj( function( ) {
         {/literal}
-        var sDayOfWeek = '{$dayOfWeek}'
-        var sDate      = '{$date}'
-        var sTime      = '{$time}'
+        var sDayOfWeek = '{$dayOfWeek}';
+        var sDate      = '{$date}';
+        var sTime      = '{$time}';
         {literal}
 
         cj('#records').dataTable( {
@@ -108,15 +108,19 @@ Attendance Sheet for {$dayOfWeek}, {$date} {$time}
         });
         
           cj("#Add").click( function( ) {
-              var dataUrl = {/literal}"{crmURL p='civicrm/ajax/sfschool/addnew' h=0 }"{literal};
-              cj.post( dataUrl, { contactID: cj("input[name=contact_id]").val( ), course: cj("#course").val( ), dayOfWeek: sDayOfWeek, date: sDate, time: sTime },
-                 function(data){
-                     // success action
-                     cj("#contact").val( '' )
-                     cj("input[name=contact_id]").val( '' )
-                     cj("#course").val( '' )
-                     cj("#new-status").show( );
-              });
+              var contactID = cj("input[name=contact_id]").val( );
+	      var course    = cj("#course").val( );
+	      if ( contactID && course ) {
+	      	     var dataUrl = {/literal}"{crmURL p='civicrm/ajax/sfschool/addnew' h=0 }"{literal};
+              	     cj.post( dataUrl, { contactID: cj("input[name=contact_id]").val( ), course: cj("#course").val( ), dayOfWeek: sDayOfWeek, date: sDate, time: sTime },
+                       function(data){
+                         // success action
+                         cj("#contact").val( '' )
+                    	 cj("input[name=contact_id]").val( '' )
+                     	 cj("#course").val( '' )
+                     	 cj("#new-status").show( );
+              	     });
+	      }
           });
       	
       	  cj(".success-status").click( function( ) {
