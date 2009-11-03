@@ -27,11 +27,11 @@ Attendance Sheet for {$dayOfWeek}, {$date} {$time}
             <td>
             <select name="signout_{$row.contact_id}" id="signout_{$row.contact_id}" class="form-select">
    	      <option value="">- select -</option>
-	      <option value="1">Before 3:30 pm</option>
-	      <option value="2">3:30 - 4:30 pm</option>
-	      <option value="3">4:30 - 5:15 pm</option>
-	      <option value="4">5:15 - 6:00 pm</option>
-	      <option value="5">After 6:00 pm</option>
+	      <option value="1" {if $row.signout_block eq 1}selected="selected"{/if}>Before 3:30 pm</option>
+	      <option value="2" {if $row.signout_block eq 2}selected="selected"{/if}>3:30 - 4:30 pm</option>
+	      <option value="3" {if $row.signout_block eq 3}selected="selected"{/if}>4:30 - 5:15 pm</option>
+	      <option value="4" {if $row.signout_block eq 4}selected="selected"{/if}>5:15 - 6:00 pm</option>
+	      <option value="5" {if $row.signout_block eq 5}selected="selected"{/if}>After 6:00 pm</option>
             </select> 
             </td>
            {/if}

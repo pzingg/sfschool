@@ -35,7 +35,7 @@
 
 require_once 'CRM/Core/Form.php';
 
-class SFS_Form_Record extends CRM_Core_Form {
+class SFS_Form_SignOut extends CRM_Core_Form {
     const
         MAX_NUMBER = 10;
 
@@ -44,7 +44,11 @@ class SFS_Form_Record extends CRM_Core_Form {
 
     protected $_maxNumber;
 
+    public    $_date;
+
     function buildQuickForm( ) {
+
+        $this->_date      = CRM_Utils_Date::getToday( null, 'Y-m-d' );
 
         $this->_maxNumber = self::MAX_NUMBER;
         $this->assign( 'maxNumber', $this->_maxNumber );
@@ -81,7 +85,7 @@ class SFS_Form_Record extends CRM_Core_Form {
 
         $this->addDefaultButtons( 'Sign Out', 'next', null, true );
 
-        $this->addFormRule( array( 'SFS_Form_Record', 'formRule' ), $this );
+        $this->addFormRule( array( 'SFS_Form_SignOut', 'formRule' ), $this );
     }
 
     /**  
@@ -105,7 +109,7 @@ class SFS_Form_Record extends CRM_Core_Form {
             if ( ! empty( $fields["grade_student_id_$i"] )    &&
                  ! empty( $fields["grade_student_id_$i"][0] ) &&
                  ! empty( $fields["grade_student_id_$i"][1] ) ) {
-                if ( ( $message = self::hasBeenPickedUp( $fields["grade_student_id_$i"][1], $today, true ) ) != null ) {
+                if ( ( $message = self::hasBeenPickedUp( $fields["grade_student_id_$i"][1], $form->_date, true ) ) != null ) {
                     $errors["grade_student_id_$i"] = $message;
                 }
             }
@@ -121,14 +125,16 @@ FROM       civicrm_value_extended_care_signout_3 e
 INNER JOIN civicrm_contact c ON c.id = e.entity_id
 WHERE  entity_id = %1
 AND    signout_time LIKE '{$date}%'
-AND    is_morning = 0
+AND    ( is_morning = 0 OR is_morning IS NULL )
 ";
         $params = array( 1 => array( $studentID, 'Integer' ) );
         
         $dao = CRM_Core_DAO::executeQuery( $sql, $params );
         if ( $dao->fetch( ) ) {
             if ( $returnErrorMessage ) {
-                return "Student {$dao->display_name} was picked up by {$dao->pickup_person_name} at {$dao->signout_time}";
+                $dateTime = CRM_Utils_Date::customFormat( $dao->signout_time,
+                                                          "%l:%M %P on %b %E%f" );
+                return "{$dao->display_name} was picked up by {$dao->pickup_person_name} at {$dateTime}";
             } else {
                 return true;
             }
@@ -153,7 +159,7 @@ AND    is_morning = 0
         }
 
         $session =& CRM_Core_Session::singleton( );
-        $session->pushUserContext( CRM_Utils_System::url( 'civicrm/sfschool/record',
+        $session->pushUserContext( CRM_Utils_System::url( 'civicrm/sfschool/signout',
                                                           'reset=1' ) );
     }
 
@@ -163,15 +169,35 @@ AND    is_morning = 0
                                  $now,
                                  $isMorning = 0 ) {
         $sql = "
+SELECT     e.id
+FROM       civicrm_value_extended_care_signout_3 e
+WHERE  entity_id = %1
+AND    signin_time LIKE '{$this->_date}%'
+AND    ( is_morning = 0 OR is_morning IS NULL )
+";
+        $params = array( 1 => array( $studentID, 'Integer' ) );
+        $daoID = CRM_Core_DAO::singleValueQuery( $sql, $params );
+
+        $params = array( 1 => array( $studentID , 'Integer'   ),
+                         2 => array( $pickupName, 'String'    ),
+                         3 => array( $now       , 'Timestamp' ),
+                         4 => array( $isMorning , 'Integer'   ) );
+        if ( $daoID ) {
+            $sql = "
+UPDATE civicrm_value_extended_care_signout_3 
+SET    pickup_person_name = %2,
+       signout_time       = %3
+WHERE  id = %5
+";
+            $params[5] = array( $daoID, 'Integer' );
+        } else {
+            $sql = "
 INSERT INTO civicrm_value_extended_care_signout_3
 ( entity_id, pickup_person_name, signout_time, is_morning )
 VALUES
 ( %1, %2, %3, %4 )
 ";
-        $params = array( 1 => array( $studentID , 'Integer'   ),
-                         2 => array( $pickupName, 'String'    ),
-                         3 => array( $now       , 'Timestamp' ),
-                         4 => array( $isMorning , 'Integer'   ) );
+        }
         CRM_Core_DAO::executeQuery( $sql, $params );
     }
 

@@ -2,8 +2,8 @@
 
 <menu>
   <item>
-     <path>civicrm/sfschool/record</path>
-     <page_callback>SFS_Form_Record</page_callback>
+     <path>civicrm/sfschool/signout</path>
+     <page_callback>SFS_Form_SignOut</page_callback>
      <access_arguments>profile listings and forms</access_arguments>
   </item>  
   <item>

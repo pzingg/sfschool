@@ -1,6 +1,6 @@
 {if $groupId == 2}
   {include file="CRM/Custom/Page/CustomDataViewExtendedCare.tpl"}
-{elseif $groupId == 5}
+{elseif $groupId == 4}
   {include file="CRM/Custom/Page/CustomDataViewExtendedCareSignout.tpl"}
 {else}
 {* Custom Data view mode*}

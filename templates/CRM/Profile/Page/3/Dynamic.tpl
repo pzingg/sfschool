@@ -43,8 +43,13 @@
   </tr>
 {/foreach}
 </table>
+<br/>
 <div>
 <a href="{crmURL p='civicrm/profile/edit' q="reset=1&gid=3&id=`$cid`&mptc=1"}">Manage Parent Teacher Conference Schedule for your class</a>
+</div>
+<br/>
+<div>
+<a href="{crmURL p='civicrm/report/list' q="reset=1"}">Printable Schedules for your conference</a>
 </div>
 </div>
 </fieldset>

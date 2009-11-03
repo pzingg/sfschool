@@ -60,15 +60,16 @@ class SFS_Page_SignIn extends CRM_Core_Page {
 
     function run( ) {
         $sql = "
-SELECT     c.id as contact_id, c.display_name as display_name, s.name as course_name, v.grade as grade, sout.class as sout_class, sout.id as sout_id
+SELECT     c.id as contact_id, c.display_name as display_name, s.name as course_name, v.grade as grade,
+           sout.class as sout_class, sout.id as sout_id, sout.signout_time as signout_time
 FROM       civicrm_contact c
-INNER JOIN civicrm_value_extended_care_2 s ON s.entity_id = c.id
 INNER JOIN civicrm_value_school_information_1 v ON v.entity_id = c.id
+LEFT  JOIN civicrm_value_extended_care_2 s ON ( s.entity_id = c.id AND s.has_cancelled = 0 AND s.day_of_week = '{$this->_dayOfWeek}' )
 LEFT  JOIN civicrm_value_extended_care_signout_3 sout ON sout.entity_id = c.id
-WHERE      s.has_cancelled = 0
-AND        s.day_of_week = '{$this->_dayOfWeek}'
-AND        ( DATE( sout.signin_time ) = %1 OR sout.id IS NULL )
-ORDER BY s.name";
+WHERE      v.subtype = 'Student'
+AND        v.grade_sis >= 1
+AND        ( s.name IS NOT NULL OR DATE( sout.signin_time ) = %1 )
+ORDER BY s.name, sout.class";
 
         $params = array( 1 => array( $this->_date, 'String' ) );
 
@@ -76,16 +77,47 @@ ORDER BY s.name";
         
         $studentDetails = array( );
         while( $dao->fetch( ) ) {
-            $studentDetails[ ] = array( 'display_name' => $dao->display_name,
-                                        'course_name'  => $dao->sout_class ? $dao->sout_class : $dao->course_name,
-                                        'grade'        => $dao->grade,
-                                        'contact_id'   => $dao->contact_id,
-                                        'is_marked'    => $dao->sout_id ? 1 : 0,
+            $studentDetails[ ] = array( 'display_name'  => $dao->display_name,
+                                        'course_name'   => $dao->sout_class ? $dao->sout_class : $dao->course_name,
+                                        'grade'         => $dao->grade,
+                                        'contact_id'    => $dao->contact_id,
+                                        'is_marked'     => $dao->sout_id ? 1 : 0,
+                                        'signout_block' => self::signoutBlock( $dao->signout_time ),
                                       );
         }
         
         $this->assign('studentDetails', $studentDetails);
         parent::run( );
+    }
+
+    static function signoutBlock( $time ) {
+        if ( empty( $time ) ) {
+            return null;
+        }
+
+        $dateParts = CRM_Utils_Date::unformat( $time );
+        
+        if ( $value['H'] < 15 ||
+             ( $value['H'] == 15 && $value['i'] <= 30 ) ) {
+            return 1;
+        }
+        
+        if ( $value['H'] == 15 ||
+             ( $value['H'] == 16 && $value['i'] <= 30 ) ) {
+            return 2;
+        }
+
+        if ( $value['H'] == 16 ||
+             ( $value['H'] == 17 && $value['i'] <= 15 ) ) {
+            return 3;
+        }
+
+        if ( $value['H'] == 17 ||
+             ( $value['H'] == 18 && $value['i'] <= 0 ) ) {
+            return 4;
+        }
+
+        return 5;
     }
 
     /**
