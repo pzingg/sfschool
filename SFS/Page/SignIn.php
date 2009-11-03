@@ -97,23 +97,23 @@ ORDER BY s.name, sout.class";
 
         $dateParts = CRM_Utils_Date::unformat( $time );
         
-        if ( $value['H'] < 15 ||
-             ( $value['H'] == 15 && $value['i'] <= 30 ) ) {
+        if ( $dateParts['H'] < 15 ||
+             ( $dateParts['H'] == 15 && $dateParts['i'] <= 30 ) ) {
             return 1;
         }
         
-        if ( $value['H'] == 15 ||
-             ( $value['H'] == 16 && $value['i'] <= 30 ) ) {
+        if ( $dateParts['H'] == 15 ||
+             ( $dateParts['H'] == 16 && $dateParts['i'] <= 30 ) ) {
             return 2;
         }
 
-        if ( $value['H'] == 16 ||
-             ( $value['H'] == 17 && $value['i'] <= 15 ) ) {
+        if ( $dateParts['H'] == 16 ||
+             ( $dateParts['H'] == 17 && $dateParts['i'] <= 15 ) ) {
             return 3;
         }
 
-        if ( $value['H'] == 17 ||
-             ( $value['H'] == 18 && $value['i'] <= 0 ) ) {
+        if ( $dateParts['H'] == 17 ||
+             ( $dateParts['H'] == 18 && $dateParts['i'] <= 0 ) ) {
             return 4;
         }
 

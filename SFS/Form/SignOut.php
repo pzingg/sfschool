@@ -147,14 +147,12 @@ AND    ( is_morning = 0 OR is_morning IS NULL )
 
         $rightNow  = CRM_Utils_Date::getToday( null, 'YmdHis' );
 
-        for ( $i = 1; $i <= 4; $i++ ) {
+        for ( $i = 1; $i <= self::MAX_NUMBER; $i++ ) {
             if ( ! empty( $params["grade_student_id_$i"] )    &&
                  ! empty( $params["grade_student_id_$i"][0] ) &&
                  ! empty( $params["grade_student_id_$i"][1] ) ) {
                 $this->postProcessStudent( $params['pickup_name'],
-                                           $params["grade_student_id_$i"][0],
-                                           $params["grade_student_id_$i"][1],
-                                           $rightNow );
+                                           $params["grade_student_id_$i"][1] );
             }
         }
 
@@ -163,33 +161,40 @@ AND    ( is_morning = 0 OR is_morning IS NULL )
                                                           'reset=1' ) );
     }
 
-    function postProcessStudent( $pickupName,
-                                 $grade,
-                                 $studentID,
-                                 $now,
-                                 $isMorning = 0 ) {
+    static function postProcessStudent( $pickupName,
+                                        $studentID,
+                                        $isMorning = 0 ) {
+        static $_now = null;
+
+        if ( ! $_now ) {
+            $_now = CRM_Utils_Date::getToday( null, 'YmdHis' );
+        }
+
         $sql = "
-SELECT     e.id
-FROM       civicrm_value_extended_care_signout_3 e
+SELECT e.id, e.class
+FROM   civicrm_value_extended_care_signout_3 e
 WHERE  entity_id = %1
 AND    signin_time LIKE '{$this->_date}%'
 AND    ( is_morning = 0 OR is_morning IS NULL )
 ";
         $params = array( 1 => array( $studentID, 'Integer' ) );
-        $daoID = CRM_Core_DAO::singleValueQuery( $sql, $params );
+        $dao = CRM_Core_DAO::executeQuery( $sql, $params );
 
         $params = array( 1 => array( $studentID , 'Integer'   ),
                          2 => array( $pickupName, 'String'    ),
-                         3 => array( $now       , 'Timestamp' ),
+                         3 => array( $_now      , 'Timestamp' ),
                          4 => array( $isMorning , 'Integer'   ) );
-        if ( $daoID ) {
+
+        $class = null;
+        if ( $dao->fetch( ) ) {
+            $class = $dao->class;
             $sql = "
 UPDATE civicrm_value_extended_care_signout_3 
 SET    pickup_person_name = %2,
        signout_time       = %3
 WHERE  id = %5
 ";
-            $params[5] = array( $daoID, 'Integer' );
+            $params[5] = array( $dao->id, 'Integer' );
         } else {
             $sql = "
 INSERT INTO civicrm_value_extended_care_signout_3
@@ -199,6 +204,33 @@ VALUES
 ";
         }
         CRM_Core_DAO::executeQuery( $sql, $params );
+        return $class;
+    }
+
+    static function addSignOutRecord( ) {
+        $studentID = CRM_Utils_Request::retrieve( 'contactID',
+                                                  'String',
+                                                  CRM_Core_DAO::$_nullObject,
+                                                  true,
+                                                  null,
+                                                  'REQUEST' );
+
+        $pickup    = CRM_Utils_Request::retrieve( 'contactID',
+                                                  'String',
+                                                  CRM_Core_DAO::$_nullObject,
+                                                  true,
+                                                  null,
+                                                  'REQUEST' );
+
+        $className = self::postProcessStudent( $pickup,
+                                               $studentID );
+
+        if ( $className == null ) {
+            $className = 'Yard Play';
+        }
+
+        echo $className;
+        exit( );
     }
 
 }
