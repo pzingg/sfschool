@@ -19,7 +19,7 @@ Attendance Sheet for {$dayOfWeek}, {$date} {$time}
     <tbody>
         {foreach from=$studentDetails item=row}
         <tr>
-            <td>{$row.display_name}</td>	
+            <td id="display_name_{$row.contact_id}">{$row.display_name}</td>	
             <td>{$row.grade}</td>	
             <td>{$row.course_name}</td>	
 	    {if $signOut}
@@ -53,17 +53,17 @@ Attendance Sheet for {$dayOfWeek}, {$date} {$time}
                 {ts}Class Name{/ts}&nbsp;<input type="text" name="course" id="course">
                 <input type="hidden" name="course_name">
                 &nbsp;&nbsp;
-	        {if $signOut}
-                <td>
-                <select name="signout_add" id="signout_add" class="signout_select">
-                    <option value="">- select -</option>
-                    <option value="1">Before 3:30 pm</option>
-                    <option value="2">3:30 - 4:30 pm</option>
-                    <option value="3">4:30 - 5:15 pm</option>
-                    <option value="4">5:15 - 6:00 pm</option>
-                    <option value="5">After 6:00 pm</option>
-                </select> 
-                </td>
+	            {if $signOut}
+                    &nbsp;
+                    <select name="signout_add" id="signout_add">
+                        <option value="">- select -</option>
+                        <option value="1">Before 3:30 pm</option>
+                        <option value="2">3:30 - 4:30 pm</option>
+                        <option value="3">4:30 - 5:15 pm</option>
+                        <option value="4">5:15 - 6:00 pm</option>
+                        <option value="5">After 6:00 pm</option>
+                    </select> 
+                    &nbsp;
                 {/if}
                 &nbsp;&nbsp;
                 <input type="submit" name="Add" id="Add" value="Add">
@@ -107,6 +107,8 @@ Attendance Sheet for {$dayOfWeek}, {$date} {$time}
                                 checked: cj('#check_' + contactID).attr('checked'),
                                 {/literal}{if $signOut}signout: cj('#signout_' + contactID ).val() },{/if}{literal}
                function(data){
+                  var message = 'Attendance is saved for ' + cj('#display_name_' + contactID).text( );
+                  cj("#existing-status").html( message );
                   cj("#existing-status").show( );
             });
         });
@@ -116,7 +118,9 @@ Attendance Sheet for {$dayOfWeek}, {$date} {$time}
             var selectedValues = cj(this).attr('id');
             var values = selectedValues.split( '_');
             contactID = values[1];
-
+            
+            cj('#check_' + contactID).attr('checked', true);
+            
             cj.post( dataUrl, { contactID: cj('#check_' + contactID ).val(), 
                                 dayOfWeek: sDayOfWeek, 
                                 date: sDate, 
@@ -124,6 +128,8 @@ Attendance Sheet for {$dayOfWeek}, {$date} {$time}
                                 checked: cj('#check_' + contactID).attr('checked'),
                                 {/literal}{if $signOut}signout: cj('#signout_' + contactID ).val() },{/if}{literal}
                function(data){
+                  var message = 'Attendance is saved for ' + cj('#display_name_' + contactID).text( );
+                  cj("#existing-status").html( message );
                   cj("#existing-status").show( );
             });
         });
@@ -149,24 +155,27 @@ Attendance Sheet for {$dayOfWeek}, {$date} {$time}
         
           cj("#Add").click( function( ) {
               var contactID = cj("input[name=contact_id]").val( );
-	      var course    = cj("#course").val( );
-	      if ( contactID && course ) {
-	      	     var dataUrl = {/literal}"{crmURL p='civicrm/ajax/sfschool/addnew' h=0 }"{literal};
+    	      var course    = cj("#course").val( );
+    	      if ( contactID && course ) {
+          	     var dataUrl = {/literal}"{crmURL p='civicrm/ajax/sfschool/addnew' h=0 }"{literal};
               	     cj.post( dataUrl, { contactID: cj("input[name=contact_id]").val( ),
                                          course: cj("#course").val( ), 
                                          {/literal}{if $signOut}signout: cj("#signout_add").val( ),{/if}{literal}
                                          dayOfWeek: sDayOfWeek, 
                                          date: sDate, 
                                          time: sTime },
-                       function(data){
+                     function(data){
                          // success action
+                     	 var message = cj("#contact").val( ) + ' has been enrolled for the course.';
+                         cj("#new-status").html( message );
+                     	 cj("#new-status").show( );
+
                          cj("#contact").val( '' )
                     	 cj("input[name=contact_id]").val( '' )
                      	 cj("#course").val( '' )
                      	 cj("#signout_add").val( '' )
-                     	 cj("#new-status").show( );
               	     });
-	      }
+    	      }
           });
       	
       	  cj(".success-status").click( function( ) {
