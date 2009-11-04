@@ -1,23 +1,21 @@
 <div class="form-item">
 <fieldset><legend>{ts}Student Sign Out Sheet{/ts}</legend>
 <br/>
-<span class="success-status" id="new-status" style="display:none;">{ts}Student has been Sign Out.{/ts}</span>
+<span class="success-status" id="new-status" style="display:none;">{ts}Student has been signed out.{/ts}</span>
 <br/>  
-  {$form.pickup_name.label}&nbsp;{$form.pickup_name.html}&nbsp;{$form.student.label}&nbsp;{$form.student.html}&nbsp;&nbsp;
-  <input type="submit" name="Add" id="Add" value="Sign Out">
-  
-  {*
+<div>
+<dl>
+  <dt>{$form.pickup_name.label}</dt><dd>{$form.pickup_name.html}</dd>
+  <dt>{$form.student_1.label}</dt><dd>{$form.student_1.html}</dd>
+  <dt>{$form.student_2.label}</dt><dd>{$form.student_2.html}</dd>
+  <dt>{$form.student_3.label}</dt><dd>{$form.student_3.html}</dd>
+  <dt>{$form.student_4.label}</dt><dd>{$form.student_4.html}</dd>
+  <dt>{$form.student_5.label}</dt><dd>{$form.student_5.html}</dd>
+  <dt>{$form.student_6.label}</dt><dd>{$form.student_6.html}</dd>
+</dl>
   <dl>
-     <dt>{$form.pickup_name.label}</dt><dd>{$form.pickup_name.html}</dd>
-     {section start=1 name=rows loop=$maxNumber}
-       {assign var=rowName value='grade_student_id_'|cat:$smarty.section.rows.index}
-       <dt>{$form.$rowName.label}</dt><dd>{$form.$rowName.html}</dd>
-     {/section}
-  </dl>
-        <dt></dt><dd>{$form.buttons.html}</dd>
-       </dl>
-       
-*}       
+  <dt></dt><dd><input type="submit" name="Add" id="Add" value="Sign Out"></dd>
+  
 <div class="spacer"></div>
 </fieldset>
 </div>
@@ -27,28 +25,91 @@
     cj( function( ) {
         var contactUrl = {/literal}"{crmURL p='civicrm/ajax/sfschool/contactlist' h=0 q='nograde=1'}"{literal};
         
-        cj("#student").autocomplete( contactUrl, {
+        cj("#student_1").autocomplete( contactUrl, {
             selectFirst: false, 
             matchContains: true 
           }).result(function(event, data, formatted) {
-          	 cj("input[name=student_id]").val(data[1]);
+          	 cj("input[name=student_id_1]").val(data[1]);
+        });
+
+        cj("#student_2").autocomplete( contactUrl, {
+            selectFirst: false, 
+            matchContains: true 
+          }).result(function(event, data, formatted) {
+          	 cj("input[name=student_id_2]").val(data[1]);
+        });
+
+        cj("#student_3").autocomplete( contactUrl, {
+            selectFirst: false, 
+            matchContains: true 
+          }).result(function(event, data, formatted) {
+          	 cj("input[name=student_id_3]").val(data[1]);
+        });
+
+        cj("#student_4").autocomplete( contactUrl, {
+            selectFirst: false, 
+            matchContains: true 
+          }).result(function(event, data, formatted) {
+          	 cj("input[name=student_id_4]").val(data[1]);
+        });
+
+        cj("#student_5").autocomplete( contactUrl, {
+            selectFirst: false, 
+            matchContains: true 
+          }).result(function(event, data, formatted) {
+          	 cj("input[name=student_id_5]").val(data[1]);
+        });
+
+        cj("#student_6").autocomplete( contactUrl, {
+            selectFirst: false, 
+            matchContains: true 
+          }).result(function(event, data, formatted) {
+          	 cj("input[name=student_id_6]").val(data[1]);
         });
     
-        var contactID  = '';
-        var pickupName = '';
+
+	var studentID_1  = '';
+	var studentID_2  = '';
+	var studentID_3  = '';
+	var studentID_4  = '';
+	var studentID_5  = '';
+	var studentID_6  = '';
+        var pickupName   = '';
         cj("#Add").click( function( event ) {
             event.preventDefault( );
-            contactID  = cj("input[name=student_id]").val( );
+            student_id_1  = cj("input[name=student_id_1]").val( );
+            student_id_2  = cj("input[name=student_id_2]").val( );
+            student_id_3  = cj("input[name=student_id_3]").val( );
+            student_id_4  = cj("input[name=student_id_4]").val( );
+            student_id_5  = cj("input[name=student_id_5]").val( );
+            student_id_6  = cj("input[name=student_id_6]").val( );
             pickupName = cj("#pickup_name").val( );
-            if ( contactID && pickupName ) {
-        	     var dataUrl = {/literal}"{crmURL p='civicrm/ajax/sfschool/signout' h=0 }"{literal};
-                 cj.post( dataUrl, { contactID: contactID, pickupName: pickupName },
+            if ( ( student_id_1 || student_id_2 || student_id_3 || student_id_4 || student_id_5 || student_id_6 ) && 
+	           pickupName ) {
+                 var dataUrl = {/literal}"{crmURL p='civicrm/ajax/sfschool/signout' h=0 }"{literal};
+                 cj.post( dataUrl, { studentID_1: student_id_1,
+                                     studentID_2: student_id_2,
+                                     studentID_3: student_id_3,
+                                     studentID_4: student_id_4,
+                                     studentID_5: student_id_5,
+                                     studentID_6: student_id_6,
+                                     pickupName: pickupName },
                     function(data){
                         // success action
                         cj("#pickup_name").val( '' );
-                        cj("#student").val( '' )
-                  	    cj("input[name=student_id]").val( '' );
-                   	    cj("#new-status").show( );
+                        cj("#student_1").val( '' )
+                      	cj("input[name=student_id_1]").val( '' );
+                        cj("#student_2").val( '' )
+                      	cj("input[name=student_id_2]").val( '' );
+                        cj("#student_3").val( '' )
+                      	cj("input[name=student_id_3]").val( '' );
+                        cj("#student_4").val( '' )
+                      	cj("input[name=student_id_4]").val( '' );
+                        cj("#student_5").val( '' )
+                      	cj("input[name=student_id_5]").val( '' );
+                        cj("#student_6").val( '' )
+                      	cj("input[name=student_id_6]").val( '' );
+                   	cj("#new-status").show( );
             	    }
             	);
             }

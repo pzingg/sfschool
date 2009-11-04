@@ -39,150 +39,50 @@ class SFS_Form_SignOut extends CRM_Core_Form {
     const
         MAX_NUMBER = 10;
 
-    protected $_grade;
     protected $_students;
 
     protected $_maxNumber;
 
-    public    $_date;
-
     function buildQuickForm( ) {
-
-        $this->_date      = CRM_Utils_Date::getToday( null, 'Y-m-d' );
 
         $this->_maxNumber = self::MAX_NUMBER;
         $this->assign( 'maxNumber', $this->_maxNumber );
 
-        $this->add( 'text',
-                    'student',
-                    ts( 'Student' ),
-                    null,
-                    true );
-                    
         $this->add( 'text',
                     'pickup_name',
                     ts( 'Pickup Person Name' ),
                     null,
                     true );
 
-        $this->add( 'hidden','student_id');
-        
-        $this->_grade = array( '' => '- Select Grade -',
-                               1  => 1,
-                               2  => 2,
-                               3  => 3,
-                               4  => 4,
-                               5  => 5,
-                               6  => 6,
-                               7  => 7,
-                               8  => 8 );
-        
-        require_once 'SFS/Utils/Query.php';
-        $this->_students =& SFS_Utils_Query::getStudentsByGrade( true );
-
-        $studentElement = array( );
-        for ( $i = 1; $i <= $this->_maxNumber; $i++ ) {
-            $required = $i == 1 ? true : false;
-            $studentElement[$i] =& $this->add( 'hierselect',
-                                               "grade_student_id_$i",
-                                               ts( "Student $i" ),
-                                               null,
-                                               $required );
-            $studentElement[$i]->setOptions( array( $this->_grade, $this->_students ) );
+        for ( $i = 1; $i <= 6; $i++ ) {
+            $this->add( 'text',
+                        "student_$i",
+                        ts( 'Student' ) );
+            $this->add( 'hidden', "student_id_$i",  0);
         }
 
         $this->addDefaultButtons( 'Sign Out', 'next', null, true );
-
-        $this->addFormRule( array( 'SFS_Form_SignOut', 'formRule' ), $this );
-    }
-
-    /**  
-     * global form rule  
-     *  
-     * @param array $fields the input form values  
-     * @param array $files  the uploaded files if any  
-     * @param array $self   current form object. 
-     *  
-     * @return array array of errors / empty array.   
-     * @access public  
-     * @static  
-     */  
-    static function formRule( &$fields, &$files, &$self ) 
-    {
-        $errors = array( );
-
-        $today = CRM_Utils_Date::getToday( null, 'Y-m-d' );
-
-        for ( $i = 1; $i <= 4; $i++ ) {
-            if ( ! empty( $fields["grade_student_id_$i"] )    &&
-                 ! empty( $fields["grade_student_id_$i"][0] ) &&
-                 ! empty( $fields["grade_student_id_$i"][1] ) ) {
-                if ( ( $message = self::hasBeenPickedUp( $fields["grade_student_id_$i"][1], $form->_date, true ) ) != null ) {
-                    $errors["grade_student_id_$i"] = $message;
-                }
-            }
-        }
-
-        return $errors;
-    }
-
-    static function hasBeenPickedUp( $studentID, $date, $returnErrorMessage = false ) {
-        $sql = "
-SELECT     e.*, c.display_name
-FROM       civicrm_value_extended_care_signout_3 e
-INNER JOIN civicrm_contact c ON c.id = e.entity_id
-WHERE  entity_id = %1
-AND    signout_time LIKE '{$date}%'
-AND    ( is_morning = 0 OR is_morning IS NULL )
-";
-        $params = array( 1 => array( $studentID, 'Integer' ) );
-        
-        $dao = CRM_Core_DAO::executeQuery( $sql, $params );
-        if ( $dao->fetch( ) ) {
-            if ( $returnErrorMessage ) {
-                $dateTime = CRM_Utils_Date::customFormat( $dao->signout_time,
-                                                          "%l:%M %P on %b %E%f" );
-                return "{$dao->display_name} was picked up by {$dao->pickup_person_name} at {$dateTime}";
-            } else {
-                return true;
-            }
-        }
-        return null;
-    }
-
-    function postProcess( ) {
-        $params = $this->controller->exportValues( $this->_name );
-
-        $rightNow  = CRM_Utils_Date::getToday( null, 'YmdHis' );
-
-        for ( $i = 1; $i <= self::MAX_NUMBER; $i++ ) {
-            if ( ! empty( $params["grade_student_id_$i"] )    &&
-                 ! empty( $params["grade_student_id_$i"][0] ) &&
-                 ! empty( $params["grade_student_id_$i"][1] ) ) {
-                $this->postProcessStudent( $params['pickup_name'],
-                                           $params["grade_student_id_$i"][1] );
-            }
-        }
-
-        $session =& CRM_Core_Session::singleton( );
-        $session->pushUserContext( CRM_Utils_System::url( 'civicrm/sfschool/signout',
-                                                          'reset=1' ) );
     }
 
     static function postProcessStudent( $pickupName,
                                         $studentID,
                                         $isMorning = 0 ) {
-        static $_now = null;
+        static $_now  = null;
+        static $_date = null;
 
         if ( ! $_now ) {
             $_now = CRM_Utils_Date::getToday( null, 'YmdHis' );
+        }
+
+        if ( ! $_date ) {
+            $_date = CRM_Utils_Date::getToday( null, 'Y-m-d' );
         }
 
         $sql = "
 SELECT e.id, e.class
 FROM   civicrm_value_extended_care_signout_3 e
 WHERE  entity_id = %1
-AND    signin_time LIKE '{$this->_date}%'
+AND    signin_time LIKE '{$_date}%'
 AND    ( is_morning = 0 OR is_morning IS NULL )
 ";
         $params = array( 1 => array( $studentID, 'Integer' ) );
@@ -216,13 +116,6 @@ VALUES
     }
 
     static function addSignOutRecord( ) {
-        $studentID = CRM_Utils_Request::retrieve( 'contactID',
-                                                  'Positive',
-                                                  CRM_Core_DAO::$_nullObject,
-                                                  true,
-                                                  null,
-                                                  'REQUEST' );
-
         $pickup    = CRM_Utils_Request::retrieve( 'pickupName',
                                                   'String',
                                                   CRM_Core_DAO::$_nullObject,
@@ -230,14 +123,29 @@ VALUES
                                                   null,
                                                   'REQUEST' );
 
-        $className = self::postProcessStudent( $pickup,
-                                               $studentID );
+        $result = null;
+        for ( $i = 1; $i <= 6; $i++ ) {
+            $studentID = CRM_Utils_Request::retrieve( "studentID_$i",
+                                                      'Positive',
+                                                      CRM_Core_DAO::$_nullObject,
+                                                      false,
+                                                      null,
+                                                      'REQUEST' );
+            if ( ! empty( $studentID ) ) {
+                $className = self::postProcessStudent( $pickup,
+                                                       $studentID );
+                if ( empty( $className ) ) {
+                    $className = 'Yard Play';
+                }
 
-        if ( $className == null ) {
-            $className = 'Yard Play';
+                $studentName = CRM_Core_DAO::getFieldValue( 'CRM_Contact_DAO_Contact',
+                                                            $studentID,
+                                                            'display_name' );
+                $result[] = "{$studentName} @ {$className}";
+            }
         }
 
-        echo $className;
+        echo implode( ", ", $result );
         exit( );
     }
 

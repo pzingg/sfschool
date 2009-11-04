@@ -147,7 +147,7 @@ ORDER BY s.name, sout.class";
         self::addStudentToClass( $cid, $date, $time, $checked, $course );
     }
 
-    static function addStudentToClass( $cid, $date, $time, $checked = 'true', $course = '' ) {
+    static function addStudentToClass( $cid, $date, $time, $checked = 'true', $course = '', $isMorning = 0 ) {
         // update the entry if there is one for this contact id on this date
         $sql = "
 SELECT id
@@ -158,7 +158,8 @@ AND    DATE( signin_time ) = %2
         $params = array( 1 => array( $cid             , 'Integer' ),
                          2 => array( $date            , 'String'  ),
                          3 => array( "{$date} {$time}", 'String'  ),
-                         4 => array( $course          , 'String'  ) );
+                         4 => array( $course          , 'String'  ),
+                         5 => array( $isMorning       , 'Integer' ) );
         
         $dao    = CRM_Core_DAO::executeQuery( $sql, $params );
 
@@ -166,8 +167,8 @@ AND    DATE( signin_time ) = %2
         if ( ! $dao->fetch( ) ) {
             if ( $checked != 'false' ) {
                 $sql = "
-INSERT INTO civicrm_value_extended_care_signout_3 ( entity_id, signin_time, class )
-VALUES ( %1, %3, %4 )
+INSERT INTO civicrm_value_extended_care_signout_3 ( entity_id, signin_time, class, is_morning )
+VALUES ( %1, %3, %4, %6 )
 ";
             }
         } else {
