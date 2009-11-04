@@ -7,6 +7,11 @@
      <access_arguments>profile listings and forms</access_arguments>
   </item>  
   <item>
+     <path>civicrm/sfschool/morning</path>
+     <page_callback>SFS_Form_Morning</page_callback>
+     <access_arguments>profile listings and forms</access_arguments>
+  </item>  
+  <item>
      <path>civicrm/sfschool/extended/class</path>
      <page_callback>SFS_Page_Class</page_callback>
      <access_arguments>profile listings and forms</access_arguments>
@@ -49,6 +54,11 @@
   <item>
      <path>civicrm/ajax/sfschool/signout</path>
      <page_callback>SFS_Form_SignOut::addSignOutRecord</page_callback>
+     <access_arguments>profile listings and forms</access_arguments>
+  </item>
+  <item>
+     <path>civicrm/ajax/sfschool/morning</path>
+     <page_callback>SFS_Form_Morning::addMorningRecord</page_callback>
      <access_arguments>profile listings and forms</access_arguments>
   </item>
 </menu>

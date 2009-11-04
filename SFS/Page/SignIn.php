@@ -143,11 +143,15 @@ ORDER BY s.name, sout.class";
                                                   CRM_Core_DAO::$_nullObject,
                                                   false, 'true',
                                                   'REQUEST' );
+        $signout   = CRM_Utils_Request::retrieve( 'signout', 'String',
+                                                  CRM_Core_DAO::$_nullObject,
+                                                  false, null,
+                                                  'REQUEST' );
 
-        self::addStudentToClass( $cid, $date, $time, $checked, $course );
+        self::addStudentToClass( $cid, $date, $time, $signout, $checked, $course );
     }
 
-    static function addStudentToClass( $cid, $date, $time, $checked = 'true', $course = '', $isMorning = 0 ) {
+    static function addStudentToClass( $cid, $date, $time, $signout = null, $checked = 'true', $course = '', $isMorning = 0 ) {
         // update the entry if there is one for this contact id on this date
         $sql = "
 SELECT id
@@ -160,32 +164,71 @@ AND    DATE( signin_time ) = %2
                          3 => array( "{$date} {$time}", 'String'  ),
                          4 => array( $course          , 'String'  ),
                          5 => array( $isMorning       , 'Integer' ) );
-        
-        $dao    = CRM_Core_DAO::executeQuery( $sql, $params );
+        $dao = CRM_Core_DAO::executeQuery( $sql, $params );
 
+        $signoutTime = null;
+        if ( ! empty( $signout ) ) {
+            switch ( $signout ) {
+            case 1:
+                $signoutTime = "{$date} 15:15"; break;
+            case 2:
+                $signoutTime = "{$date} 16:15"; break;
+            case 3:
+                $signoutTime = "{$date} 17:00"; break;
+            case 4:
+                $signoutTime = "{$date} 17:45"; break;
+            case 5:
+                $signoutTime = "{$date} 18:15"; break;
+            default:
+                break;
+            }
+        }
+        if ( $signoutTime ) {
+            $params[7] = array( $signoutTime, 'String' );
+        }
+        
         $sql = null;
         if ( ! $dao->fetch( ) ) {
             if ( $checked != 'false' ) {
-                $sql = "
-INSERT INTO civicrm_value_extended_care_signout_3 ( entity_id, signin_time, class, is_morning )
-VALUES ( %1, %3, %4, %6 )
+                if ( $signoutTime ) {
+                    $sql = "
+INSERT INTO civicrm_value_extended_care_signout_3 ( entity_id, signin_time, class, is_morning, signout_time )
+VALUES ( %1, %3, %4, %5, %7 )
 ";
+                } else {
+                    $sql = "
+INSERT INTO civicrm_value_extended_care_signout_3 ( entity_id, signin_time, class, is_morning )
+VALUES ( %1, %3, %4, %5 )
+";
+                }
             }
         } else {
-            $params[5] = array( $dao->id, 'Integer' );
+            $params[6] = array( $dao->id, 'Integer' );
             if ( $checked == 'false' ) {
                 $sql = "
 DELETE FROM civicrm_value_extended_care_signout_3
-WHERE  id = %5
+WHERE  id = %6
 ";
             } else {
-                $sql = "
+                if ( $signoutTime ) {
+                    // dont update signin time here, should be set when signed in
+                    $sql = "
 UPDATE civicrm_value_extended_care_signout_3 
-SET    signin_time = %3, class = %4
-WHERE  id = %5
+SET    class = %4,
+       signout_time = %7
+WHERE  id = %6
 ";
+                } else {
+                    $sql = "
+UPDATE civicrm_value_extended_care_signout_3 
+SET    signin_time = %3,
+       class = %4
+WHERE  id = %6
+";
+                }
             }
         }
+
         if ( $sql ) {
             CRM_Core_DAO::executeQuery( $sql, $params );
         }
@@ -215,7 +258,8 @@ FROM   civicrm_contact c,
 WHERE  s.entity_id = c.id
 AND    s.grade_sis >= 1
 AND    s.subtype = 'Student'
-AND    c.sort_name LIKE '%$name%'
+AND    ( c.sort_name LIKE '$name%' 
+ OR      c.display_name LIKE '$name%' )
 ORDER BY sort_name
 LIMIT 0, {$limit}
 ";
@@ -269,8 +313,12 @@ ORDER BY name
                                                   CRM_Core_DAO::$_nullObject,
                                                   false, null,
                                                   'REQUEST' );
+        $signout   = CRM_Utils_Request::retrieve( 'signout', 'String',
+                                                  CRM_Core_DAO::$_nullObject,
+                                                  false, null,
+                                                  'REQUEST' );
 
-        self::addStudentToClass( $cid, $date, $time, 'true', $course );
+        self::addStudentToClass( $cid, $date, $time, $signout, 'true', $course );
 
         exit();
     }
