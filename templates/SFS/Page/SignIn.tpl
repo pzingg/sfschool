@@ -104,7 +104,7 @@ Attendance Sheet for {$dayOfWeek}, {$date} {$time}
                                 dayOfWeek: sDayOfWeek, 
                                 date: sDate, 
                                 time: sTime, 
-                                checked: cj(this).attr('checked'),
+                                checked: cj('#check_' + contactID).attr('checked'),
                                 {/literal}{if $signOut}signout: cj('#signout_' + contactID ).val() },{/if}{literal}
                function(data){
                   cj("#existing-status").show( );
@@ -121,7 +121,7 @@ Attendance Sheet for {$dayOfWeek}, {$date} {$time}
                                 dayOfWeek: sDayOfWeek, 
                                 date: sDate, 
                                 time: sTime, 
-                                checked: cj(this).attr('checked'),
+                                checked: cj('#check_' + contactID).attr('checked'),
                                 {/literal}{if $signOut}signout: cj('#signout_' + contactID ).val() },{/if}{literal}
                function(data){
                   cj("#existing-status").show( );
