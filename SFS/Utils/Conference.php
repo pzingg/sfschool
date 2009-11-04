@@ -395,6 +395,8 @@ AND        a.activity_date_time > NOW( )
 AND        a.activity_date_time > ADDDATE( NOW( ), $daysOffset )
 AND        a.activity_date_time < ADDDATE( NOW( ), $days         )
 AND        ( a.phone_number IS NULL OR ROUND( a.phone_number ) > %2 )
+AND        aa.assignee_contact_id != 71 
+AND        aa.assignee_contact_id != 710
 ";
         $params = array( 1 => array( self::CONFERENCE_ACTIVITY_TYPE_ID, 'Integer' ),
                          2 => array( $days                            , 'Integer' ) );
