@@ -96,6 +96,35 @@
                                      pickupName: pickupName },
                     function(data){
                         // success action
+                        var students = '';
+                        if ( cj("#student_1").val( ) ) {
+                            students = students + cj("#student_1").val( )
+                        }
+                        
+                        if ( cj("#student_2").val( ) ) {
+                            students = students + ', ' +cj("#student_2").val( )
+                        }
+
+                        if ( cj("#student_3").val( ) ) {
+                            students = students + ', ' +cj("#student_3").val( )
+                        }
+
+                        if ( cj("#student_4").val( ) ) {
+                            students = students + ', ' +cj("#student_4").val( )
+                        }
+
+                        if ( cj("#student_5").val( ) ) {
+                            students = students + ', ' +cj("#student_5").val( )
+                        }
+
+                        if ( cj("#student_6").val( ) ) {
+                            students = students + ', ' +cj("#student_6").val( )
+                        }
+                        
+                        var message = students + ' has been signed out.';
+                        cj("#new-status").html( message );
+                    	cj("#new-status").show( );
+                    	
                         cj("#pickup_name").val( '' );
                         cj("#student_1").val( '' )
                       	cj("input[name=student_id_1]").val( '' );
@@ -109,7 +138,6 @@
                       	cj("input[name=student_id_5]").val( '' );
                         cj("#student_6").val( '' )
                       	cj("input[name=student_id_6]").val( '' );
-                   	cj("#new-status").show( );
             	    }
             	);
             }
