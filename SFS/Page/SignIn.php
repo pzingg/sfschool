@@ -73,6 +73,7 @@ ORDER BY s.name, sout.class";
 
         $params = array( 1 => array( $this->_date, 'String' ) );
 
+        CRM_Core_Error::debug( $sql, $params );
         $dao = CRM_Core_DAO::executeQuery( $sql, $params );
         
         $studentDetails = array( );
