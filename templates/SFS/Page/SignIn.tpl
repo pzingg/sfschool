@@ -163,7 +163,7 @@ Attendance Sheet for {$dayOfWeek}, {$date} {$time}
                                          time: sTime },
                      function(data){
                          // success action
-                     	 var message = cj("#contact").val( ) + ' has been enrolled for the course.';
+                     	 var message = cj("#contact").val( ) + ' has been added.';
                          cj("#new-status").html( message );
                      	 cj("#new-status").show( );
 

@@ -292,6 +292,7 @@ SELECT DISTINCT( name )
 FROM   civicrm_value_extended_care_2
 WHERE  has_cancelled != 1
 AND    term = %1
+AND    name like '$name%'
 ORDER BY name
 ";
         require_once 'SFS/Utils/ExtendedCare.php';
