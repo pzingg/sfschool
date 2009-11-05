@@ -60,31 +60,41 @@ class SFS_Page_SignIn extends CRM_Core_Page {
 
     function run( ) {
         $sql = "
+( 
 SELECT     c.id as contact_id, c.display_name as display_name, s.name as course_name, v.grade as grade,
-           sout.class as sout_class, sout.id as sout_id, sout.signout_time as signout_time
+           0 as sout_id, 0 as signout_time
 FROM       civicrm_contact c
 INNER JOIN civicrm_value_school_information_1 v ON v.entity_id = c.id
-LEFT  JOIN civicrm_value_extended_care_2 s ON ( s.entity_id = c.id AND s.has_cancelled = 0 AND s.day_of_week = '{$this->_dayOfWeek}' )
-LEFT  JOIN civicrm_value_extended_care_signout_3 sout ON sout.entity_id = c.id
+INNER JOIN civicrm_value_extended_care_2 s ON ( s.entity_id = c.id AND s.has_cancelled = 0 AND s.day_of_week = '{$this->_dayOfWeek}' )
 WHERE      v.subtype = 'Student'
 AND        v.grade_sis >= 1
-AND        ( s.name IS NOT NULL OR DATE( sout.signin_time ) = %1 )
-ORDER BY s.name, sout.class";
+)
+UNION
+(
+SELECT     c.id as contact_id, c.display_name as display_name, sout.class as course_name, v.grade as grade,
+           sout.id as sout_id, sout.signout_time as signout_time
+FROM       civicrm_contact c
+INNER JOIN civicrm_value_school_information_1 v ON v.entity_id = c.id
+INNER JOIN civicrm_value_extended_care_signout_3 sout ON sout.entity_id = c.id
+WHERE      v.subtype = 'Student'
+AND        v.grade_sis >= 1
+AND        DATE( sout.signin_time ) = %1
+)
+ORDER BY course_name, display_name, signout_time
+";
 
         $params = array( 1 => array( $this->_date, 'String' ) );
-
-        CRM_Core_Error::debug( $sql, $params );
         $dao = CRM_Core_DAO::executeQuery( $sql, $params );
         
         $studentDetails = array( );
         while( $dao->fetch( ) ) {
-            $studentDetails[ ] = array( 'display_name'  => $dao->display_name,
-                                        'course_name'   => $dao->sout_class ? $dao->sout_class : $dao->course_name,
-                                        'grade'         => $dao->grade,
-                                        'contact_id'    => $dao->contact_id,
-                                        'is_marked'     => $dao->sout_id ? 1 : 0,
-                                        'signout_block' => self::signoutBlock( $dao->signout_time ),
-                                      );
+            $studentDetails[$dao->contact_id] = array( 'display_name'  => $dao->display_name,
+                                                       'course_name'   => $dao->sout_class ? $dao->sout_class : $dao->course_name,
+                                                       'grade'         => $dao->grade,
+                                                       'contact_id'    => $dao->contact_id,
+                                                       'is_marked'     => $dao->sout_id ? 1 : 0,
+                                                       'signout_block' => self::signoutBlock( $dao->signout_time ),
+                                                     );
         }
         
         $this->assign('studentDetails', $studentDetails);
