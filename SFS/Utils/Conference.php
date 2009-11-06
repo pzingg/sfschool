@@ -277,46 +277,37 @@ GROUP BY r.contact_id_b
         require_once 'CRM/Activity/DAO/Activity.php';
         require_once 'CRM/Activity/DAO/ActivityAssignment.php';
 
-        // create 8:00 - 8:30 slot
+        // create 1:10 - 1:40 slot
         self::createConference( $adminID, $teacherID,
                                 self::CONFERENCE_ACTIVITY_TYPE_ID,
-                                "20091117080000",
+                                "20091117131000",
                                 self::SUBJECT,
                                 self::LOCATION,
                                 self::STATUS,
                                 $duration );
 
-        // create 1:00 - 1:30 slot
+        // create 1:45 - 2:15 slot
         self::createConference( $adminID, $teacherID,
                                 self::CONFERENCE_ACTIVITY_TYPE_ID,
-                                "20091117130000",
+                                "20091117134500",
                                 self::SUBJECT,
                                 self::LOCATION,
                                 self::STATUS,
                                 $duration );
 
-        // create 1:35 - 2:05 slot
+        // create 2:20 - 2:50 slot
         self::createConference( $adminID, $teacherID,
                                 self::CONFERENCE_ACTIVITY_TYPE_ID,
-                                "20091117133500",
+                                "20091117142000",
                                 self::SUBJECT,
                                 self::LOCATION,
                                 self::STATUS,
                                 $duration );
 
-        // create 2:10 - 2:40 slot
+        // create 3:15 - 3:45 slot
         self::createConference( $adminID, $teacherID,
                                 self::CONFERENCE_ACTIVITY_TYPE_ID,
-                                "20091117141000",
-                                self::SUBJECT,
-                                self::LOCATION,
-                                self::STATUS,
-                                $duration );
-
-        // create 3:10 - 3:40 slot
-        self::createConference( $adminID, $teacherID,
-                                self::CONFERENCE_ACTIVITY_TYPE_ID,
-                                "20091117151000",
+                                "20091117151500",
                                 self::SUBJECT,
                                 self::LOCATION,
                                 self::STATUS,
@@ -331,28 +322,37 @@ GROUP BY r.contact_id_b
                                 self::STATUS,
                                 $duration );
 
-        // create 1:00 - 1:30 slot
+        // create 1:10 - 1:40 slot
         self::createConference( $adminID, $teacherID,
                                 self::CONFERENCE_ACTIVITY_TYPE_ID,
-                                "20091118130000",
+                                "20091118131000",
                                 self::SUBJECT,
                                 self::LOCATION,
                                 self::STATUS,
                                 $duration );
 
-        // create 1:35 - 2:05 slot
+        // create 1:45 - 2:15 slot
         self::createConference( $adminID, $teacherID,
                                 self::CONFERENCE_ACTIVITY_TYPE_ID,
-                                "20091118133500",
+                                "20091118134500",
                                 self::SUBJECT,
                                 self::LOCATION,
                                 self::STATUS,
                                 $duration );
 
-        // create 2:10 - 2:40 slot
+        // create 2:20 - 2:50 slot
         self::createConference( $adminID, $teacherID,
                                 self::CONFERENCE_ACTIVITY_TYPE_ID,
-                                "20091118141000",
+                                "20091118142000",
+                                self::SUBJECT,
+                                self::LOCATION,
+                                self::STATUS,
+                                $duration );
+
+        // create 3:15 - 3:45 slot
+        self::createConference( $adminID, $teacherID,
+                                self::CONFERENCE_ACTIVITY_TYPE_ID,
+                                "20091118151500",
                                 self::SUBJECT,
                                 self::LOCATION,
                                 self::STATUS,
@@ -367,19 +367,37 @@ GROUP BY r.contact_id_b
                                 self::STATUS,
                                 $duration );
 
-        // create 1:00 - 1:30 slot
+        // create 1:10 - 1:40 slot
         self::createConference( $adminID, $teacherID,
                                 self::CONFERENCE_ACTIVITY_TYPE_ID,
-                                "20091119130000",
+                                "20091119131000",
                                 self::SUBJECT,
                                 self::LOCATION,
                                 self::STATUS,
                                 $duration );
 
-        // create 1:35 - 2:05 slot
+        // create 1:45 - 2:15 slot
         self::createConference( $adminID, $teacherID,
                                 self::CONFERENCE_ACTIVITY_TYPE_ID,
-                                "20091119133500",
+                                "20091119134500",
+                                self::SUBJECT,
+                                self::LOCATION,
+                                self::STATUS,
+                                $duration );
+
+        // create 2:20 - 2:50 slot
+        self::createConference( $adminID, $teacherID,
+                                self::CONFERENCE_ACTIVITY_TYPE_ID,
+                                "20091119142000",
+                                self::SUBJECT,
+                                self::LOCATION,
+                                self::STATUS,
+                                $duration );
+
+        // create 3:15 - 3:45 slot
+        self::createConference( $adminID, $teacherID,
+                                self::CONFERENCE_ACTIVITY_TYPE_ID,
+                                "20091119151500",
                                 self::SUBJECT,
                                 self::LOCATION,
                                 self::STATUS,
@@ -768,6 +786,8 @@ VALUES
         $params = array( 1 => array( $activityID, 'Integer' ),
                          2 => array( $childID   , 'Integer' ) );
         CRM_Core_DAO::executeQuery( $sql, $params );
+
+        CRM_Core_Error::debug( ",$activityID, $advisorID, $childID," );
 
         self::sendConferenceEmail( $activityID, $advisorID, $childID );
     }

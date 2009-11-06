@@ -48,8 +48,6 @@ class SFS_Utils_Mail {
         $parentInfo = array( );
         SFS_Utils_Relationship::getParents( $childID, $parentInfo, false );
 
-        $templateVars = array( );
-
         // make sure we unset the older parents
         for ( $count = 1 ; $count < 5; $count++ ) {
             $templateVars["parent_{$count}_Name"] = null;
