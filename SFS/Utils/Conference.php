@@ -787,8 +787,6 @@ VALUES
                          2 => array( $childID   , 'Integer' ) );
         CRM_Core_DAO::executeQuery( $sql, $params );
 
-        CRM_Core_Error::debug( ",$activityID, $advisorID, $childID," );
-
         self::sendConferenceEmail( $activityID, $advisorID, $childID );
     }
 
