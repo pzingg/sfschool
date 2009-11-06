@@ -30,7 +30,9 @@ You cancelled the following classes for {$childName}
 
 {/if}
 
-You can make changes to this schedule online. If you have any questions, please contact {$extendedCareCoordinatorName} at {$extendedCareCoordinatorEmail}
+Please make changes to the schedule online via the Parent Portal.
+
+If you have any questions about Extended Care, please contact {$extendedCareCoordinatorName} at {$extendedCareCoordinatorEmail}
 
 Thank you
 

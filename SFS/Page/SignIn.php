@@ -289,8 +289,8 @@ LIMIT 0, {$limit}
 
         $sql = "
 SELECT DISTINCT( name )
-FROM   civicrm_value_extended_care_2
-WHERE  has_cancelled != 1
+FROM   sfschool_extended_care_source
+WHERE  is_active = 1
 AND    term = %1
 AND    name like '$name%'
 ORDER BY name
