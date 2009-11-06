@@ -1,5 +1,5 @@
 <div class="form-item">
-<fieldset><legend>{ts}Student Morning Extended Care Sheet{/ts}</legend>
+<fieldset><legend>{ts}Student Morning Extended Care Sheet for {$date}{/ts}</legend>
 <br/>
 <span class="success-status" id="new-status" style="display:none;">{ts}Student have been signed in for morning extended care.{/ts}</span>
 <br/>  
@@ -22,8 +22,10 @@
 {literal}
 <script type="text/javascript">
     cj( function( ) {
-        var contactUrl = {/literal}"{crmURL p='civicrm/ajax/sfschool/contactlist' h=0 q='nograde=1'}"{literal};
-        
+        var contactUrl = {/literal}"{crmURL p='civicrm/ajax/sfschool/contactlist' h=0 q='nograde=1'}";
+        var sDate = '{$date}';
+
+        {literal}
         cj("#student_1").autocomplete( contactUrl, {
             selectFirst: false, 
             matchContains: true 
@@ -88,7 +90,8 @@
                                      studentID_3: student_id_3,
                                      studentID_4: student_id_4,
                                      studentID_5: student_id_5,
-                                     studentID_6: student_id_6 },
+                                     studentID_6: student_id_6,
+				     date: sDate, },
                     function(data){
                         // success action
                         var students = '';

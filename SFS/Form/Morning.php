@@ -40,6 +40,9 @@ class SFS_Form_Morning extends CRM_Core_Form {
 
     function buildQuickForm( ) {
 
+        $this->_date = CRM_Utils_Request::retrieve( 'date'     , 'String' , $this, false, date( 'Y-m-d' ) );
+        $this->assign( 'date', $this->_date );
+
         for ( $i = 1; $i <= 6; $i++ ) {
             $this->add( 'text',
                         "student_$i",
@@ -55,7 +58,7 @@ class SFS_Form_Morning extends CRM_Core_Form {
 SELECT e.id, e.class
 FROM   civicrm_value_extended_care_signout_3 e
 WHERE  entity_id = %1
-AND    signin_time LIKE '{$_date}%'
+AND    signin_time LIKE '{$date}%'
 AND    is_morning = 1
 ";
         $params = array( 1 => array( $studentID, 'Integer' ) );
