@@ -51,7 +51,7 @@ class SFS_Form_SignOut extends CRM_Core_Form {
                         "student_$i",
                         ts( 'Student' ) );
             $this->add( 'hidden', "student_id_$i",  0);
-            $this->add( 'checkbox', "is_school_meeting_$i", ts( 'School Meeting?' ) );
+            $this->add( 'checkbox', "at_school_meeting_$i", ts( 'School Meeting?' ) );
         }
 
         $this->addDefaultButtons( 'Sign Out', 'next', null, true );
@@ -59,7 +59,7 @@ class SFS_Form_SignOut extends CRM_Core_Form {
 
     static function postProcessStudent( $pickupName,
                                         $studentID,
-                                        $isSchoolMeeting = false ) {
+                                        $atSchoolMeeting = false ) {
         static $_now  = null;
         static $_date = null;
 
@@ -71,7 +71,7 @@ class SFS_Form_SignOut extends CRM_Core_Form {
             $_date = CRM_Utils_Date::getToday( null, 'Y-m-d' );
         }
 
-        $isSchoolMeetng = $isSchoolMeeting ? '1' : '0';
+        $atSchoolMeeting = $atSchoolMeeting ? '1' : '0';
 
         $sql = "
 SELECT e.id, e.class
@@ -86,7 +86,7 @@ AND    ( is_morning = 0 OR is_morning IS NULL )
         $params = array( 1 => array( $studentID      , 'Integer'   ),
                          2 => array( $pickupName     , 'String'    ),
                          3 => array( $_now           , 'Timestamp' ),
-                         4 => array( $isSchoolMeeting, 'Integer'   ) );
+                         4 => array( $atSchoolMeeting, 'Integer'   ) );
 
         $class = null;
         if ( $dao->fetch( ) ) {
@@ -95,18 +95,19 @@ AND    ( is_morning = 0 OR is_morning IS NULL )
 UPDATE civicrm_value_extended_care_signout_3 
 SET    pickup_person_name = %2,
        signout_time       = %3,
-       is_school_meeting  = %4
+       at_school_meeting  = %4
 WHERE  id = %5
 ";
             $params[5] = array( $dao->id, 'Integer' );
         } else {
             $sql = "
 INSERT INTO civicrm_value_extended_care_signout_3
-( entity_id, pickup_person_name, signout_time, is_school_meeting, is_morning )
+( entity_id, pickup_person_name, signout_time, at_school_meeting, is_morning )
 VALUES
 ( %1, %2, %3, %4, 0 )
 ";
         }
+
         CRM_Core_DAO::executeQuery( $sql, $params );
         return $class;
     }
@@ -127,7 +128,7 @@ VALUES
                                                       false,
                                                       null,
                                                       'REQUEST' );
-            $isSchoolMeeting = CRM_Utils_Request::retrieve( "isSchoolMeeting_$i",
+            $atSchoolMeeting = CRM_Utils_Request::retrieve( "atSchoolMeeting_$i",
                                                             'Boolean',
                                                             CRM_Core_DAO::$_nullObject,
                                                             false,
@@ -136,7 +137,7 @@ VALUES
             if ( ! empty( $studentID ) ) {
                 $className = self::postProcessStudent( $pickup,
                                                        $studentID,
-                                                       $isSchoolMeeting );
+                                                       $atSchoolMeeting );
                 if ( empty( $className ) ) {
                     $className = 'Yard Play';
                 }
