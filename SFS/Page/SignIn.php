@@ -80,7 +80,7 @@ WHERE      v.subtype = 'Student'
 AND        v.grade_sis >= 1
 AND        DATE( sout.signin_time ) = %1
 )
-ORDER BY course_name, display_name, signout_time
+ORDER BY course_name, sout_id, display_name, signout_time
 ";
 
         $params = array( 1 => array( $this->_date, 'String' ) );

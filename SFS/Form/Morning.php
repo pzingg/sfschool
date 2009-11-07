@@ -79,9 +79,9 @@ WHERE  id = %4
         } else {
             $sql = "
 INSERT INTO civicrm_value_extended_care_signout_3
-( entity_id, signin_time, signout_time, is_morning )
+( entity_id, signin_time, signout_time, is_morning, is_school_meeting )
 VALUES
-( %1, %2, %3, 1 )
+( %1, %2, %3, 1, 0 )
 ";
         }
         CRM_Core_DAO::executeQuery( $sql, $params );
