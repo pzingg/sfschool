@@ -124,7 +124,7 @@ ORDER BY course_name, sout_id, display_name, signout_time
         }
 
         if ( $dateParts['H'] == 17 ||
-             ( $dateParts['H'] == 18 && $dateParts['i'] <= 0 ) ) {
+             ( $dateParts['H'] == 18 && $dateParts['i'] <= 15 ) ) {
             return 4;
         }
 

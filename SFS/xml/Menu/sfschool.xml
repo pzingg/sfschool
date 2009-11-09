@@ -7,8 +7,18 @@
      <access_arguments>profile listings and forms</access_arguments>
   </item>  
   <item>
+     <path>civicrm/sfschool/signoutOne</path>
+     <page_callback>SFS_Form_SignOutOne</page_callback>
+     <access_arguments>profile listings and forms</access_arguments>
+  </item>  
+  <item>
      <path>civicrm/sfschool/morning</path>
      <page_callback>SFS_Form_Morning</page_callback>
+     <access_arguments>profile listings and forms</access_arguments>
+  </item>  
+  <item>
+     <path>civicrm/sfschool/extendedCareSummary</path>
+     <page_callback>SFS_Form_ExtendedCareSummary</page_callback>
      <access_arguments>profile listings and forms</access_arguments>
   </item>  
   <item>

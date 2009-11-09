@@ -663,5 +663,155 @@ WHERE  entity_id = %1 AND has_cancelled = 0
         return $session == 'Second' ? "4:30 pm - 5:30 pm" : '3:30 pm - 4:30 pm';
     }
 
+    static function processSignOut( $pickupName,
+                                    $studentID,
+                                    $atSchoolMeeting = false ) {
+        static $_now  = null;
+        static $_date = null;
+
+        if ( ! $_now ) {
+            $_now = CRM_Utils_Date::getToday( null, 'YmdHis' );
+        }
+
+        if ( ! $_date ) {
+            $_date = CRM_Utils_Date::getToday( null, 'Y-m-d' );
+        }
+
+        $atSchoolMeeting = $atSchoolMeeting ? '1' : '0';
+
+        $sql = "
+SELECT e.id, e.class
+FROM   civicrm_value_extended_care_signout_3 e
+WHERE  entity_id = %1
+AND    signin_time LIKE '{$_date}%'
+AND    ( is_morning = 0 OR is_morning IS NULL )
+";
+        $params = array( 1 => array( $studentID, 'Integer' ) );
+        $dao = CRM_Core_DAO::executeQuery( $sql, $params );
+
+        $params = array( 1 => array( $studentID      , 'Integer'   ),
+                         2 => array( $pickupName     , 'String'    ),
+                         3 => array( $_now           , 'Timestamp' ),
+                         4 => array( $atSchoolMeeting, 'Integer'   ) );
+
+        $class = null;
+        if ( $dao->fetch( ) ) {
+            $class = $dao->class;
+            $sql = "
+UPDATE civicrm_value_extended_care_signout_3 
+SET    pickup_person_name = %2,
+       signout_time       = %3,
+       at_school_meeting  = %4
+WHERE  id = %5
+";
+            $params[5] = array( $dao->id, 'Integer' );
+        } else {
+            $sql = "
+INSERT INTO civicrm_value_extended_care_signout_3
+( entity_id, pickup_person_name, signin_time, signout_time, at_school_meeting, is_morning )
+VALUES
+( %1, %2, %3, %3, %4, 0 )
+";
+        }
+
+        CRM_Core_DAO::executeQuery( $sql, $params );
+        return $class;
+    }
+
+    static function &signoutDetails( $startDate,
+                                     $endDate,
+                                     $isMorning = true,
+                                     $includeDetails = false,
+                                     $studentID = null ) {
+        
+        $clauses = array( );
+        if ( ! $isMorning ) {
+            $clauses[] = "( is_morning = 0 OR is_morning IS NULL )";
+        }
+
+        if ( $studentID ) {
+            $studentID = CRM_Utils_Type::escape( $studentID, 'Integer' );
+            $clauses[] = "c.id = $studentID";
+        }
+    
+        if ( $clauses ) {
+            $clause = ' AND ' . implode( ' AND ', $clauses );
+        }
+
+        $sql = "
+SELECT     c.id, c.display_name,
+           s.signout_time, s.signin_time,
+           s.class,
+           s.is_morning, s.at_school_meeting
+FROM       civicrm_value_extended_care_signout_3 s
+INNER JOIN civicrm_contact c ON c.id = s.entity_id
+WHERE      DATE(s.signout_time) >= $startDate
+AND        DATE(s.signout_time) <= $endDate
+           $clause
+ORDER BY   c.id
+";
+
+        $dao = CRM_Core_DAO::executeQuery( $sql );
+
+        require_once 'SFS/Page/SignIn.php';
+
+        $freeClasses = array( 'Volleyball', 'Cross Country', 'Amnesty International', 'SMART' );
+
+        $summary = array( );
+        while ( $dao->fetch( ) ) {
+            $studentID = $dao->id;
+            if ( ! array_key_exists( $studentID, $summary ) ) {
+                $summary[$studentID] = array( 'id'           => $studentID,
+                                              'name'         => $dao->display_name,
+                                              'blockCharge'  => 0 );
+                if ( $includeDetails ) {
+                    $summary[$studentID]['details'] = array( );
+                }
+            }
+
+            $blockCharge  = 0;
+            $blockMessage = null;
+            if ( $dao->is_morning ) {
+                $blockCharge  = 0.5;
+                $blockMessage = 'Morning extended care';
+            } else if ( $dao->at_school_meeting ) {
+                $blockMessage = 'At school meeting - No Charge';
+            } else if ( in_array( $dao->class, $freeClasses ) ) {
+                $blockMessage = 'Free Class - No Charge';
+            } else {
+                    if ( $dao->signout_time ) {
+                        $blockCode = SFS_Page_SignIn::signoutBlock( $dao->signout_time );
+                        switch ( $blockCode ) {
+                        case 2:
+                            $blockCharge = 1;
+                            break;
+                        case 3:
+                            $blockCharge = 1.5;
+                            break;
+                        case 4:
+                            $blockCharge = 2.0;
+                            break;
+                        }
+                    } else {
+                        // account for the case where the person is signed in but not signed out
+                        if ( $dao->signin_time ) {
+                            $blockCharge  = 2.0;
+                            $blockMessage = 'Signed in but did not sign out';
+                        }
+                }
+            }
+
+            $summary[$studentID]['blockCharge'] += $blockCharge;
+            if ( $includeDetails ) {
+                $summary[$studentID]['details'][] = array( 'charge'  => $blockCharge,
+                                                           'message' => $blockMessage,
+                                                           'class'   => $dao->class,
+                                                           'signout' => CRM_Utils_Date::customFormat( $dao->signout_time,
+                                                                                                      "%l:%M %P on %b %E%f" ) );
+            }
+        }
+
+        return $summary;
+    }
 
 }

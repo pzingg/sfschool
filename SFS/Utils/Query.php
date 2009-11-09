@@ -82,7 +82,7 @@ WHERE  entity_id = %1
         return $_cache[$id];
     }
 
-    static function &getStudentsByGrade( $extendedCareOnly = false ) {
+    static function &getStudentsByGrade( $extendedCareOnly = false, $splitByGrade = true ) {
         $sql = "
 SELECT     c.id, c.sort_name, sis.grade 
 FROM       civicrm_contact c
@@ -92,17 +92,25 @@ INNER JOIN civicrm_value_school_information_1 sis ON sis.entity_id = c.id
         if ( $extendedCareOnly ) {
             $sql .= " WHERE sis.grade_sis > 0";
         }
-        $sql .= " ORDER BY sis.grade_sis DESC, sort_name";
+        if ( $splitByGrade ) {
+            $sql .= " ORDER BY sis.grade_sis DESC, sort_name";
+        } else {
+            $sql .= " ORDER BY sort_name";
+        }
 
         $dao = CRM_Core_DAO::executeQuery( $sql );
 
-        $students = array( '' => array( '' => '- First Select Grade -') );
+        $students = array( );
 
         while ( $dao->fetch( ) ) {
-            if ( ! array_key_exists( $dao->grade, $students ) ) {
-                $students[$dao->grade] = array( '' => '- Select Student -' );
+            if ( $splitByGrade ) {
+                if ( ! array_key_exists( $dao->grade, $students ) ) {
+                    $students[$dao->grade] = array( );
+                }
+                $students[$dao->grade][$dao->id] = $dao->sort_name;
+            } else {
+                $students[$dao->id] = "{$dao->sort_name} (Grade {$dao->grade})";
             }
-            $students[$dao->grade][$dao->id] = $dao->sort_name;
         }
         return $students;
     }
