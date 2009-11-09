@@ -1,6 +1,6 @@
 <div style="float: right;"><a href="#addNew">Enroll new student for the course</a></div>
 <div>
-Attendance Sheet for {$dayOfWeek}, {$date} {$time}
+Attendance Sheet for {$displayDate} {$time}
 </div>
 <span class="success-status" id="existing-status" style="display:none;">{ts}Attendance is saved.{/ts}</span>
 <table id="records" class="display">

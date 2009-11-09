@@ -46,10 +46,15 @@ class SFS_Page_SignIn extends CRM_Core_Page {
     function __construct( $title = null, $mode = null ) {
         parent::__construct( $title, $mode );
 
-        $this->_dayOfWeek = CRM_Utils_Request::retrieve( 'dayOfWeek', 'String' , $this, false, date( 'l'   ) );
         $this->_date      = CRM_Utils_Request::retrieve( 'date'     , 'String' , $this, false, date( 'Y-m-d' ) );
         $this->_time      = CRM_Utils_Request::retrieve( 'time'     , 'String' , $this, false, date( 'G:i'  ) );
         $this->_signOut   = CRM_Utils_Request::retrieve( 'signOut'  , 'Integer', $this, false, 0 );
+
+        // get the dayOfWeek from the date
+        $this->_dayOfWeek = date( 'l', strtotime( $this->_date ) );
+
+        $this->assign( 'displayDate',
+                       date( 'l, F d Y', strtotime( $this->_date ) ) );
 
         $this->assign( 'dayOfWeek', $this->_dayOfWeek );
         $this->assign( 'date'     , $this->_date      );
