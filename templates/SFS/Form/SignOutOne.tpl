@@ -1,5 +1,5 @@
 <div class="form-item">
-<fieldset><legend>{ts}Student Sign Out Sheet{/ts}</legend>
+<fieldset><legend>{ts}Student Sign Out Sheet for {/ts} {$date}</legend>
 <br/>
 <span class="success-status" id="new-status" style="display:none;">{ts}Student has been signed out.{/ts}</span>
 <div>

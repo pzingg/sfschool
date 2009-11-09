@@ -54,7 +54,7 @@ class SFS_Page_SignIn extends CRM_Core_Page {
         $this->_dayOfWeek = date( 'l', strtotime( $this->_date ) );
 
         $this->assign( 'displayDate',
-                       date( 'l, F d Y', strtotime( $this->_date ) ) );
+                       date( 'l - F d, Y', strtotime( $this->_date ) ) );
 
         $this->assign( 'dayOfWeek', $this->_dayOfWeek );
         $this->assign( 'date'     , $this->_date      );

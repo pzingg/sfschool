@@ -41,7 +41,8 @@ class SFS_Form_Morning extends CRM_Core_Form {
     function buildQuickForm( ) {
 
         $this->_date = CRM_Utils_Request::retrieve( 'date'     , 'String' , $this, false, date( 'Y-m-d' ) );
-        $this->assign( 'date', $this->_date );
+        $this->assign( 'date', 
+                       date( 'l - F d, Y', strtotime( $this->_date ) ) );
 
         for ( $i = 1; $i <= 6; $i++ ) {
             $this->add( 'text',

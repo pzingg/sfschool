@@ -46,6 +46,9 @@ class SFS_Form_SignOutOne extends CRM_Core_Form {
                     null,
                     true );
 
+        $this->assign( 'date', 
+                       date( 'l - F d, Y g:i A' ) );
+
         require_once 'SFS/Utils/Query.php';
         $students = array( '' => '- Select Student -' ) + SFS_Utils_Query::getStudentsByGrade( true, false );
         
