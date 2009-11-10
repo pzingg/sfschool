@@ -97,8 +97,7 @@ Attendance Sheet for {$displayDate} {$time}
                                 time: sTime, 
                                 checked: cj('#check_' + contactID).attr('checked'){/literal}{if $signOut}, signout: cj('#signout_' + contactID ).val(){/if}{literal} },
                function(data){
-                  var message = 'Attendance is saved for ' + cj('#display_name_' + contactID).text( );
-                  cj("#existing-status").html( message );
+                  cj("#existing-status").html( data );
                   cj("#existing-status").show( );
             });
         });
@@ -117,8 +116,7 @@ Attendance Sheet for {$displayDate} {$time}
                                 time: sTime, 
                                 checked: cj('#check_' + contactID).attr('checked'){/literal}{if $signOut}, signout: cj('#signout_' + contactID ).val(){/if}{literal} },
                function(data){
-                  var message = 'Attendance is saved for ' + cj('#display_name_' + contactID).text( );
-                  cj("#existing-status").html( message );
+                  cj("#existing-status").html( data );
                   cj("#existing-status").show( );
             });
         });
@@ -137,8 +135,7 @@ Attendance Sheet for {$displayDate} {$time}
                                          time: sTime },
                      function(data){
                          // success action
-                     	 var message = data + ' has been added.';
-                         cj("#new-status").html( message );
+                         cj("#new-status").html( data );
                      	 cj("#new-status").show( );
 
                     	 cj("#student_id").val( '' )

@@ -82,9 +82,9 @@ WHERE  entity_id = %1
         return $_cache[$id];
     }
 
-    static function &getStudentsByGrade( $extendedCareOnly = false, $splitByGrade = true ) {
+    static function &getStudentsByGrade( $extendedCareOnly = false, $splitByGrade = true, $useDisplayName = true, $prefix = '' ) {
         $sql = "
-SELECT     c.id, c.sort_name, sis.grade 
+SELECT     c.id, c.sort_name, c.display_name, sis.grade 
 FROM       civicrm_contact c
 INNER JOIN civicrm_value_school_information_1 sis ON sis.entity_id = c.id
 ";
@@ -93,9 +93,18 @@ INNER JOIN civicrm_value_school_information_1 sis ON sis.entity_id = c.id
             $sql .= " WHERE sis.grade_sis > 0";
         }
         if ( $splitByGrade ) {
-            $sql .= " ORDER BY sis.grade_sis DESC, sort_name";
+            $sql .= " ORDER BY sis.grade_sis DESC";
+            if ( $useDisplayName ) {
+                $sql .= ", display_name";
+            } else {
+                $sql .= ", sort_name";
+            }
         } else {
-            $sql .= " ORDER BY sort_name";
+            if ( $useDisplayName ) {
+                $sql .= " ORDER BY display_name";
+            } else {
+                $sql .= " ORDER BY sort_name";
+            }
         }
 
         $dao = CRM_Core_DAO::executeQuery( $sql );
@@ -103,13 +112,15 @@ INNER JOIN civicrm_value_school_information_1 sis ON sis.entity_id = c.id
         $students = array( );
 
         while ( $dao->fetch( ) ) {
+            $key = "{$prefix}{$dao->id}";
             if ( $splitByGrade ) {
                 if ( ! array_key_exists( $dao->grade, $students ) ) {
                     $students[$dao->grade] = array( );
                 }
-                $students[$dao->grade][$dao->id] = $dao->sort_name;
+                $students[$dao->grade][$key] = $useDisplayName ? $dao->display_name : $dao->sort_name;
             } else {
-                $students[$dao->id] = "{$dao->sort_name} (Grade {$dao->grade})";
+                $students[$key]  = $useDisplayName ? $dao->display_name : $dao->sort_name;
+                $students[$key] .= " (Grade {$dao->grade})";
             }
         }
         return $students;

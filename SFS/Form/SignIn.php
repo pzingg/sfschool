@@ -106,8 +106,12 @@ ORDER BY contact_id, sout_id, course_name, display_name, signout_time
         $this->assign('studentDetails', $studentDetails);
 
         require_once 'SFS/Utils/Query.php';
+        $students =
+            array( ''  => '- Select Student -' ) + 
+            SFS_Utils_Query::getStudentsByGrade( true, false, true , ''  ) +
+            array( ' ' => '- Students by Last Name' ) +
+            SFS_Utils_Query::getStudentsByGrade( true, false, false, '0' );
 
-        $students = array( '' => '- Select Student -' ) + SFS_Utils_Query::getStudentsByGrade( true, false );
         $this->add( 'select',
                     "student_id",
                     ts( 'Student' ),
@@ -193,6 +197,11 @@ ORDER BY contact_id, sout_id, course_name, display_name, signout_time
     }
 
     static function addStudentToClass( $cid, $date, $time, $signout = null, $checked = 'true', $course = '', $isMorning = 0 ) {
+
+        $studentName = CRM_Core_DAO::getFieldValue( 'CRM_Contact_DAO_Contact',
+                                                    $cid,
+                                                    'display_name' );
+
         // update the entry if there is one for this contact id on this date
         $sql = "
 SELECT id
@@ -242,6 +251,7 @@ INSERT INTO civicrm_value_extended_care_signout_3 ( entity_id, signin_time, clas
 VALUES ( %1, %3, %4, %5 )
 ";
                 }
+                echo "{$studentName} has been added to {$course}";
             }
         } else {
             $params[6] = array( $dao->id, 'Integer' );
@@ -250,6 +260,7 @@ VALUES ( %1, %3, %4, %5 )
 DELETE FROM civicrm_value_extended_care_signout_3
 WHERE  id = %6
 ";
+                echo "{$studentName} has been removed from {$course}";
             } else {
                 if ( $signoutTime ) {
                     // dont update signin time here, should be set when signed in
@@ -267,12 +278,14 @@ SET    signin_time = %3,
 WHERE  id = %6
 ";
                 }
+                echo "{$studentName} has been added to {$course}";
             }
         }
 
         if ( $sql ) {
             CRM_Core_DAO::executeQuery( $sql, $params );
         }
+
         exit( );
     }
 

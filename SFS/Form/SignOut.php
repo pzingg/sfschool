@@ -50,7 +50,12 @@ class SFS_Form_SignOut extends CRM_Core_Form {
                        date( 'l - F d, Y g:i A' ) );
 
         require_once 'SFS/Utils/Query.php';
-        $students = array( '' => '- Select Student -' ) + SFS_Utils_Query::getStudentsByGrade( true, false );
+        $students =
+            array( ''  => '- Select Student -' ) + 
+            SFS_Utils_Query::getStudentsByGrade( true, false, true , ''  ) +
+            array( ' ' => '- Students by Last Name' ) +
+            SFS_Utils_Query::getStudentsByGrade( true, false, false, '0' );
+
         
         for ( $i = 1; $i <= 6; $i++ ) {
             $required = ( $i == 1 ) ? true : false;
