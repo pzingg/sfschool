@@ -677,6 +677,12 @@ WHERE  entity_id = %1 AND has_cancelled = 0
             $_date = CRM_Utils_Date::getToday( null, 'Y-m-d' );
         }
 
+        if ( $atSchoolMeeting === 'true' ) {
+            $atSchoolMeeting = 1;
+        } else if ( $atSchoolMeeting === 'false' ) {
+            $atSchoolMeeting = 0;
+        }
+        
         $atSchoolMeeting = $atSchoolMeeting ? '1' : '0';
 
         $sql = "
