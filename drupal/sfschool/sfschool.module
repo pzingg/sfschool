@@ -18,6 +18,9 @@ function _sfschool_initialize( ) {
 
     $_initialized = true;
 
+    // set the timezone
+    date_default_timezone_set('America/Los_Angeles');
+
     $template =& CRM_Core_Smarty::singleton( );
 
     $sfschoolRoot = 
