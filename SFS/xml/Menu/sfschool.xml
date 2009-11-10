@@ -61,4 +61,9 @@
      <page_callback>SFS_Form_Morning::addMorningRecord</page_callback>
      <access_arguments>profile listings and forms</access_arguments>
   </item>
+  <item>
+     <path>civicrm/ajax/sfschool/contactlist</path>
+     <page_callback>SFS_Utils_Query::getStudents</page_callback>
+     <access_arguments>profile listings and forms</access_arguments>
+  </item>
 </menu>

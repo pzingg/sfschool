@@ -167,4 +167,35 @@ AND    term = %1
         return $classes;
     }
     
+    /**
+     * Get students ajax widget
+     */
+    static function getStudents( ) {
+        $name = CRM_Utils_Type::escape( $_GET['s'], 'String' );
+
+        $limit = '25';
+        if ( CRM_Utils_Array::value( 'limit', $_GET) ) {
+            $limit = CRM_Utils_Type::escape( $_GET['limit'], 'Positive' );
+        }
+
+        $sql = "
+SELECT c.id, c.display_name, s.grade
+FROM   civicrm_contact c,
+       civicrm_value_school_information_1 s
+WHERE  s.entity_id = c.id
+AND    s.grade_sis >= 1
+AND    s.subtype = 'Student'
+AND    ( c.sort_name LIKE '$name%' 
+ OR      c.display_name LIKE '$name%' )
+ORDER BY sort_name
+LIMIT 0, {$limit}
+";
+        $dao = CRM_Core_DAO::executeQuery( $sql );
+        $contactList = null;
+        while ( $dao->fetch( ) ) {
+            echo "{$dao->display_name} (Grade {$dao->grade})|{$dao->id}\n";
+        }
+        exit();        
+    }
+
 }
