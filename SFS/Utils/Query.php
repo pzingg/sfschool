@@ -131,4 +131,29 @@ ORDER BY  e.is_primary desc
         return array( null, null );
     }
 
+    static function getClasses( $name = null ) {
+        $sql = "
+SELECT DISTINCT( name )
+FROM   sfschool_extended_care_source
+WHERE  is_active = 1
+AND    term = %1
+";
+        if ( $name ) {
+            $name = CRM_Utils_Type::escape( $name );
+            $sql .= " AND name like '$name%'";
+        }
+
+        $sql .= " ORDER BY name";
+
+        require_once 'SFS/Utils/ExtendedCare.php';
+        $params = array( 1 => array( SFS_Utils_ExtendedCare::getTerm( ), 'String' ) );
+        $dao = CRM_Core_DAO::executeQuery( $sql, $params );
+
+        $classes = array( );
+        while ( $dao->fetch( ) ) {
+            $classes[$dao->name] = $dao->name;
+        }
+        return $classes;
+    }
+    
 }

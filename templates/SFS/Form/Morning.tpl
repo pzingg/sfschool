@@ -1,5 +1,5 @@
 <div class="form-item">
-<fieldset><legend>{ts}Student Morning Extended Care Sheet for {$date}{/ts}</legend>
+<fieldset><legend>{ts}Student Morning Extended Care Sheet for {$displayDate}{/ts}</legend>
 <br/>
 <span class="success-status" id="new-status" style="display:none;">{ts}Student have been signed in for morning extended care.{/ts}</span>
 <br/>  

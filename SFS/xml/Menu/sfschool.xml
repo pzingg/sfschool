@@ -37,6 +37,11 @@
      <access_arguments>profile listings and forms</access_arguments>
   </item>
   <item>
+     <path>civicrm/sfschool/signinNew</path>
+     <page_callback>SFS_Form_SignIn</page_callback>
+     <access_arguments>profile listings and forms</access_arguments>
+  </item>
+  <item>
      <path>civicrm/ajax/sfschool/signin</path>
      <page_callback>SFS_Page_SignIn::addRecord</page_callback>
      <access_arguments>profile listings and forms</access_arguments>

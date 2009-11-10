@@ -41,7 +41,8 @@ class SFS_Form_Morning extends CRM_Core_Form {
     function buildQuickForm( ) {
 
         $this->_date = CRM_Utils_Request::retrieve( 'date'     , 'String' , $this, false, date( 'Y-m-d' ) );
-        $this->assign( 'date', 
+        $this->assign( 'date', $this->_date );
+        $this->assign( 'displayDate', 
                        date( 'l - F d, Y', strtotime( $this->_date ) ) );
 
         for ( $i = 1; $i <= 6; $i++ ) {
@@ -80,7 +81,7 @@ WHERE  id = %4
         } else {
             $sql = "
 INSERT INTO civicrm_value_extended_care_signout_3
-( entity_id, signin_time, signout_time, is_morning, is_school_meeting )
+( entity_id, signin_time, signout_time, is_morning, at_school_meeting )
 VALUES
 ( %1, %2, %3, 1, 0 )
 ";

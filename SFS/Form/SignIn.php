@@ -33,9 +33,9 @@
  *
  */
 
-require_once 'CRM/Core/Page.php';
+require_once 'CRM/Core/Form.php';
 
-class SFS_Page_SignIn extends CRM_Core_Page {
+class SFS_Form_SignIn extends CRM_Core_Form {
 
     protected $_dayOfWeek;
     
@@ -43,8 +43,8 @@ class SFS_Page_SignIn extends CRM_Core_Page {
 
     protected $_time;
 
-    function __construct( $title = null, $mode = null ) {
-        parent::__construct( $title, $mode );
+    function preProcess( ) {
+        parent::preProcess( );
 
         $this->_date      = CRM_Utils_Request::retrieve( 'date'     , 'String' , $this, false, date( 'Y-m-d' ) );
         $this->_time      = CRM_Utils_Request::retrieve( 'time'     , 'String' , $this, false, date( 'G:i'  ) );
@@ -63,7 +63,7 @@ class SFS_Page_SignIn extends CRM_Core_Page {
 
     }
 
-    function run( ) {
+    function buildQuickForm( ) {
         $sql = "
 ( 
 SELECT     c.id as contact_id, c.display_name as display_name, s.name as course_name, v.grade as grade,
@@ -104,7 +104,31 @@ ORDER BY contact_id, sout_id, course_name, display_name, signout_time
         }
         
         $this->assign('studentDetails', $studentDetails);
-        parent::run( );
+
+        require_once 'SFS/Utils/Query.php';
+
+        $students = array( '' => '- Select Student -' ) + SFS_Utils_Query::getStudentsByGrade( true, false );
+        $this->add( 'select',
+                    "student_id",
+                    ts( 'Student' ),
+                    $students );
+
+        $classes = array( '' => '- Select Class -' ) + SFS_Utils_Query::getClasses( );
+        $this->add( 'select',
+                    "course_name",
+                    ts( 'Course' ),
+                    $classes );
+
+        $timeSlots = array( '' => '- Select Time -',
+                            1  => 'Before 3:30 pm',
+                            2  => '3:30 - 4:30 pm',
+                            3  => '4:30 - 5:15 pm',
+                            4  => '5:15 - 6:00 pm',
+                            5  => 'After  6:00 pm' );
+        $this->add( 'select',
+                    "signout_time",
+                    ts( 'Signout Time' ),
+                    $timeSlots );
     }
 
     static function signoutBlock( $time ) {
@@ -250,63 +274,6 @@ WHERE  id = %6
             CRM_Core_DAO::executeQuery( $sql, $params );
         }
         exit( );
-    }
-
-    /**
-     * Get students who have not signed up for any courses
-     */
-    static function getStudents( ) {
-        $name = CRM_Utils_Type::escape( $_GET['s'], 'String' );
-
-        $dayOfWeek = CRM_Utils_Request::retrieve( 'dayOfWeek', 'String', 
-                                                  CRM_Core_DAO::$_nullObject,
-                                                  false, date( 'l'   ),
-                                                  'REQUEST' );
-        
-        $limit = '10';
-        if ( CRM_Utils_Array::value( 'limit', $_GET) ) {
-            $limit = CRM_Utils_Type::escape( $_GET['limit'], 'Positive' );
-        }
-
-        $sql = "
-SELECT c.id, c.display_name, s.grade
-FROM   civicrm_contact c,
-       civicrm_value_school_information_1 s
-WHERE  s.entity_id = c.id
-AND    s.grade_sis >= 1
-AND    s.subtype = 'Student'
-AND    ( c.sort_name LIKE '$name%' 
- OR      c.display_name LIKE '$name%' )
-ORDER BY sort_name
-LIMIT 0, {$limit}
-";
-        $params = array( 1 => array( $dayOfWeek, 'String' ) );
-        $dao = CRM_Core_DAO::executeQuery( $sql, $params );
-        $contactList = null;
-        while ( $dao->fetch( ) ) {
-            echo "{$dao->display_name} (Grade {$dao->grade})|{$dao->id}\n";
-        }
-        exit();        
-    }
-
-    static function getClasses( ) {
-        $name = CRM_Utils_Type::escape( $_GET['s'], 'String' );
-
-
-        $sql = "
-SELECT DISTINCT( name )
-FROM   sfschool_extended_care_source
-WHERE  is_active = 1
-AND    term = %1
-AND    name like '$name%'
-ORDER BY name
-";
-        require_once 'SFS/Utils/ExtendedCare.php';
-        $params = array( 1 => array( SFS_Utils_ExtendedCare::getTerm( ), 'String' ) );
-        $dao = CRM_Core_DAO::executeQuery( $sql, $params );
-        while ( $dao->fetch( ) ) {
-            echo "{$dao->name}|{$dao->name}\n";
-        }
     }
 
     /**
