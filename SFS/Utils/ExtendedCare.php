@@ -755,10 +755,11 @@ ORDER BY   c.id
 
         require_once 'SFS/Page/SignIn.php';
 
-        $freeClasses = array( 'Volleyball', 'Cross Country', 'Amnesty International', 'SMART' );
+        $freeClasses = array( 'Volleyball', 'Cross Country', 'Amnesty International', 'SMART', 'Yearbook' );
 
         $summary = array( );
         while ( $dao->fetch( ) ) {
+            $dao->class = trim( $dao->class );
             $studentID = $dao->id;
             if ( ! array_key_exists( $studentID, $summary ) ) {
                 $summary[$studentID] = array( 'id'           => $studentID,
