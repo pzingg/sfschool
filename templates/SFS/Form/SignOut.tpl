@@ -8,7 +8,7 @@
 </div>
 <div>
 <br/>
-Please enter your name in the "Pickup Person Name" box. Type the first few charaters of the student name in each "Student" box and choose the right child. If this is a school meeting please indicate so in the adjacent checkbox. Click "Sign Out" after you have entered the names of all the children you are picking up.
+Please enter your parent / guardians name in the "Parent Name" box. Type the first charater of the student name in each "Student" box and choose the name of the child you are picking up. If this is a school meeting please indicate so in the adjacent checkbox. Click "Sign Out" after you have entered the names of all the children you are picking up.
 </div>
 <br/>
 <div>
@@ -92,14 +92,18 @@ Please enter your name in the "Pickup Person Name" box. Type the first few chara
                         cj("#at_school_meeting_5").removeAttr('checked');
                       	cj("#student_id_6").val( '' );
                         cj("#at_school_meeting_6").removeAttr('checked');
+
+                        cj('#pickup_name').focus( );
             	    }
             	);
             }
         });
 	
-	    cj(".success-status").click( function( ) {
-	        cj(this).hide( );
-	    });
+	cj(".success-status").click( function( ) {
+	    cj(this).hide( );
+	});
+
+        cj('#pickup_name').focus( );
   });
 
 </script>

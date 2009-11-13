@@ -42,12 +42,12 @@ class SFS_Form_SignOut extends CRM_Core_Form {
 
         $this->add( 'text',
                     'pickup_name',
-                    ts( 'Pickup Person Name' ),
-                    null,
+                    ts( 'Parent Name' ),
+                    'autocomplete="off"',
                     true );
 
         $this->assign( 'date', 
-                       date( 'l - F d, Y g:i A' ) );
+                       date( 'l - F d, Y' ) );
 
         require_once 'SFS/Utils/Query.php';
         $students =

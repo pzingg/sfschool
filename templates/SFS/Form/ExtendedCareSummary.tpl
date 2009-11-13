@@ -37,7 +37,7 @@
 <tr>
        <td>{$detail.charge}</td>
        <td>{$detail.class}</td>
-       <td>{$detail.signout}</td>
+       <td>{$detail.signout}{if $detail.pickup} by {$detail.pickup}{/if}</td>
        <td>{$detail.message}</td>
 </tr>
 {/foreach}

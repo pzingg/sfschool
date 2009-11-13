@@ -752,14 +752,14 @@ VALUES
         $sql = "
 SELECT     c.id, c.display_name,
            s.signout_time, s.signin_time,
-           s.class,
+           s.class, s.pickup_person_name,
            s.is_morning, s.at_school_meeting
 FROM       civicrm_value_extended_care_signout_3 s
 INNER JOIN civicrm_contact c ON c.id = s.entity_id
 WHERE      DATE(s.signout_time) >= $startDate
 AND        DATE(s.signout_time) <= $endDate
            $clause
-ORDER BY   c.id
+ORDER BY   c.id, signout_time
 ";
 
         $dao = CRM_Core_DAO::executeQuery( $sql );
@@ -821,6 +821,7 @@ ORDER BY   c.id
                 $summary[$studentID]['details'][] = array( 'charge'  => $blockCharge,
                                                            'message' => $blockMessage,
                                                            'class'   => $dao->class,
+                                                           'pickup'  => $dao->pickup_person_name,
                                                            'signout' => CRM_Utils_Date::customFormat( $dao->signout_time,
                                                                                                       "%l:%M %P on %b %E%f" ) );
             }

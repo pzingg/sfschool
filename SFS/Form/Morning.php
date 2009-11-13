@@ -40,22 +40,43 @@ class SFS_Form_Morning extends CRM_Core_Form {
 
     function buildQuickForm( ) {
 
-        $this->_date = CRM_Utils_Request::retrieve( 'date'     , 'String' , $this, false, date( 'Y-m-d' ) );
+        $this->add( 'text',
+                    'pickup_name',
+                    ts( 'Parent Name' ),
+                    'autocomplete="off"',
+                    true );
+
+        $this->_date = CRM_Utils_Request::retrieve( 'date', 'String' , $this, false, date( 'Y-m-d' ) );
+        $this->_time = CRM_Utils_Request::retrieve( 'time', 'String' , $this, false, date( 'h:i' ) );
+
+        
         $this->assign( 'date', $this->_date );
+        $this->assign( 'time', $this->_time );
+
         $this->assign( 'displayDate', 
                        date( 'l - F d, Y', strtotime( $this->_date ) ) );
 
+        require_once 'SFS/Utils/Query.php';
+        $students =
+            array( ''  => '- Select Student -' ) + 
+            SFS_Utils_Query::getStudentsByGrade( true, false, true , ''  ) +
+            array( ' ' => '- Students by Last Name' ) +
+            SFS_Utils_Query::getStudentsByGrade( true, false, false, '0' );
+
+        
         for ( $i = 1; $i <= 6; $i++ ) {
-            $this->add( 'text',
-                        "student_$i",
-                        ts( 'Student' ) );
-            $this->add( 'hidden', "student_id_$i",  0);
+            $required = ( $i == 1 ) ? true : false;
+            $this->add( 'select',
+                        "student_id_$i",
+                        ts( 'Student' ),
+                        $students,
+                        $required );
         }
 
         $this->addDefaultButtons( 'Morning Extended Care Signup', 'next', null, true );
     }
 
-    static function postProcessStudent( $studentID, $date ) {
+    static function postProcessStudent( $studentID, $date, $time ) {
         $sql = "
 SELECT e.id, e.class
 FROM   civicrm_value_extended_care_signout_3 e
@@ -67,7 +88,7 @@ AND    is_morning = 1
         $dao = CRM_Core_DAO::executeQuery( $sql, $params );
 
         $params = array( 1 => array( $studentID     , 'Integer' ),
-                         2 => array( "{$date} 07:00", 'String'  ),
+                         2 => array( "{$date} {$time}", 'String'  ),
                          3 => array( "{$date} 08:30", 'String'  ) );
 
         if ( $dao->fetch( ) ) {
@@ -98,6 +119,14 @@ VALUES
                                              date( 'Y-m-d' ),
                                              'REQUEST' );
 
+        $time = CRM_Utils_Request::retrieve( 'time',
+                                             'String',
+                                             CRM_Core_DAO::$_nullObject,
+                                             false,
+                                             date( 'h:i' ),
+                                             'REQUEST' );
+
+
         $result = null;
         for ( $i = 1; $i <= 6; $i++ ) {
             $studentID = CRM_Utils_Request::retrieve( "studentID_$i",
@@ -107,7 +136,7 @@ VALUES
                                                       null,
                                                       'REQUEST' );
             if ( ! empty( $studentID ) ) {
-                self::postProcessStudent( $studentID, $date );
+                self::postProcessStudent( $studentID, $date, $time );
                 $result[] = CRM_Core_DAO::getFieldValue( 'CRM_Contact_DAO_Contact',
                                                          $studentID,
                                                          'display_name' );
