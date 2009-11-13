@@ -202,7 +202,6 @@ class SFS_Form_Class extends CRM_Core_Form
          $addQuery = implode( ' AND ', $addQuery )." AND {$class_source}.id=".$this->_indexID;
 
          if($this->_action & CRM_Core_Action::DISABLE) {
-             
              if( $this->_indexID )  { 
                  $sql = "UPDATE sfschool_extended_care_source SET is_active=0 WHERE id=".$this->_indexID;
                  CRM_Core_DAO::executeQuery( $sql);
@@ -268,14 +267,22 @@ class SFS_Form_Class extends CRM_Core_Form
                  if( $value) {
                      if( $field == 'start_date' || $field == 'end_date' ) {
                          $value = CRM_Utils_date::format($params[$field])?CRM_Utils_date::format($params[$field]):'NULL';
-                         $updateValues[] = $field."=".$value." ";
+                         $updateValues[] = "{$field} = {$value} ";
                          continue;
                      } 
-                     $updateValues[] =  $field."='".$value."' ";
+                     $updateValues[] =  "{$field} = '{$value}' ";
+                 } else {
+                     if ( $field == 'additional_rows'  ||
+                          $field == 'max_participants' ||
+                          $field == 'fee_block' ) {
+                         $updateValues[] =  "{$field} = 0 ";
+                     } else {
+                         $updateValues[] =  "{$field} = null ";
+                     }
                  }
              }
              if( $this->_indexID ) {
-                 $sql = "UPDATE sfschool_extended_care_source SET " . implode(',', $updateValues ). "WHERE id=".$this->_indexID;
+                 $sql = "UPDATE sfschool_extended_care_source SET " . implode( ', ', $updateValues ) . " WHERE id=".$this->_indexID;
                  CRM_Core_DAO::executeQuery( $sql);
                  
                  $statusMsg = ts("Class Has been edited Successfully");

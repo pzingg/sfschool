@@ -417,13 +417,18 @@ VALUES
 ";
         
             $useStart = ( $startDate > $rightNow ) ? $startDate : $rightNow;
+
+            // fix it if null value
+            $instructor = CRM_Utils_Array::value( 'instructor', $classValues, '' );
+            $instructor = $instructor ? $instructor : '';
+
+            $description = CRM_Utils_Array::value( 'description', $classValues, '' );
+            $description = $description ? $description : '';
             $params = array( 1  => array( $childID, 'Integer' ),
                              2  => array( $classValues['term'], 'String' ),
                              3  => array( $classValues['name'], 'String' ),
-                             4  => array( CRM_Utils_Array::value( 'description', $classValues, '' ),
-                                         'String' ),
-                             5  => array( CRM_Utils_Array::value( 'instructor', $classValues, '' ),
-                                          'String' ),
+                             4  => array( $description, 'String' ),
+                             5  => array( $instructor, 'String' ),
                              6  => array( $classValues['day'], 'String' ),
                              7  => array( $classValues['session'], 'String' ),
                              8  => array( $classValues['fee_block'], 'Float' ),
@@ -789,6 +794,8 @@ ORDER BY   c.id
                     if ( $dao->signout_time ) {
                         $blockCode = SFS_Page_SignIn::signoutBlock( $dao->signout_time );
                         switch ( $blockCode ) {
+                        case 1:
+                            break;
                         case 2:
                             $blockCharge = 1;
                             break;
@@ -796,6 +803,7 @@ ORDER BY   c.id
                             $blockCharge = 1.5;
                             break;
                         case 4:
+                        default:
                             $blockCharge = 2.0;
                             break;
                         }
