@@ -39,6 +39,7 @@ class SFS_Form_Morning extends CRM_Core_Form {
     protected $_students;
 
     function buildQuickForm( ) {
+        CRM_Utils_System::setTitle( 'Morning SignIn - Extended Care' );
 
         $this->add( 'text',
                     'pickup_name',

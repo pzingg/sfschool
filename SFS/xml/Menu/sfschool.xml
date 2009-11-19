@@ -17,6 +17,11 @@
      <access_arguments>profile listings and forms</access_arguments>
   </item>  
   <item>
+     <path>civicrm/sfschool/conference</path>
+     <page_callback>SFS_Form_Conference</page_callback>
+     <access_arguments>profile listings and forms</access_arguments>
+  </item>  
+  <item>
      <path>civicrm/sfschool/extended/class</path>
      <page_callback>SFS_Page_Class</page_callback>
      <access_arguments>profile listings and forms</access_arguments>

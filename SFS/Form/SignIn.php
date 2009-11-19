@@ -64,6 +64,8 @@ class SFS_Form_SignIn extends CRM_Core_Form {
     }
 
     function buildQuickForm( ) {
+        CRM_Utils_System::setTitle( 'Afternoon SignIn - Extended Care' );
+
         $sql = "
 ( 
 SELECT     c.id as contact_id, c.display_name as display_name, s.name as course_name, v.grade as grade,
