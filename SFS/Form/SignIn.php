@@ -110,9 +110,7 @@ ORDER BY contact_id, sout_id, course_name, display_name, signout_time
         require_once 'SFS/Utils/Query.php';
         $students =
             array( ''  => '- Select Student -' ) + 
-            SFS_Utils_Query::getStudentsByGrade( true, false, true , ''  ) +
-            array( ' ' => '- Students by Last Name' ) +
-            SFS_Utils_Query::getStudentsByGrade( true, false, false, '0' );
+            SFS_Utils_Query::getStudentsByGrade( true, false, true , ''  );
 
         $this->add( 'select',
                     "student_id",

@@ -60,10 +60,7 @@ class SFS_Form_Morning extends CRM_Core_Form {
         require_once 'SFS/Utils/Query.php';
         $students =
             array( ''  => '- Select Student -' ) + 
-            SFS_Utils_Query::getStudentsByGrade( true, false, true , ''  ) +
-            array( ' ' => '- Students by Last Name' ) +
-            SFS_Utils_Query::getStudentsByGrade( true, false, false, '0' );
-
+            SFS_Utils_Query::getStudentsByGrade( true, false, true , ''  );
         
         for ( $i = 1; $i <= 6; $i++ ) {
             $required = ( $i == 1 ) ? true : false;

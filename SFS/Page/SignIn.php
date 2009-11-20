@@ -115,17 +115,17 @@ ORDER BY contact_id, sout_id, course_name, display_name, signout_time
         $dateParts = CRM_Utils_Date::unformat( $time );
         
         if ( $dateParts['H'] < 15 ||
-             ( $dateParts['H'] == 15 && $dateParts['i'] <= 30 ) ) {
+             ( $dateParts['H'] == 15 && $dateParts['i'] <= 35 ) ) {
             return 1;
         }
         
         if ( $dateParts['H'] == 15 ||
-             ( $dateParts['H'] == 16 && $dateParts['i'] <= 30 ) ) {
+             ( $dateParts['H'] == 16 && $dateParts['i'] <= 35 ) ) {
             return 2;
         }
 
         if ( $dateParts['H'] == 16 ||
-             ( $dateParts['H'] == 17 && $dateParts['i'] <= 15 ) ) {
+             ( $dateParts['H'] == 17 && $dateParts['i'] <= 20 ) ) {
             return 3;
         }
 

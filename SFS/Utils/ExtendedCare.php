@@ -759,7 +759,7 @@ INNER JOIN civicrm_contact c ON c.id = s.entity_id
 WHERE      DATE(s.signout_time) >= $startDate
 AND        DATE(s.signout_time) <= $endDate
            $clause
-ORDER BY   c.id, signout_time
+ORDER BY   c.sort_name, signout_time
 ";
 
         $dao = CRM_Core_DAO::executeQuery( $sql );
@@ -828,6 +828,41 @@ ORDER BY   c.id, signout_time
         }
 
         return $summary;
+    }
+
+    static function signoutDetailsPerMonth( ) {
+        // always do per academic year
+        // which goes from Sept (09) - June (06)
+        $currentYear  = date( 'Y' );
+        $currentMonth = date( 'm' );
+
+        $dateRange = array( );
+        if ( $m >= 9 ) {
+            for ( $i = 9 ; $i < $m ; $i++ ) {
+                $mon = ( $i == 9 ) ? '09' : $m;
+                $end = self::getDaysInMonth( $i, $currentYear );
+                $dateRange[$i] = array( 'start' => "{$currentYear}{$mon}01",
+                                        'end'   => "{$currentYear}{$mon}{$end}" );
+            }
+        } else {
+            for ( $i = 9 ; $i <= 12 ; $i++ ) {
+                $mon = ( $i == 9 ) ? '09' : $m;
+                $end = self::getDaysInMonth( $i, $currentYear );
+                $dateRange[$i] = array( 'start' => "{$currentYear}{$mon}01",
+                                        'end'   => "{$currentYear}{$mon}{$end}"x );
+            }
+            $nextYear = $currentYear + 1;
+            for ( $i = 1 ; $i <= $m ; $i++ ) {
+                $mon = "0{$i}";
+                $end = self::getDaysInMonth( $i, $nextYear );
+                $dateRange[$i] = array( 'start' => "{$currentYear}{$mon}01",
+                                        'end'   => "{$currentYear}{$mon}{$end}"x );
+            }
+            $startYear  = $currentYear - 1;
+            $endYear    = $currentYear;
+            $startMonth = '09';
+            $endMonth   = $m;
+        }
     }
 
 }
