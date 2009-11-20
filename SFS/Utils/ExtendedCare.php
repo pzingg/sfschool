@@ -849,14 +849,14 @@ ORDER BY   c.sort_name, signout_time
                 $mon = ( $i == 9 ) ? '09' : $m;
                 $end = self::getDaysInMonth( $i, $currentYear );
                 $dateRange[$i] = array( 'start' => "{$currentYear}{$mon}01",
-                                        'end'   => "{$currentYear}{$mon}{$end}"x );
+                                        'end'   => "{$currentYear}{$mon}{$end}" );
             }
             $nextYear = $currentYear + 1;
             for ( $i = 1 ; $i <= $m ; $i++ ) {
                 $mon = "0{$i}";
                 $end = self::getDaysInMonth( $i, $nextYear );
                 $dateRange[$i] = array( 'start' => "{$currentYear}{$mon}01",
-                                        'end'   => "{$currentYear}{$mon}{$end}"x );
+                                        'end'   => "{$currentYear}{$mon}{$end}" );
             }
             $startYear  = $currentYear - 1;
             $endYear    = $currentYear;
