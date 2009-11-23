@@ -14,12 +14,12 @@ Please enter your parent / guardians name in the "Parent Name" box. Type the fir
 <div>
 <dl>
   <dt>{$form.pickup_name.label}</dt><dd>{$form.pickup_name.html}</dd>
-  <dt>{$form.student_id_1.label}</dt><dd>{$form.student_id_1.html}&nbsp;{$form.at_school_meeting_1.html}</dd>
-  <dt>{$form.student_id_2.label}</dt><dd>{$form.student_id_2.html}&nbsp;{$form.at_school_meeting_2.html}</dd>
-  <dt>{$form.student_id_3.label}</dt><dd>{$form.student_id_3.html}&nbsp;{$form.at_school_meeting_3.html}</dd>
-  <dt>{$form.student_id_4.label}</dt><dd>{$form.student_id_4.html}&nbsp;{$form.at_school_meeting_4.html}</dd>
-  <dt>{$form.student_id_5.label}</dt><dd>{$form.student_id_5.html}&nbsp;{$form.at_school_meeting_5.html}</dd>
-  <dt>{$form.student_id_6.label}</dt><dd>{$form.student_id_6.html}&nbsp;{$form.at_school_meeting_6.html}</dd>
+  <dt>{$form.student_id_1.label}</dt><dd>{$form.student_id_1.html}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{$form.at_school_meeting_1.html} <strong>(Check this box IF attending a school meeting)</strong></dd>
+  <dt>{$form.student_id_2.label}</dt><dd>{$form.student_id_2.html}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{$form.at_school_meeting_2.html}</dd>
+  <dt>{$form.student_id_3.label}</dt><dd>{$form.student_id_3.html}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{$form.at_school_meeting_3.html}</dd>
+  <dt>{$form.student_id_4.label}</dt><dd>{$form.student_id_4.html}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{$form.at_school_meeting_4.html}</dd>
+  <dt>{$form.student_id_5.label}</dt><dd>{$form.student_id_5.html}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{$form.at_school_meeting_5.html}</dd>
+  <dt>{$form.student_id_6.label}</dt><dd>{$form.student_id_6.html}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{$form.at_school_meeting_6.html}</dd>
 </dl>
   <dl>
   <dt></dt><dd><input type="submit" name="Add" id="Add" value="Sign Out"></dd>

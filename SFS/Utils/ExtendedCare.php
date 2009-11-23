@@ -753,9 +753,11 @@ VALUES
 SELECT     c.id, c.display_name,
            s.signout_time, s.signin_time,
            s.class, s.pickup_person_name,
-           s.is_morning, s.at_school_meeting
+           s.is_morning, s.at_school_meeting,
+           v.extended_care_status
 FROM       civicrm_value_extended_care_signout_3 s
 INNER JOIN civicrm_contact c ON c.id = s.entity_id
+INNER JOIN civicrm_value_school_information_1 v ON c.id = v.entity_id
 WHERE      DATE(s.signout_time) >= $startDate
 AND        DATE(s.signout_time) <= $endDate
            $clause
@@ -766,7 +768,10 @@ ORDER BY   c.sort_name, signout_time
 
         require_once 'SFS/Page/SignIn.php';
 
-        $freeClasses = array( 'Volleyball', 'Cross Country', 'Amnesty International', 'SMART', 'Yearbook' );
+        $freeClasses = array( 'Volleyball', 'Cross Country', 'Amnesty International',
+                              'SMART', 'Yearbook',
+                              'Basketball Team 3:30-5:00 p.m.' );
+        $freeStatus  = array( 'SMART', 'Staff', 'Unlimited');
 
         $summary = array( );
         while ( $dao->fetch( ) ) {
@@ -775,7 +780,8 @@ ORDER BY   c.sort_name, signout_time
             if ( ! array_key_exists( $studentID, $summary ) ) {
                 $summary[$studentID] = array( 'id'           => $studentID,
                                               'name'         => $dao->display_name,
-                                              'blockCharge'  => 0 );
+                                              'blockCharge'  => 0,
+                                              'doNotCharge'  => null );
                 if ( $includeDetails ) {
                     $summary[$studentID]['details'] = array( );
                 }
@@ -817,6 +823,10 @@ ORDER BY   c.sort_name, signout_time
             }
 
             $summary[$studentID]['blockCharge'] += $blockCharge;
+            if ( in_array( $dao->extended_care_status, $freeStatus ) ) {
+                $summary[$studentID]['doNotCharge'] = $dao->extended_care_status;
+            }
+
             if ( $includeDetails ) {
                 $summary[$studentID]['details'][] = array( 'charge'  => $blockCharge,
                                                            'message' => $blockMessage,

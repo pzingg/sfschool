@@ -29,7 +29,7 @@
 {if $row.blockCharge > 0 OR $showDetails}
   <tr class="{cycle values="odd-row,even-row"}">
     <td>{$row.name}</td>
-    <td>{$row.blockCharge}</td>
+    <td>{if $row.doNotCharge}0 ({$row.doNotCharge}, {$row.blockCharge}){else}{$row.blockCharge}{/if}</td>
 {if $showDetails}
     <td>
 <table>
