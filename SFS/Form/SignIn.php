@@ -88,19 +88,43 @@ AND        v.grade_sis >= 1
 AND        ( sout.is_morning = 0 OR sout.is_morning IS NULL )
 AND        DATE( sout.signin_time ) = %1
 )
-ORDER BY contact_id, sout_id, course_name, display_name, signout_time
+UNION
+(
+SELECT     c.id as contact_id, c.display_name as display_name, sout.class as course_name, v.grade as grade,
+           -1 as sout_id, 0 as signout_time
+FROM       civicrm_contact c
+INNER JOIN civicrm_value_school_information_1 v ON v.entity_id = c.id
+INNER JOIN civicrm_value_extended_care_signout_3 sout ON sout.entity_id = c.id
+WHERE      v.subtype = 'Student'
+AND        v.grade_sis >= 1
+AND        ( sout.is_morning = 0 OR sout.is_morning IS NULL )
+AND        DAYNAME( sout.signin_time ) = %2
+AND        DATE_ADD( sout.signin_time, INTERVAL 8 DAY ) > '{$this->_date}'
+GROUP BY   c.id
+ORDER BY   id DESC
+)
+ORDER BY contact_id, sout_id DESC, course_name, display_name, signout_time
 ";
 
-        $params = array( 1 => array( $this->_date, 'String' ) );
+        $params = array( 1 => array( $this->_date     , 'String' ),
+                         2 => array( $this->_dayOfWeek, 'String' ) );
+
         $dao = CRM_Core_DAO::executeQuery( $sql, $params );
         
         $studentDetails = array( );
         while( $dao->fetch( ) ) {
+            if ( array_key_exists( $dao->contact_id, $studentDetails ) ) {
+                continue;
+            }
+            $courseName = $dao->sout_class ? $dao->sout_class : $dao->course_name;
+            if ( empty( $courseName ) ) {
+                $courseName = $dao->grade <= 5 ? 'Yard Play' : 'Homework';
+            }
             $studentDetails[$dao->contact_id] = array( 'display_name'  => $dao->display_name,
-                                                       'course_name'   => $dao->sout_class ? $dao->sout_class : $dao->course_name,
+                                                       'course_name'   => $courseName,
                                                        'grade'         => $dao->grade,
                                                        'contact_id'    => $dao->contact_id,
-                                                       'is_marked'     => $dao->sout_id ? 1 : 0,
+                                                       'is_marked'     => ( $dao->sout_id > 0 ) ? 1 : 0,
                                                        'signout_block' => self::signoutBlock( $dao->signout_time ),
                                                      );
         }
@@ -117,9 +141,20 @@ ORDER BY contact_id, sout_id, course_name, display_name, signout_time
                     ts( 'Student' ),
                     $students );
 
+        $this->add( 'select',
+                    "student_id_top",
+                    ts( 'Student' ),
+                    $students );
+
         $classes = array( '' => '- Select Class -' ) + SFS_Utils_Query::getClasses( );
+
         $this->add( 'select',
                     "course_name",
+                    ts( 'Course' ),
+                    $classes );
+
+        $this->add( 'select',
+                    "course_name_top",
                     ts( 'Course' ),
                     $classes );
 
@@ -131,6 +166,10 @@ ORDER BY contact_id, sout_id, course_name, display_name, signout_time
                             5  => 'After  6:00 pm' );
         $this->add( 'select',
                     "signout_time",
+                    ts( 'Signout Time' ),
+                    $timeSlots );
+        $this->add( 'select',
+                    "signout_time_top",
                     ts( 'Signout Time' ),
                     $timeSlots );
     }

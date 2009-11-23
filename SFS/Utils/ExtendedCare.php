@@ -758,8 +758,8 @@ SELECT     c.id, c.display_name,
 FROM       civicrm_value_extended_care_signout_3 s
 INNER JOIN civicrm_contact c ON c.id = s.entity_id
 INNER JOIN civicrm_value_school_information_1 v ON c.id = v.entity_id
-WHERE      DATE(s.signout_time) >= $startDate
-AND        DATE(s.signout_time) <= $endDate
+WHERE      ( DATE(s.signout_time) >= $startDate OR DATE(s.signin_time) >= $startDate )
+AND        ( DATE(s.signout_time) <= $endDate   OR DATE(s.signin_time) <= $endDate   )
            $clause
 ORDER BY   c.sort_name, signout_time
 ";
@@ -793,7 +793,7 @@ ORDER BY   c.sort_name, signout_time
                 $blockCharge  = 0.5;
                 $blockMessage = 'Morning extended care';
             } else if ( $dao->at_school_meeting ) {
-                $blockMessage = 'At school meeting - No Charge';
+                $blockMessage = 'At School Meeting / Work - No Charge';
             } else if ( in_array( $dao->class, $freeClasses ) ) {
                 $blockMessage = 'Free Class - No Charge';
             } else {

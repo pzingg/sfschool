@@ -1,4 +1,26 @@
-<div style="float: right;"><a href="#addNew">Enroll new student for the course</a></div>
+<span class="success-status" id="new-status-top" style="display:none;">{ts}Student has been enrolled for the course.{/ts}</span>
+<br/>
+<div class="form-layout">
+    <table class="form-layout">
+        <tr id="addNew">
+            <td>
+                {$form.student_id_top.label}&nbsp;{$form.student_id_top.html}
+                &nbsp;&nbsp;
+                {$form.course_name_top.label}&nbsp;{$form.course_name_top.html}
+                &nbsp;&nbsp;
+	            {if $signOut}
+                    &nbsp;
+                    {$form.signout_add_top.html}
+                    &nbsp;
+                {/if}
+                &nbsp;&nbsp;
+                <input type="submit" name="Add_top" id="Add_top" value="Add">
+            </td>
+        </tr>
+    </table>
+</div>
+<br/>
+
 <div>
 Attendance Sheet for {$displayDate} {$time}
 </div>
@@ -145,6 +167,30 @@ Attendance Sheet for {$displayDate} {$time}
     	      }
           });
       	
+        cj("#Add_top").click( function( event ) {
+              event.preventDefault( );
+
+              var contactID = cj("#student_id_top").val( );
+    	      var course    = cj("#course_name_top").val( );
+    	      if ( contactID && course ) {
+          	     var dataUrl = {/literal}"{crmURL p='civicrm/ajax/sfschool/addnew' h=0 }"{literal};
+              	     cj.post( dataUrl, { contactID: cj("#student_id_top").val( ),
+                                         course: cj("#course_name_top").val( ),{/literal}{if $signOut}signout: cj("#signout_add_top").val( ),{/if}{literal}
+                                         dayOfWeek: sDayOfWeek, 
+                                         date: sDate, 
+                                         time: sTime },
+                     function(data){
+                         // success action
+                         cj("#new-status-top").html( data );
+                     	 cj("#new-status-top").show( );
+
+                    	 cj("#student_id_top").val( '' )
+                     	 cj("#course_name_top").val( '' )
+                     	 cj("#signout_add_top").val( '' )
+              	     });
+    	      }
+          });
+
       	  cj(".success-status").click( function( ) {
       	      cj(this).hide( );
       	  });    
