@@ -43,7 +43,7 @@ Attendance Sheet for {$displayDate} {$time}
         <tr>
             <td id="display_name_{$row.contact_id}">{$row.display_name}</td>	
             <td>{$row.grade}</td>	
-            <td>{$row.course_name}</td>	
+            <td>{$row.course_name}{if $row.course_location}&nbsp;({$row.course_location}){/if}</td>	
 	    {if $signOut}
             <td>
             <select name="signout_{$row.contact_id}" id="signout_{$row.contact_id}" class="signout_select">

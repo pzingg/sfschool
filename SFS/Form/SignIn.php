@@ -69,37 +69,45 @@ class SFS_Form_SignIn extends CRM_Core_Form {
         $sql = "
 ( 
 SELECT     c.id as contact_id, c.display_name as display_name, s.name as course_name, v.grade as grade,
-           0 as sout_id, 0 as signout_time
+           0 as sout_id, 0 as signout_time, e.location as course_location
 FROM       civicrm_contact c
 INNER JOIN civicrm_value_school_information_1 v ON v.entity_id = c.id
 INNER JOIN civicrm_value_extended_care_2 s ON ( s.entity_id = c.id AND s.has_cancelled = 0 AND s.day_of_week = '{$this->_dayOfWeek}' )
+INNER JOIN sfschool_extended_care_source e ON ( s.session = e.session AND s.name = e.name AND s.term = e.term AND s.day_of_week = e.day_of_week ) 
 WHERE      v.subtype = 'Student'
 AND        v.grade_sis >= 1
+AND        e.is_active = 1
 )
 UNION
 (
 SELECT     c.id as contact_id, c.display_name as display_name, sout.class as course_name, v.grade as grade,
-           sout.id as sout_id, sout.signout_time as signout_time
+           sout.id as sout_id, sout.signout_time as signout_time, e.location as course_location
 FROM       civicrm_contact c
 INNER JOIN civicrm_value_school_information_1 v ON v.entity_id = c.id
 INNER JOIN civicrm_value_extended_care_signout_3 sout ON sout.entity_id = c.id
+INNER JOIN sfschool_extended_care_source e ON ( sout.class = e.name )
 WHERE      v.subtype = 'Student'
 AND        v.grade_sis >= 1
 AND        ( sout.is_morning = 0 OR sout.is_morning IS NULL )
 AND        DATE( sout.signin_time ) = %1
+AND        e.is_active = 1
+AND        e.day_of_week = %2
 )
 UNION
 (
 SELECT     c.id as contact_id, c.display_name as display_name, sout.class as course_name, v.grade as grade,
-           -1 as sout_id, 0 as signout_time
+           -1 as sout_id, 0 as signout_time, e.location as course_location
 FROM       civicrm_contact c
 INNER JOIN civicrm_value_school_information_1 v ON v.entity_id = c.id
 INNER JOIN civicrm_value_extended_care_signout_3 sout ON sout.entity_id = c.id
+INNER JOIN sfschool_extended_care_source e ON ( sout.class = e.name )
 WHERE      v.subtype = 'Student'
 AND        v.grade_sis >= 1
 AND        ( sout.is_morning = 0 OR sout.is_morning IS NULL )
 AND        DAYNAME( sout.signin_time ) = %2
 AND        DATE_ADD( sout.signin_time, INTERVAL 8 DAY ) > '{$this->_date}'
+AND        e.is_active = 1
+AND        e.day_of_week = %2
 GROUP BY   c.id
 ORDER BY   id DESC
 )
@@ -120,12 +128,13 @@ ORDER BY contact_id, sout_id DESC, course_name, display_name, signout_time
             if ( empty( $courseName ) ) {
                 $courseName = $dao->grade <= 5 ? 'Yard Play' : 'Homework';
             }
-            $studentDetails[$dao->contact_id] = array( 'display_name'  => $dao->display_name,
-                                                       'course_name'   => $courseName,
-                                                       'grade'         => $dao->grade,
-                                                       'contact_id'    => $dao->contact_id,
-                                                       'is_marked'     => ( $dao->sout_id > 0 ) ? 1 : 0,
-                                                       'signout_block' => self::signoutBlock( $dao->signout_time ),
+            $studentDetails[$dao->contact_id] = array( 'display_name'    => $dao->display_name,
+                                                       'course_name'     => $courseName,
+                                                       'course_location' => $dao->course_location,
+                                                       'grade'           => $dao->grade,
+                                                       'contact_id'      => $dao->contact_id,
+                                                       'is_marked'       => ( $dao->sout_id > 0 ) ? 1 : 0,
+                                                       'signout_block'   => self::signoutBlock( $dao->signout_time ),
                                                      );
         }
         

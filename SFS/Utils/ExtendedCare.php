@@ -792,6 +792,7 @@ ORDER BY   c.sort_name, signout_time
             if ( $dao->is_morning ) {
                 $blockCharge  = 0.5;
                 $blockMessage = 'Morning extended care';
+                $dao->signout_time = $dao->signin_time;
             } else if ( $dao->at_school_meeting ) {
                 $blockMessage = 'At School Meeting / Work - No Charge';
             } else if ( in_array( $dao->class, $freeClasses ) ) {
@@ -817,6 +818,7 @@ ORDER BY   c.sort_name, signout_time
                         // account for the case where the person is signed in but not signed out
                         if ( $dao->signin_time ) {
                             $blockCharge  = 2.0;
+                            $dao->signout_time = $dao->signin_time;
                             $blockMessage = 'Signed in but did not sign out';
                         }
                 }
