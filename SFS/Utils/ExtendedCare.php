@@ -763,7 +763,7 @@ INNER JOIN civicrm_value_school_information_1 v ON c.id = v.entity_id
 WHERE      ( DATE(s.signout_time) >= $startDate OR DATE(s.signin_time) >= $startDate )
 AND        ( DATE(s.signout_time) <= $endDate   OR DATE(s.signin_time) <= $endDate   )
            $clause
-ORDER BY   c.sort_name, signout_time
+ORDER BY   c.sort_name, signout_time DESC
 ";
 
         $dao = CRM_Core_DAO::executeQuery( $sql );
@@ -836,8 +836,8 @@ ORDER BY   c.sort_name, signout_time
                                                            'message' => $blockMessage,
                                                            'class'   => $dao->class,
                                                            'pickup'  => $dao->pickup_person_name,
-                                                           'signout' => CRM_Utils_Date::customFormat( $dao->signout_time,
-                                                                                                      "%l:%M %P on %b %E%f" ) );
+                                                           'signout' => strftime( "%l:%M %p on %a, %b %d",
+                                                                                  CRM_Utils_Date::unixTime( $dao->signout_time ) ) );
             }
         }
 
