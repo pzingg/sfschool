@@ -552,6 +552,8 @@ ORDER BY  c.id, e.day_of_week, e.session
                 }
                 $values[$contactID]['extendedCareEdit'] =
                     CRM_Utils_System::url( 'civicrm/profile/edit', "reset=1&gid=4&id={$contactID}&excare=1&$parent" );
+                $values[$contactID]['extendedCareView'] =
+                    CRM_Utils_System::url( 'civicrm/sfschool/extendedCare', "reset=1&id={$contactID}" );
             }
         }
 

@@ -119,6 +119,7 @@ ORDER BY contact_id, sout_id DESC, course_name, display_name, signout_time
 
         $dao = CRM_Core_DAO::executeQuery( $sql, $params );
         
+        $someSignedIn = false;
         $studentDetails = array( );
         while( $dao->fetch( ) ) {
             if ( array_key_exists( $dao->contact_id, $studentDetails ) ) {
@@ -136,9 +137,13 @@ ORDER BY contact_id, sout_id DESC, course_name, display_name, signout_time
                                                        'is_marked'       => ( $dao->sout_id > 0 ) ? 1 : 0,
                                                        'signout_block'   => self::signoutBlock( $dao->signout_time ),
                                                      );
+            if ( $dao->sout_id > 0 ) {
+                $someSignedIn = true;
+            }
         }
         
-        $this->assign('studentDetails', $studentDetails);
+        $this->assign( 'studentDetails', $studentDetails );
+        $this->assign( 'someSignedIn'  , $someSignedIn   );
 
         require_once 'SFS/Utils/Query.php';
         $students =

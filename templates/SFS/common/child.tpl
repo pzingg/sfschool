@@ -32,6 +32,9 @@
 {if $childInfo.extendedCareEdit}
 <div>
 <a href="{$childInfo.extendedCareEdit}">Manage extended care schedule for {$childInfo.name}</a>
+<br/>
+<br/>
+<a href="{$childInfo.extendedCareView}">View extended care block charges for {$childInfo.name}</a>
 </div>
 {/if}
 <div>

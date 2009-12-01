@@ -25,6 +25,7 @@
 Attendance Sheet for {$displayDate} {$time}
 </div>
 <span class="success-status" id="existing-status" style="display:none;">{ts}Attendance is saved.{/ts}</span>
+
 <table id="records" class="display">
     <thead>
         <tr>
@@ -40,6 +41,7 @@ Attendance Sheet for {$displayDate} {$time}
     
     <tbody>
         {foreach from=$studentDetails item=row}
+        {if ! $row.is_marked}
         <tr>
             <td id="display_name_{$row.contact_id}">{$row.display_name}</td>	
             <td>{$row.grade}</td>	
@@ -58,11 +60,13 @@ Attendance Sheet for {$displayDate} {$time}
            {/if}
             <td><input type="checkbox" class="status" id="check_{$row.contact_id}" name="check_{$row.contact_id}" value="{$row.contact_id}:::{$row.course_name}" {if $row.is_marked}checked="1"{/if}></td>
         </tr>
+        {/if}
         {/foreach}
     </tbody>
 </table>
 
 <br/>
+
 <span class="success-status" id="new-status" style="display:none;">{ts}Student has been enrolled for the course.{/ts}</span>
 <br/>
 <div class="form-layout">
@@ -85,6 +89,50 @@ Attendance Sheet for {$displayDate} {$time}
     </table>
 </div>
 
+<br/>
+<br/>
+
+{if $someSignedIn}
+<table id="records_added" class="display">
+    <thead>
+        <tr>
+            <th>{ts}Student Name{/ts}</th>
+            <th>{ts}Grade{/ts}</th>
+            <th>{ts}Class Name{/ts}</th>
+            <th>{ts}Attended{/ts}</th>
+	    {if $signOut}
+            <th>{ts}Sign Out Time{/ts}</th>
+            {/if}
+        </tr>
+    </thead>
+    
+    <tbody>
+        {foreach from=$studentDetails item=row}
+        {if $row.is_marked}
+        <tr>
+            <td id="display_name_{$row.contact_id}">{$row.display_name}</td>	
+            <td>{$row.grade}</td>	
+            <td>{$row.course_name}{if $row.course_location}&nbsp;({$row.course_location}){/if}</td>	
+	    {if $signOut}
+            <td>
+            <select name="signout_{$row.contact_id}" id="signout_{$row.contact_id}" class="signout_select">
+                <option value="">- select -</option>
+                <option value="1" {if $row.signout_block eq 1}selected="selected"{/if}>Before 3:30 pm</option>
+                <option value="2" {if $row.signout_block eq 2}selected="selected"{/if}>3:30 - 4:30 pm</option>
+                <option value="3" {if $row.signout_block eq 3}selected="selected"{/if}>4:30 - 5:15 pm</option>
+                <option value="4" {if $row.signout_block eq 4}selected="selected"{/if}>5:15 - 6:00 pm</option>
+                <option value="5" {if $row.signout_block eq 5}selected="selected"{/if}>After 6:00 pm</option>
+            </select> 
+            </td>
+           {/if}
+            <td><input type="checkbox" class="status" id="check_{$row.contact_id}" name="check_{$row.contact_id}" value="{$row.contact_id}:::{$row.course_name}" {if $row.is_marked}checked="1"{/if}></td>
+        </tr>
+        {/if}
+        {/foreach}
+    </tbody>
+</table>
+{/if}
+
 {literal}
 <script type="text/javascript">
     cj( function( ) {
@@ -95,7 +143,7 @@ Attendance Sheet for {$displayDate} {$time}
         var contactID  = '';
         {literal}
 
-        cj('#records').dataTable( {
+        cj('.display').dataTable( {
             "bPaginate": false,
             "bInfo": false,
             "aoColumns": [

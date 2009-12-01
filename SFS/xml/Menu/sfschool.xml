@@ -12,6 +12,11 @@
      <access_arguments>profile listings and forms</access_arguments>
   </item>  
   <item>
+     <path>civicrm/sfschool/extendedCare</path>
+     <page_callback>SFS_Page_ExtendedCare</page_callback>
+     <access_arguments>profile listings and forms</access_arguments>
+  </item>  
+  <item>
      <path>civicrm/sfschool/extendedCareSummary</path>
      <page_callback>SFS_Form_ExtendedCareSummary</page_callback>
      <access_arguments>profile listings and forms</access_arguments>
