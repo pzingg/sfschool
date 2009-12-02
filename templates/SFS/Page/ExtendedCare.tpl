@@ -19,6 +19,9 @@
 {/foreach}
 </table>
 </div>
+<div class="footer" id="civicrm-footer">
+If the above information is incorrect, please send a detailed email to <a href="mailto:rbrown@sfschool.org">Rahna Hassett</a>
+</div>
 {else}
 <div>
 No Extended Care Activity recorded for {$displayName}

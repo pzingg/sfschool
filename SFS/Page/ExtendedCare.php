@@ -49,12 +49,14 @@ class SFS_Page_ExtendedCare extends CRM_Core_Page {
         if ( $currentMonth < 9 ) {
             $currentYear--;
         }
-
+        
+        // for this year ONLY lets start from december
+        $currentMonth = ( $currentYear == 2009 ) ? '12' : '09'
         $startDate = CRM_Utils_Request::retrieve( 'startDate',
                                                   'String',
                                                   $this,
                                                   false,
-                                                  "{$currentYear}0901" );
+                                                  "{$currentYear}{$currentMonth}01" );
 
         $endDate = CRM_Utils_Request::retrieve( 'endDate',
                                                 'String',

@@ -42,11 +42,6 @@
      <access_arguments>profile listings and forms</access_arguments>
   </item>
   <item>
-     <path>civicrm/sfschool/signinOld</path>
-     <page_callback>SFS_Page_SignIn</page_callback>
-     <access_arguments>profile listings and forms</access_arguments>
-  </item>
-  <item>
      <path>civicrm/sfschool/signin</path>
      <page_callback>SFS_Form_SignIn</page_callback>
      <access_arguments>profile listings and forms</access_arguments>

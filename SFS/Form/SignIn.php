@@ -261,6 +261,7 @@ SELECT id
 FROM   civicrm_value_extended_care_signout_3
 WHERE  entity_id = %1
 AND    DATE( signin_time ) = %2
+AND    is_morning = 0
 ";
         $params = array( 1 => array( $cid             , 'Integer' ),
                          2 => array( $date            , 'String'  ),

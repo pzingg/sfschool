@@ -693,11 +693,13 @@ WHERE  entity_id = %1 AND has_cancelled = 0
         $atSchoolMeeting = $atSchoolMeeting ? '1' : '0';
 
         $sql = "
-SELECT e.id, e.class
+SELECT e.id, e.class, s.location
 FROM   civicrm_value_extended_care_signout_3 e
+INNER JOIN sfschool_extended_care_source s ON ( e.class = s.name )
 WHERE  entity_id = %1
 AND    signin_time LIKE '{$_date}%'
 AND    ( is_morning = 0 OR is_morning IS NULL )
+AND    s.day_of_week = DAYNAME( '{$_date}' )
 ";
         $params = array( 1 => array( $studentID, 'Integer' ) );
         $dao = CRM_Core_DAO::executeQuery( $sql, $params );
@@ -709,7 +711,12 @@ AND    ( is_morning = 0 OR is_morning IS NULL )
 
         $class = null;
         if ( $dao->fetch( ) ) {
-            $class = $dao->class;
+            if ( $dao->location ) {
+                $class = "{$dao->class} ({$dao->location})" ;
+            } else {
+                $class = $dao->class;
+            }
+
             $sql = "
 UPDATE civicrm_value_extended_care_signout_3 
 SET    pickup_person_name = %2,
@@ -763,7 +770,7 @@ INNER JOIN civicrm_value_school_information_1 v ON c.id = v.entity_id
 WHERE      ( DATE(s.signout_time) >= $startDate OR DATE(s.signin_time) >= $startDate )
 AND        ( DATE(s.signout_time) <= $endDate   OR DATE(s.signin_time) <= $endDate   )
            $clause
-ORDER BY   c.sort_name, signout_time DESC
+ORDER BY   c.sort_name, signin_time DESC
 ";
 
         $dao = CRM_Core_DAO::executeQuery( $sql );
