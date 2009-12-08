@@ -41,7 +41,7 @@ class SFS_Utils_Conference {
         LOCATION = 'San Francisco School',
         STATUS   = 1;
 
-    static function buildForm( &$form, $gid ) {
+    static function buildForm( &$form, $childID ) {
         $advisorID = CRM_Utils_Request::retrieve( 'advisorID', 'Integer', $form, false, null, $_REQUEST );
         $ptc       = CRM_Utils_Request::retrieve( 'ptc'      , 'Integer', $form, false, null, $_REQUEST );
 
@@ -68,7 +68,6 @@ AND        ( at.target_contact_id IS NULL OR at.target_contact_id = %2 )
 ORDER BY   a.activity_date_time asc
 ";
 
-        $childID = $form->getVar( '_id' );
         $params  = array( 2 => array( $childID   , 'Integer' ),
                           3 => array( self::ADVISOR_RELATIONSHIP_TYPE_ID, 'Integer' ),
                           4 => array( self::CONFERENCE_ACTIVITY_TYPE_ID , 'Integer' ) );
