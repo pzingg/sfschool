@@ -51,8 +51,9 @@ class SFS_Form_ExtendedCareSummary extends CRM_Core_Form {
                                                          date( 'Y-m-d', time( ) - 7 * 24 * 60 * 60 ) );
         $this->_endDate        = CRM_Utils_Request::retrieve( 'endDate'  , 'String' , $this, false,
                                                          date( 'Y-m-d' ) );
-        $this->_includeMorning = CRM_Utils_Request::retrieve( 'includeMorning'  , 'Integer', $this, false, 1 );
-        $this->_showDetails    = CRM_Utils_Request::retrieve( 'showDetails'  , 'Integer', $this, false, 1 );
+        $this->_includeMorning = CRM_Utils_Request::retrieve( 'includeMorning', 'Integer', $this, false, 1 );
+        $this->_showDetails    = CRM_Utils_Request::retrieve( 'showDetails'   , 'Integer', $this, false, 1 );
+        $this->_notSignedOut   = CRM_Utils_Request::retrieve( 'notSignedOut'  , 'Integer', $this, false, 0 );
     }
 
     function buildQuickForm( ) {
@@ -61,6 +62,7 @@ class SFS_Form_ExtendedCareSummary extends CRM_Core_Form {
 
         $this->add('checkbox', 'include_morning', ts( 'Include Morning Blocks?' ) );
         $this->add('checkbox', 'show_details'   , ts( 'Show Detailed breakdown for each student?' ) );
+        $this->add('checkbox', 'not_signed_out' , ts( 'Show ONLY signed In but not signed out?' ) );
 
         require_once 'SFS/Utils/Query.php';
         $students = array( '' => '- Select Student -' ) + SFS_Utils_Query::getStudentsByGrade( true, false );
@@ -85,7 +87,8 @@ class SFS_Form_ExtendedCareSummary extends CRM_Core_Form {
         $defaults = array( 'start_date'     => $this->_startDate,
                            'end_date'       => $this->_endDate,
                            'include_morning' => $this->_includeMorning,
-                           'show_details'    => $this->_showDetails );
+                           'show_details'    => $this->_showDetails,
+                           'not_signed_out'  => $this->_notSignedOut );
         return $defaults;
     }
 
@@ -97,6 +100,7 @@ class SFS_Form_ExtendedCareSummary extends CRM_Core_Form {
                                                             CRM_Utils_Date::format( $params['end_date'  ] ),
                                                             CRM_Utils_Array::value( 'include_morning', $params, false ),
                                                             CRM_Utils_Array::value( 'show_details'   , $params, false ),
+                                                            CRM_Utils_Array::value( 'not_signed_out' , $params, false ),
                                                             $params['student_id'] );
         
         $this->assign( 'summary'    , $summary );

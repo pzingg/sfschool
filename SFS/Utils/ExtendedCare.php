@@ -740,13 +740,18 @@ VALUES
 
     static function &signoutDetails( $startDate,
                                      $endDate,
-                                     $isMorning = true,
-                                     $includeDetails = false,
+                                     $isMorning        = true,
+                                     $includeDetails   = false,
+                                     $onlyNotSignedOut = false,
                                      $studentID = null ) {
         
         $clauses = array( );
         if ( ! $isMorning ) {
             $clauses[] = "( is_morning = 0 OR is_morning IS NULL )";
+        }
+
+        if ( $onlyNotSignedOut ) {
+            $clauses[] = "( s.signout_time IS NULL )";
         }
 
         if ( $studentID ) {

@@ -88,10 +88,11 @@ class SFS_Form_SignOut extends CRM_Core_Form {
 SELECT e.id, e.class
 FROM   civicrm_value_extended_care_signout_3 e
 WHERE  entity_id = %1
-AND    signin_time LIKE '{$_date}%'
+AND    DATE(signin_time) = %2
 AND    ( is_morning = 0 OR is_morning IS NULL )
 ";
-        $params = array( 1 => array( $studentID, 'Integer' ) );
+        $params = array( 1 => array( $studentID, 'Integer' ),
+                         2 => array( $_date    , 'String'  ) );
         $dao = CRM_Core_DAO::executeQuery( $sql, $params );
 
         $params = array( 1 => array( $studentID      , 'Integer'   ),

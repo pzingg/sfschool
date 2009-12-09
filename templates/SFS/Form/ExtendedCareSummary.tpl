@@ -7,6 +7,7 @@
 <dt>{$form.student_id.label}</dt><dd>{$form.student_id.html}</dd>
 <dt>&nbsp;</dt><dd>{$form.include_morning.html}&nbsp;{$form.include_morning.label}</dd>
 <dt>&nbsp;</dt><dd>{$form.show_details.html}&nbsp;{$form.show_details.label}</dd>
+<dt>&nbsp;</dt><dd>{$form.not_signed_out.html}&nbsp;{$form.not_signed_out.label}</dd>
 </dl>	 	
 <dl>
     <dt></dt>
