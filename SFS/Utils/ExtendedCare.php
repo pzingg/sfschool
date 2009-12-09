@@ -891,4 +891,48 @@ ORDER BY   c.sort_name, signin_time DESC
         }
     }
 
+    function sendNotSignedOutEmail( $startDate, $endDate ) {
+        $templateVars = array( );
+        $templateVars['extendedCareCoordinatorName' ] = self::COORDINATOR_NAME ;
+        $templateVars['extendedCareCoordinatorEmail'] = self::COORDINATOR_EMAIL;
+
+        $sql = "
+SELECT entity_id, signin_time
+FROM   civicrm_value_extended_care_signout_3
+WHERE  signout_time IS NULL
+AND    DATE(signin_time ) >= %1
+AND    DATE(signin_time ) <= %2
+ORDER BY entity_id
+";
+
+        $params = array( 1 => array( $startDate, 'String' ),
+                         2 => array( $endDate  , 'String' ) );
+        
+        CRM_Core_Error::debug( $sql, $params );
+        require_once 'SFS/Utils/Mail.php';
+
+        $currentEntityID = null;
+        $days = array( );
+
+        $dao = CRM_Core_DAO::executeQuery( $sql, $params );
+        while ( $dao->fetch( ) ) {
+            if ( $dao->entity_id != $currentEntityID &&
+                 $currentEntityID != null &&
+                 ! empty( $days ) ) {
+                $templateVars['days'] = implode( "\n", $days );
+
+                // now send a message to the parents about what they did
+                SFS_Utils_Mail::sendMailToParents( $currentEntityID,
+                                                   'SFS/Mail/ExtendedCare/NotSignedOutSubject.tpl',
+                                                   'SFS/Mail/ExtendedCare/NotSignedOutMessage.tpl',
+                                                   $templateVars ); 
+                $days = array( );
+            }
+
+            $currentEntityID = $dao->entity_id;
+            $days[] = CRM_Utils_Date::customFormat( $dao->signin_time, "%b %E%f" );
+        }
+
+    }
+
 }

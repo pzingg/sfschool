@@ -73,6 +73,7 @@ class SFS_Utils_Mail {
             return;
         }
 
+        require_once 'SFS/Utils/Query.php';
         list( $templateVars['childName'],
               $templateVars['childEmail'] ) = SFS_Utils_Query::getNameAndEmail( $childID );
 
