@@ -908,7 +908,6 @@ ORDER BY entity_id
         $params = array( 1 => array( $startDate, 'String' ),
                          2 => array( $endDate  , 'String' ) );
         
-        CRM_Core_Error::debug( $sql, $params );
         require_once 'SFS/Utils/Mail.php';
 
         $currentEntityID = null;

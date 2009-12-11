@@ -69,6 +69,7 @@ class SFS_Page_ExtendedCare extends CRM_Core_Page {
                                                            $endDate,
                                                            true,
                                                            true,
+                                                           false,
                                                            $id );
         $this->assign( 'detail', array_pop( $details ) );
         $this->assign( 'displayName',
