@@ -47,7 +47,7 @@ class SFS_Utils_ExtendedCare {
         FEE_POSITION = 9,
         START_POSITION = 10,
         END_POSITION = 11,
-        TERM = 'Fall 2009',
+        TERM = 'Spring 2010',
         COORDINATOR_NAME  = 'Gilbert Bagaman',
         COORDINATOR_EMAIL = 'gbagaman@sfschool.org';
 
@@ -56,7 +56,8 @@ class SFS_Utils_ExtendedCare {
         $_registeredElements   = null;
 
     static function buildForm( &$form,
-                               $childID ) {
+                               $childID,
+                               $term = null ) {
         
         $excare = CRM_Utils_Request::retrieve( 'excare', 'Integer', $form, false, null, $_REQUEST );
         if ( $excare != 1 ) {
@@ -79,11 +80,12 @@ class SFS_Utils_ExtendedCare {
             $sess->pushUserContext( $url );
         }
 
-        $classInfo = self::getClassCount( $grade );
-        self::getCurrentClasses( $childID, $classInfo );
+        $term = self::getTerm( $term );
 
+        $classInfo = self::getClassCount( $grade, false, $term );
+        self::getCurrentClasses( $childID, $classInfo, $term );
 
-        $activities = self::getActivities( $grade, $classInfo );
+        $activities = self::getActivities( $grade, $classInfo, true, $term );
 
         self::$_extendedCareElements = array( );
         self::$_registeredElements   = array( );
@@ -107,18 +109,20 @@ class SFS_Utils_ExtendedCare {
         $form->assign_by_ref( 'extendedCareElements',
                               self::$_extendedCareElements );
 
-        self::setDefaults( $form, $activities, $childID );
+        self::setDefaults( $form, $activities, $childID, $term );
     }
 
     static function setDefaults( &$form,
                                  &$activities,
-                                 $childID ) {
+                                 $childID,
+                                 $term ) {
         $sql = "
 SELECT entity_id, term, day_of_week, session, name, description, instructor, fee_block, start_date, end_date
 FROM   civicrm_value_extended_care_2
-WHERE  entity_id = %1 AND has_cancelled = 0
+WHERE  entity_id = %1 AND has_cancelled = 0 AND term = %2
 ";
-        $params = array( 1 => array( $childID, 'Integer' ) );
+        $params = array( 1 => array( $childID, 'Integer' ),
+                         2 => array( $term   , 'String'  ) );
         $dao = CRM_Core_DAO::executeQuery( $sql, $params );
 
         while ( $dao->fetch( ) ) {
@@ -135,7 +139,7 @@ WHERE  entity_id = %1 AND has_cancelled = 0
         $form->setDefaults( $defaults );
     }
 
-    static function &getActivities( $grade, &$classInfo, $is_active = true ) {
+    static function &getActivities( $grade, &$classInfo, $is_active = true, $term = null ) {
         static $_all = array( );
 
         if ( empty( $grade ) ) {
@@ -286,7 +290,7 @@ AND    %2 <= max_grade
     }
 
 
-    function postProcess( $class, &$form, $gid ) {
+    function postProcess( $class, &$form, $gid, $term ) {
         $excare = CRM_Utils_Request::retrieve( 'excare', 'Integer', $form, false, null, $_REQUEST );
         if ( $excare != 1 ) {
             return;
@@ -299,7 +303,7 @@ AND    %2 <= max_grade
             return;
         }
  
-       $params = $form->controller->exportValues( $form->getVar( '_name' ) );
+        $params = $form->controller->exportValues( $form->getVar( '_name' ) );
 
         $daysOfWeek =& self::daysOfWeek( );
         $sessions   =& self::sessions( );
@@ -337,12 +341,12 @@ AND    %2 <= max_grade
             return;
         }
 
-        $classInfo = self::getClassCount( $grade );
-        self::getCurrentClasses( $childID, $classInfo );
+        $classInfo = self::getClassCount( $grade, false, $term );
+        self::getCurrentClasses( $childID, $classInfo, $term );
 
-        $activities = self::getActivities( $grade, $classInfo );
+        $activities = self::getActivities( $grade, $classInfo, true, $term );
 
-        $templateVars = array( 'term'             => self::getTerm( ),
+        $templateVars = array( 'term'             => $term,
                                'classCancelled'   => array( ),
                                'classSignedUpFor' => array( ) );
 
@@ -559,19 +563,22 @@ ORDER BY  c.id, e.day_of_week, e.session
 
     }
 
-    static function &getClassCount( $grade, $all = false ) {
+    static function &getClassCount( $grade, $all = false, $term = null ) {
+        $term = self::getTerm( $term );
+
         $sql = "
 SELECT     count(entity_id) as current, s.max_participants as max, s.term, s.day_of_week, s.session, s.name
 FROM       civicrm_value_extended_care_2 e
 INNER JOIN sfschool_extended_care_source s ON ( s.term = e.term AND s.day_of_week = e.day_of_week AND s.session = e.session AND s.name = e.name ) 
 WHERE      e.has_cancelled = 0
+AND        s.term = %1
 ";
-        $params = array( );
+        $params = array( 1 => array( $term, 'String' ) );
         if ( $grade ) {
-            $params[1] = array( $grade, 'Integer' );
+            $params[2] = array( $grade, 'Integer' );
             $sql .= "
-AND %1 >= s.min_grade
-AND %1 <= s.max_grade
+AND %2 >= s.min_grade
+AND %2 <= s.max_grade
 ";
         }
         if ( ! $all ) {
@@ -592,13 +599,16 @@ AND %1 <= s.max_grade
         return $values;
     }
 
-    static function getCurrentClasses( $childID, &$values ) {
+    static function getCurrentClasses( $childID, &$values, $term = null ) {
+        $term = self::getTerm( $term );
+        
         $sql = "
 SELECT entity_id, term, day_of_week, session, name
 FROM   civicrm_value_extended_care_2
-WHERE  entity_id = %1 AND has_cancelled = 0
+WHERE  entity_id = %1 AND has_cancelled = 0 AND term = %2
 ";
-        $params = array( 1 => array( $childID, 'Integer' ) );
+        $params = array( 1 => array( $childID, 'Integer' ),
+                         2 => array( $term   , 'String'  ) );
         $dao = CRM_Core_DAO::executeQuery( $sql, $params );
 
         while ( $dao->fetch( ) ) {

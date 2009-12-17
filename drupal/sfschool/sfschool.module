@@ -107,6 +107,9 @@ function _sfschool_civicrm_pageRun_Profile_Page_Dynamic_3( &$page, $gid ) {
 function _sfschool_civicrm_pageRun_Profile_Page_Dynamic_4( &$page, $gid ) {
     $childID = $page->getVar( '_id' );
 
+    $term =  CRM_Utils_Request::retrieve( 'term', 'String',
+                                          $page, false, null );
+        
     require_once 'SFS/Utils/Query.php';
     SFS_Utils_Query::checkSubType( $childID, 'Student' );
 
@@ -120,14 +123,14 @@ function _sfschool_civicrm_pageRun_Profile_Page_Dynamic_4( &$page, $gid ) {
 
     require_once 'SFS/Utils/Relationship.php';
     SFS_Utils_Relationship::getParents( $childID,
-                                             $values[$childID]['parents'],
-                                             false );
+                                        $values[$childID]['parents'],
+                                        false );
 
     require_once 'SFS/Utils/Conference.php';
     SFS_Utils_Conference::getValues( $childID, $values );
 
     require_once 'SFS/Utils/ExtendedCare.php';
-    SFS_Utils_ExtendedCare::getValues( $childID, $values );
+    SFS_Utils_ExtendedCare::getValues( $childID, $values, null, $term );
 
     $page->assign( 'childInfo', $values[$childID] );
 }
@@ -192,8 +195,11 @@ function _sfschool_civicrm_buildForm_CRM_Profile_Form_Edit_4( $formName, &$form,
     require_once 'SFS/Utils/Conference.php';
     SFS_Utils_Conference::buildForm( $form, $childID );
 
+    $term =  CRM_Utils_Request::retrieve( 'term', 'String',
+                                          $form, false, null );
+        
     require_once 'SFS/Utils/ExtendedCare.php';
-    SFS_Utils_ExtendedCare::buildForm( $form, $childID );
+    SFS_Utils_ExtendedCare::buildForm( $form, $childID, $term );
 }
 
 
@@ -209,8 +215,11 @@ function sfschool_civicrm_postProcess_CRM_Profile_Form_Edit_4( $class, &$form, $
     require_once 'SFS/Utils/Conference.php';
     SFS_Utils_Conference::postProcess( $class, $form, $gid );
 
+    $term =  CRM_Utils_Request::retrieve( 'term', 'String',
+                                          $form, false, null );
+        
     require_once 'SFS/Utils/ExtendedCare.php';
-    SFS_Utils_ExtendedCare::postProcess( $class, $form, $gid );
+    SFS_Utils_ExtendedCare::postProcess( $class, $form, $gid, $term );
 }
 
 function sfschool_civicrm_tabs( &$tabs, $contactID ) {

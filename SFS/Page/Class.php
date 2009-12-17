@@ -38,7 +38,9 @@ require_once 'CRM/Core/Page.php';
 class SFS_Page_Class extends CRM_Core_Page {
     private static $_actionLinks;
 
-function &actionLinks()
+    protected $_term;
+
+    function &actionLinks()
     {
         // check if variable _actionsLinks is populated
         if (!isset(self::$_actionLinks)) {
@@ -76,14 +78,17 @@ function &actionLinks()
 
         $id = CRM_Utils_Request::retrieve('id', 'Positive',
                                           $this, false, 0);
- 
+
+        $this->_term =  CRM_Utils_Request::retrieve( 'term', 'String',
+                                                     $this, false, null );
+        
         if ( $action  && ( array_key_exists( $action, self::actionLinks( ) ) || ( $action & CRM_Core_Action::ADD ) ) ) {
             // set breadcrumb
             $breadCrumb = array( array('title' => ts('Class Information'),
                                        'url'   => CRM_Utils_System::url( CRM_Utils_System::currentPath( ), 'reset=1' )) );
                                                                          
             CRM_Utils_System::appendBreadCrumb( $breadCrumb );
-             CRM_Utils_System::setTitle( ts('Configure Class') );
+            CRM_Utils_System::setTitle( ts('Configure Class') );
             $session =& CRM_Core_Session::singleton();
             $session->pushUserContext( CRM_Utils_System::url( CRM_Utils_System::currentPath( ), 'reset=1' ) );
             $controller =& new CRM_Core_Controller_Simple( 'SFS_Form_Class' ,'Configure Class');
@@ -110,12 +115,14 @@ function &actionLinks()
         require_once 'SFS/Utils/ExtendedCare.php';
 
         if ( $permission ) {
-            $classInfo = SFS_Utils_ExtendedCare::getClassCount( null, true );
+            $classInfo = SFS_Utils_ExtendedCare::getClassCount( null, true, $this->_term );
         }
 
         $activities =  array( );
         $activities =& SFS_Utils_ExtendedCare::getActivities( null,
-                                                              CRM_Core_DAO::$_nullObject );
+                                                              CRM_Core_DAO::$_nullObject,
+                                                              true,
+                                                              $this->_term );
         $actionEnable  -= ( CRM_Core_Action::ENABLE + 1 );
         $values  = array( );
         foreach ( $activities as $day => &$dayValues ) {

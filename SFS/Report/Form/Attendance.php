@@ -136,7 +136,7 @@ AND    term = %1
 AND   {$this->_colMapper['dayOfWeek']} = '{$this->_params['weekday_value']}'
 ORDER BY session, name, additional_rows
 ";
-        $params = array( 1 => array( SFS_Utils_ExtendedCare::getTerm( ), 'String' ) );
+        $params = array( 1 => array( SFS_Utils_ExtendedCare::getTerm( 'Fall 2009' ), 'String' ) );
         $sname = CRM_Core_DAO::executeQuery( $sql, $params );
         $rows  = array( ); 
 
@@ -149,7 +149,8 @@ INNER  JOIN civicrm_contact as contact_civireport ON value_extended_care_2_civir
 WHERE  value_extended_care_2_civireport.{$this->_colMapper['sessionName']} = '{$sname->session_name}' AND 
        value_extended_care_2_civireport.{$this->_colMapper['sessionOrder']} = '{$sname->session_order}' AND
        value_extended_care_2_civireport.{$this->_colMapper['dayOfWeek']} = '{$this->_params['weekday_value']}' AND
-       value_extended_care_2_civireport.{$this->_colMapper['isCancelled']} != 1
+       value_extended_care_2_civireport.{$this->_colMapper['isCancelled']} != 1 AND
+       term = %1
 GROUP BY contact_civireport.id;
 ";
 
@@ -164,7 +165,7 @@ GROUP BY contact_civireport.id;
             $index = $sname->session_order . '_' . $sname->session_name;
             $rows[$index] = array( );
 
-            $dao  = CRM_Core_DAO::executeQuery( $sql );
+            $dao  = CRM_Core_DAO::executeQuery( $sql, $params );
             
             while( $dao->fetch( ) ) {
                 if( property_exists( $dao, 'contact_civireport_id' ) ) {
