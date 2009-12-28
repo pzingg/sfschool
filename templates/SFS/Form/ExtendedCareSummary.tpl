@@ -2,8 +2,8 @@
 <fieldset>
 <legend>Extended Care Report</legend>
 <dl>
-<dt>{$form.start_date.label}</dt><dd>{$form.start_date.html}</dd>
-<dt>{$form.end_date.label}</dt><dd>{$form.end_date.html}</dd>
+<dt>{$form.start_date.label}</dt><dd>{include file="CRM/common/jcalendar.tpl" elementName=start_date}</dd>
+<dt>{$form.end_date.label}</dt><dd>{include file="CRM/common/jcalendar.tpl" elementName=end_date}</dd>
 <dt>{$form.student_id.label}</dt><dd>{$form.student_id.html}</dd>
 <dt>&nbsp;</dt><dd>{$form.include_morning.html}&nbsp;{$form.include_morning.label}</dd>
 <dt>&nbsp;</dt><dd>{$form.show_details.html}&nbsp;{$form.show_details.label}</dd>

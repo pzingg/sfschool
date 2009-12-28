@@ -157,8 +157,8 @@ class SFS_Form_Class extends CRM_Core_Form
         $this->add('select', 'max_grade', ts( 'Max Grade:' ), array(''=>'-select')+ $options['grade'],true );
         $this->add('select', 'min_grade', ts( 'Min Grade:' ), array(''=>'-select')+$options['grade'],true );
         $this->add('text', 'name', ts( 'Class Name:' ),null, true);
-        $this->add('date', 'start_date',  ts('Start Date'), CRM_Core_SelectValues::date( 'custom', 10, 2 ) );
-        $this->add('date', 'end_date',  ts('End Date'), CRM_Core_SelectValues::date( 'custom', 10, 2 ) );
+        $this->addDate('start_date',  ts('Start Date'), CRM_Core_SelectValues::date( 'custom', 10, 2 ) );
+        $this->addDate('end_date',  ts('End Date'),     CRM_Core_SelectValues::date( 'custom', 10, 2 ) );
         $this->add('text', 'instructor', ts( 'Instructor:' ) );
         $this->add('text', 'fee_block', ts( 'Fee Block:' ) );
         $this->add('text', 'max_participants', ts( 'Max Participant:' ) );
@@ -167,8 +167,6 @@ class SFS_Form_Class extends CRM_Core_Form
         $this->add('text', 'additional_rows', ts( 'Additional Rows:' ) );
         $this->addRule( 'additional_rows', ts('Please enter valid Rows'), 'positiveInteger' );
         $this->addRule( 'max_participants', ts('Please enter valid Max Participants'), 'positiveInteger' );
-        $this->addRule( 'start_date', ts('Select a valid date.'), 'qfDate');
-        $this->addRule( 'end_date', ts('Select a valid date.'), 'qfDate');
 
         $this->addButtons(array(
                                 array ( 'type'      => 'submit',

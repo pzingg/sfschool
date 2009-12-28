@@ -57,8 +57,8 @@ class SFS_Form_ExtendedCareSummary extends CRM_Core_Form {
     }
 
     function buildQuickForm( ) {
-        $this->add( 'date', 'start_date', ts('Start Date'), CRM_Core_SelectValues::date( 'custom', 10, 2 ) );
-        $this->add( 'date', 'end_date'  , ts('End Date'  ), CRM_Core_SelectValues::date( 'custom', 10, 2 ) );
+        $this->addDate( 'start_date', ts('Start Date'), CRM_Core_SelectValues::date( 'custom', 10, 2 ) );
+        $this->addDate( 'end_date'  , ts('End Date'  ), CRM_Core_SelectValues::date( 'custom', 10, 2 ) );
 
         $this->add('checkbox', 'include_morning', ts( 'Include Morning Blocks?' ) );
         $this->add('checkbox', 'show_details'   , ts( 'Show Detailed breakdown for each student?' ) );

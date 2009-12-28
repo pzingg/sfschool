@@ -36,7 +36,7 @@
 {/if}
 <dl>
 {foreach from=$elements item=field}
-<dt>{$form.$field.label}</dt><dd>{$form.$field.html}</dd>
+<dt>{$form.$field.label}</dt><dd>{if $field eq 'start_date' or $field eq 'end_date'}{include file="CRM/common/jcalendar.tpl" elementName=$field}{else}{$form.$field.html}{/if}</dd>
 {/foreach}
 </dl>	 	
 {/if}
