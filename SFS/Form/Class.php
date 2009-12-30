@@ -83,10 +83,14 @@ class SFS_Form_Class extends CRM_Core_Form
              $dao = CRM_Core_DAO::executeQuery( $sql );
              while( $dao->fetch() ) {
                  foreach($this->_customFields as $field) {
-                     
-                     
                      if( property_exists( $dao, $field ) ) {
-                         $defaults[$field] = $dao->$field; 
+                         if ( in_array($field, array('start_date', 'end_date')) ) {
+                             list( $defaults[$field], 
+                                   $defaults[$field . '_time'] ) = 
+                                 CRM_Utils_Date::setDateDefaults($dao->$field);
+                         } else {
+                             $defaults[$field] = $dao->$field;
+                         }
                      }
                  }
              }
@@ -264,7 +268,7 @@ class SFS_Form_Class extends CRM_Core_Form
                  $value = CRM_Utils_Array::value( $field , $params );
                  if( $value) {
                      if( $field == 'start_date' || $field == 'end_date' ) {
-                         $value = CRM_Utils_date::format($params[$field])?CRM_Utils_date::format($params[$field]):'NULL';
+                         $value = CRM_Utils_Date::processDate( $params[$field], $params[$field . '_time'] );
                          $updateValues[] = "{$field} = {$value} ";
                          continue;
                      } 
