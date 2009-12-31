@@ -57,8 +57,8 @@ class SFS_Form_ExtendedCareSummary extends CRM_Core_Form {
     }
 
     function buildQuickForm( ) {
-        $this->addDate( 'start_date', ts('Start Date'), CRM_Core_SelectValues::date( 'custom', 10, 2 ) );
-        $this->addDate( 'end_date'  , ts('End Date'  ), CRM_Core_SelectValues::date( 'custom', 10, 2 ) );
+        $this->addDate( 'start_date', ts('Start Date'), true );
+        $this->addDate( 'end_date'  , ts('End Date'  ), true );
 
         $this->add('checkbox', 'include_morning', ts( 'Include Morning Blocks?' ) );
         $this->add('checkbox', 'show_details'   , ts( 'Show Detailed breakdown for each student?' ) );
@@ -84,11 +84,14 @@ class SFS_Form_ExtendedCareSummary extends CRM_Core_Form {
     }
 
     function setDefaultValues( ) {
-        $defaults = array( 'start_date'     => $this->_startDate,
-                           'end_date'       => $this->_endDate,
-                           'include_morning' => $this->_includeMorning,
+        $defaults = array( 'include_morning' => $this->_includeMorning,
                            'show_details'    => $this->_showDetails,
                            'not_signed_out'  => $this->_notSignedOut );
+
+        list($defaults['start_date'], $defaults['start_date_time']) = 
+            CRM_Utils_Date::setDateDefaults($this->_startDate);
+        list($defaults['end_date'], $defaults['end_date_time']) = 
+            CRM_Utils_Date::setDateDefaults($this->_endDate);
         return $defaults;
     }
 
@@ -96,8 +99,10 @@ class SFS_Form_ExtendedCareSummary extends CRM_Core_Form {
         $params = $this->controller->exportValues( $this->_name );
 
         require_once 'SFS/Utils/ExtendedCare.php';
-        $summary =& SFS_Utils_ExtendedCare::signoutDetails( CRM_Utils_Date::format( $params['start_date'] ),
-                                                            CRM_Utils_Date::format( $params['end_date'  ] ),
+        $summary =& SFS_Utils_ExtendedCare::signoutDetails( CRM_Utils_Date::processDate( $params['start_date'],
+                                                                                         null, false, 'Ymd' ),
+                                                            CRM_Utils_Date::processDate( $params['end_date'  ],
+                                                                                         null, false, 'Ymd' ),
                                                             CRM_Utils_Array::value( 'include_morning', $params, false ),
                                                             CRM_Utils_Array::value( 'show_details'   , $params, false ),
                                                             CRM_Utils_Array::value( 'not_signed_out' , $params, false ),

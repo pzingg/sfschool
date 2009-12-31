@@ -240,7 +240,7 @@ class SFS_Form_Class extends CRM_Core_Form
                  if( $value ) {
                      if( $field == 'start_date' || $field == 'end_date' ) {
                          if( !empty( $value ) ) {
-                             $value = CRM_Utils_date::format($params[$field])?CRM_Utils_date::format($params[$field]):'NULL';
+                             $value = CRM_Utils_Date::processDate( $params[$field], $params[$field . '_time'] );
                              $updateValues[$field]  = $value;
                          }
                          continue;

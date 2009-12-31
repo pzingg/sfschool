@@ -3,17 +3,17 @@
 <legend>Conference Creation Wizard</legend>
 <dl>
 <dt>{$form.advisor_id.label}</dt><dd>{$form.advisor_id.html}</dd>
-<dt>{$form.ptc_date.label}</dt><dd>{$form.ptc_date.html}</dd>
+<dt>{$form.ptc_date.label}</dt><dd>{include file="CRM/common/jcalendar.tpl" elementName=ptc_date}</dd>
 <dt>{$form.ptc_duration.label}</dt><dd>{$form.ptc_duration.html}</dd>
-<dt>{$form.ptc_time_1.label}</dt><dd>{$form.ptc_time_1.html}</dd>
-<dt>{$form.ptc_time_2.label}</dt><dd>{$form.ptc_time_2.html}</dd>
-<dt>{$form.ptc_time_3.label}</dt><dd>{$form.ptc_time_3.html}</dd>
-<dt>{$form.ptc_time_4.label}</dt><dd>{$form.ptc_time_4.html}</dd>
-<dt>{$form.ptc_time_5.label}</dt><dd>{$form.ptc_time_5.html}</dd>
-<dt>{$form.ptc_time_6.label}</dt><dd>{$form.ptc_time_6.html}</dd>
-<dt>{$form.ptc_time_7.label}</dt><dd>{$form.ptc_time_7.html}</dd>
-<dt>{$form.ptc_time_8.label}</dt><dd>{$form.ptc_time_8.html}</dd>
-<dt>{$form.ptc_time_9.label}</dt><dd>{$form.ptc_time_9.html}</dd>
+<dt>{$form.ptc_date_1.label}</dt><dd>{include file="CRM/common/jcalendar.tpl" elementName=ptc_date_1}</dd>
+<dt>{$form.ptc_date_2.label}</dt><dd>{include file="CRM/common/jcalendar.tpl" elementName=ptc_date_2}</dd>
+<dt>{$form.ptc_date_3.label}</dt><dd>{include file="CRM/common/jcalendar.tpl" elementName=ptc_date_3}</dd>
+<dt>{$form.ptc_date_4.label}</dt><dd>{include file="CRM/common/jcalendar.tpl" elementName=ptc_date_4}</dd>
+<dt>{$form.ptc_date_5.label}</dt><dd>{include file="CRM/common/jcalendar.tpl" elementName=ptc_date_5}</dd>
+<dt>{$form.ptc_date_6.label}</dt><dd>{include file="CRM/common/jcalendar.tpl" elementName=ptc_date_6}</dd>
+<dt>{$form.ptc_date_7.label}</dt><dd>{include file="CRM/common/jcalendar.tpl" elementName=ptc_date_7}</dd>
+<dt>{$form.ptc_date_8.label}</dt><dd>{include file="CRM/common/jcalendar.tpl" elementName=ptc_date_8}</dd>
+<dt>{$form.ptc_date_9.label}</dt><dd>{include file="CRM/common/jcalendar.tpl" elementName=ptc_date_9}</dd>
 </dl>
 <dl>
     <dt></dt>
@@ -57,3 +57,12 @@
 </table>
 </div>
 {/if}
+
+{literal}
+<script type="text/javascript">
+    for (var i=1; i<=9; i++) {
+        cj('#ptc_date_' + i).hide( );
+        cj('label[for="ptc_date_' + i + '_time"]').hide( );
+    }
+</script>
+{/literal}

@@ -64,26 +64,18 @@ ORDER BY   c.display_name
                     $advisors,
                     true );
 
-        $this->add( 'date',
-                    'ptc_date',
-                    ts( 'Conference Date' ),
-                    CRM_Core_SelectValues::date( 'custom' ),
-                    true );
+        $this->addDate('ptc_date',
+                       ts( 'Conference Date' ),
+                       true );
         $this->add( 'text',
                     'ptc_duration',
                     ts( 'Conference Duration' ),
                     true );
 
-        $dateFormat = CRM_Core_SelectValues::date( 'custom',
-                                                   0, 0, "hiA" );
-        $dateFormat['format'] = substr( $dateFormat['format'], 4 );
         for ( $i = 1; $i < 10; $i++ ) {
-            $required = $i == 1 ? true : false;
-            $this->add( 'date',
-                        "ptc_time_$i",
-                        ts( 'Conference Start Time' ),
-                        $dateFormat,
-                        $required );
+            $this->addDateTime("ptc_date_$i",
+                               ts( 'Conference Start Time' ),
+                               false );
         }
 
         $this->addButtons(array( 
@@ -95,19 +87,33 @@ ORDER BY   c.display_name
                                         'name'      => ts('Cancel') ), 
                                  )
                           );
+
+        $this->addFormRule( array( 'SFS_Form_Conference', 'formRule' ) );
+    }
+
+    static function formRule( &$fields ) 
+    {  
+        $errors = array( );
+
+        if  ( !CRM_Utils_Array::value( 'ptc_date_1_time',$fields) ) {
+            $errors['ptc_date_1_time'] = ts('Conference Start Time is a required field.');
+        }
+        
+        return $errors;
     }
 
     function setDefaultValues( ) {
         $defaults = array( );
 
-        $defaults['ptc_date']     = date("Y-m-d", time( ) + 14 * 24 * 60 * 60 );
+        list($defaults['ptc_date'], $defaults['ptc_date_time'])
+             = CRM_Utils_Date::setDateDefaults(date("Y-m-d", time( ) + 14 * 24 * 60 * 60 ));
         $defaults['ptc_duration'] = 25;
 
         for ( $i = 1; $i < 6; $i++ ) {
             $time = (int ) ( $i + 1 ) / 2;
-            $defaults["ptc_time_$i"] = "$time:00 PM";
+            $defaults["ptc_date_{$i}_time"] = "$time:00 PM";
             $i++;
-            $defaults["ptc_time_{$i}"] = "$time:30 PM";
+            $defaults["ptc_date_{$i}_time"] = "$time:30 PM";
         }
         return $defaults;
     }
@@ -121,11 +127,10 @@ ORDER BY   c.display_name
         $userID = $session->get( 'userID' );
 
         for ( $i = 1 ; $i < 10; $i++ ) {
-            if ( empty( $params["ptc_time_$i"]['h'] ) ) {
+            if ( empty( $params["ptc_date_{$i}_time"] ) ) {
                 continue;
             }
-            $newDate = array_merge( $params['ptc_date'], $params["ptc_time_$i"] );
-            $mysqlDate = CRM_Utils_Date::format( $newDate );
+            $mysqlDate = CRM_Utils_Date::processDate( $params['ptc_date'], $params["ptc_date_{$i}_time"] );
             SFS_Utils_Conference::createConference( $userID,
                                                     $params['advisor_id'],
                                                     SFS_Utils_Conference::CONFERENCE_ACTIVITY_TYPE_ID,
