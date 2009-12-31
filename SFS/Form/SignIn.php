@@ -193,7 +193,8 @@ ORDER BY contact_id, sout_id DESC, course_name, display_name, signout_time
             return null;
         }
 
-        $dateParts = CRM_Utils_Date::unformat( $time );
+        $dateParts = array( );
+        list($dateParts['H'], $dateParts['i']) = explode( "-", date( "H-i", $time ) );
         
         if ( $dateParts['H'] < 15 ||
              ( $dateParts['H'] == 15 && $dateParts['i'] <= 30 ) ) {
