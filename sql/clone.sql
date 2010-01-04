@@ -1,5 +1,9 @@
 
-LOAD DATA INFILE '/Users/lobo/svn/sfschool/sql/JanToMay2010ExtendedDay.csv' INTO TABLE `sfschool_extended_care_source` FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\n' ;
+LOAD DATA INFILE '/Users/lobo/svn/sfschool/sql/Winter2010.csv' INTO TABLE `sfschool_extended_care_source` FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\n' ;
+
+LOAD DATA INFILE '/home/sfschool/www/drupal/sites/all/modules/sfschool/sql/Winter2010.csv' INTO TABLE `sfschool_extended_care_source` FIELDS TERMINATED BY ','
+ OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\n' ;
+
 
 
 UPDATE sfschool_extended_care_source SET name = '5th Grade Girls Basketball' WHERE name = '5th Grade Girls Basketball 3:30 - 5:00 pm';

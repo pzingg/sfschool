@@ -128,7 +128,7 @@ INNER JOIN civicrm_value_school_information_1 sis ON sis.entity_id = c.id
 
     static function getNameAndEmail( $id ) {
         $sql = "
-SELECT    c.display_name, e.email
+SELECT    c.nick_name, c.display_name, e.email
 FROM      civicrm_contact c
 LEFT JOIN civicrm_email e ON ( e.contact_id = c.id )
 WHERE     c.id = %1
@@ -137,7 +137,8 @@ ORDER BY  e.is_primary desc
         $params = array( 1 => array( $id, 'Integer' ) );
         $dao = CRM_Core_DAO::executeQuery( $sql, $params );
         if ( $dao->fetch( ) ) {
-            return array( $dao->display_name, $dao->email );
+            $advisorName = $dao->nick_name ? $dao->nick_name : $dao->display_name;
+            return array( $advisorName, $dao->email );
         }
         return array( null, null );
     }

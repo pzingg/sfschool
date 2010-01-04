@@ -66,6 +66,9 @@ class SFS_Form_SignIn extends CRM_Core_Form {
     function buildQuickForm( ) {
         CRM_Utils_System::setTitle( 'Afternoon SignIn - Extended Care' );
 
+        require_once 'SFS/Utils/ExtendedCare.php';
+        $term = SFS_Utils_ExtendedCare::getTerm( $term );
+
         $sql = "
 ( 
 SELECT     c.id as contact_id, c.display_name as display_name, s.name as course_name, v.grade as grade,
@@ -77,6 +80,7 @@ INNER JOIN sfschool_extended_care_source e ON ( s.session = e.session AND s.name
 WHERE      v.subtype = 'Student'
 AND        v.grade_sis >= 1
 AND        e.is_active = 1
+AND        s.term = %3
 )
 UNION
 (
@@ -115,7 +119,8 @@ ORDER BY contact_id, sout_id DESC, course_name, display_name, signout_time
 ";
 
         $params = array( 1 => array( $this->_date     , 'String' ),
-                         2 => array( $this->_dayOfWeek, 'String' ) );
+                         2 => array( $this->_dayOfWeek, 'String' ),
+                         3 => array( $term            , 'String' ) );
 
         $dao = CRM_Core_DAO::executeQuery( $sql, $params );
         
