@@ -52,7 +52,7 @@ class SFS_Utils_Conference {
         
         // add scheduling information if any
         $sql = "
-SELECT     r.contact_id_b, a.id as activity_id, a.activity_date_time, a.subject, a.location, aac.display_name, aac.id as advisor_id
+SELECT     r.contact_id_b, a.id as activity_id, a.activity_date_time, a.subject, a.location, aac.display_name, aac.nick_name, aac.id as advisor_id
 FROM       civicrm_activity a
 INNER JOIN civicrm_activity_assignment aa ON a.id = aa.activity_id
 INNER JOIN civicrm_contact            aac ON aa.assignee_contact_id = aac.id
@@ -76,7 +76,8 @@ ORDER BY   a.activity_date_time asc
         while ( $dao->fetch( ) ) {
             $dateTime = CRM_Utils_Date::customFormat( $dao->activity_date_time,
                                                       "%l:%M %P on %b %E%f" );
-            $elements[$dao->activity_id] = "$dateTime w/{$dao->display_name}";
+            $advisorName = $dao->nick_name ? $dao->nick_name : $dao->display_name;
+            $elements[$dao->activity_id] = "$dateTime w/{$advisorName}";
         }
 
         $parentID = CRM_Utils_Request::retrieve( 'parentID', 'Integer', $form, false, null, $_REQUEST );
@@ -163,7 +164,7 @@ ORDER BY   a.activity_date_time asc
         // find first all scheduled meetings in the future
         $sql = "
 SELECT     a.id, a.activity_date_time, a.subject, a.location, r.contact_id_b,
-           aac.id as advisor_id, aac.display_name as aac_display_name,
+           aac.id as advisor_id, aac.display_name as aac_display_name, aac.nick_name as aac_nick_name,
            rcb.display_name as rcb_display_name
 FROM       civicrm_activity a
 INNER JOIN civicrm_activity_assignment aa ON a.id = aa.activity_id
@@ -192,7 +193,8 @@ AND        at.target_contact_id = r.contact_id_b;
             $url = CRM_Utils_System::url( 'civicrm/profile/edit', "reset=1&gid=4&id={$dao->contact_id_b}&advisorID={$dao->advisor_id}&ptc=1&$parent" );
             $dateTime = CRM_Utils_Date::customFormat( $dao->activity_date_time,
                                                       "%l:%M %P on %b %E%f" );
-            $values[$dao->contact_id_b]['meeting']['title'] = "Your {$dao->subject} is scheduled for $dateTime with {$dao->aac_display_name}";
+            $advisorName = $dao->aac_nick_name ? $dao->aac_nick_name : $dao->aac_display_name;
+            $values[$dao->contact_id_b]['meeting']['title'] = "Your {$dao->subject} is scheduled for $dateTime with {$advisorName}";
             $values[$dao->contact_id_b]['meeting']['edit']  = "<a href=\"{$url}\">Modify conference time for {$dao->rcb_display_name}</a>";
             $values[$dao->contact_id_b]['meeting']['id']    = $dao->id;
             // FIXME when we have access to the web :)
@@ -215,7 +217,7 @@ AND        at.target_contact_id = r.contact_id_b;
 
         $sql = "
 SELECT     r.contact_id_b, a.subject, a.location,
-           aac.display_name as aac_display_name, aac.id as advisor_id,
+           aac.display_name as aac_display_name, aac.nick_name as aac_nick_name, aac.id as advisor_id,
            rcb.display_name as rcb_display_name
 FROM       civicrm_activity a
 INNER JOIN civicrm_activity_assignment aa ON a.id = aa.activity_id
@@ -238,7 +240,8 @@ GROUP BY r.contact_id_b
         $dao = CRM_Core_DAO::executeQuery( $sql, $params );
         while ( $dao->fetch( ) ) {
             $url = CRM_Utils_System::url( 'civicrm/profile/edit', "reset=1&gid=4&id={$dao->contact_id_b}&advisorID={$dao->advisor_id}&ptc=1&$parent" );
-            $values[$dao->contact_id_b]['meeting']['title'] = "Please schedule your {$dao->subject} with {$dao->aac_display_name}";
+            $advisorName = $dao->aac_nick_name ? $dao->aac_nick_name : $dao->aac_display_name;
+            $values[$dao->contact_id_b]['meeting']['title'] = "Please schedule your {$dao->subject} with {$advisorName}";
             $values[$dao->contact_id_b]['meeting']['edit'] = "<a href=\"{$url}\">Schedule a conference for {$dao->rcb_display_name}</a>";
         }
     }
