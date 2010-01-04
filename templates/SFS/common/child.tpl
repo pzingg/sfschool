@@ -39,7 +39,7 @@
 {/if}
 <div>
 <br/>
-<a href="http://www.sfschool.org/programs/extended/extended_day_schedule.pdf">Download the Extended Care Program Schedule and Details</a>
+<a href="http://sfschool.org/drupal/civicrm/sfschool/extended/class?reset=1">Extended Care Program Schedule and Details</a>
 </div>
 </fieldset>
 {/if}
