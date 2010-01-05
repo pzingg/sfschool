@@ -54,7 +54,7 @@ class SFS_Page_Detail extends CRM_Core_Page {
         $sql = "
 SELECT c.display_name, c.id
 FROM   civicrm_contact c,
-       civicrm_value_extended_care_2 s
+       civicrm_value_extended_care s
 WHERE  s.name = %1
 AND    s.term = %2
 AND    s.day_of_week = %3

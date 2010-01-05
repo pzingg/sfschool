@@ -86,7 +86,7 @@ class SFS_Form_SignOut extends CRM_Core_Form {
 
         $sql = "
 SELECT e.id, e.class
-FROM   civicrm_value_extended_care_signout_3 e
+FROM   civicrm_value_extended_care_signout e
 WHERE  entity_id = %1
 AND    DATE(signin_time) = %2
 AND    ( is_morning = 0 OR is_morning IS NULL )
@@ -104,7 +104,7 @@ AND    ( is_morning = 0 OR is_morning IS NULL )
         if ( $dao->fetch( ) ) {
             $class = $dao->class;
             $sql = "
-UPDATE civicrm_value_extended_care_signout_3 
+UPDATE civicrm_value_extended_care_signout
 SET    pickup_person_name = %2,
        signout_time       = %3,
        at_school_meeting  = %4
@@ -113,7 +113,7 @@ WHERE  id = %5
             $params[5] = array( $dao->id, 'Integer' );
         } else {
             $sql = "
-INSERT INTO civicrm_value_extended_care_signout_3
+INSERT INTO civicrm_value_extended_care_signout
 ( entity_id, pickup_person_name, signout_time, at_school_meeting, is_morning )
 VALUES
 ( %1, %2, %3, %4, 0 )

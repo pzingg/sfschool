@@ -74,8 +74,8 @@ class SFS_Form_SignIn extends CRM_Core_Form {
 SELECT     c.id as contact_id, c.display_name as display_name, s.name as course_name, v.grade as grade,
            0 as sout_id, 0 as signout_time, e.location as course_location
 FROM       civicrm_contact c
-INNER JOIN civicrm_value_school_information_1 v ON v.entity_id = c.id
-INNER JOIN civicrm_value_extended_care_2 s ON ( s.entity_id = c.id AND s.has_cancelled = 0 AND s.day_of_week = '{$this->_dayOfWeek}' )
+INNER JOIN civicrm_value_school_information v ON v.entity_id = c.id
+INNER JOIN civicrm_value_extended_care s ON ( s.entity_id = c.id AND s.has_cancelled = 0 AND s.day_of_week = '{$this->_dayOfWeek}' )
 INNER JOIN sfschool_extended_care_source e ON ( s.session = e.session AND s.name = e.name AND s.term = e.term AND s.day_of_week = e.day_of_week ) 
 WHERE      v.subtype = 'Student'
 AND        v.grade_sis >= 1
@@ -87,8 +87,8 @@ UNION
 SELECT     c.id as contact_id, c.display_name as display_name, sout.class as course_name, v.grade as grade,
            sout.id as sout_id, sout.signout_time as signout_time, e.location as course_location
 FROM       civicrm_contact c
-INNER JOIN civicrm_value_school_information_1 v ON v.entity_id = c.id
-INNER JOIN civicrm_value_extended_care_signout_3 sout ON sout.entity_id = c.id
+INNER JOIN civicrm_value_school_information v ON v.entity_id = c.id
+INNER JOIN civicrm_value_extended_care_signout sout ON sout.entity_id = c.id
 INNER JOIN sfschool_extended_care_source e ON ( sout.class = e.name )
 WHERE      v.subtype = 'Student'
 AND        v.grade_sis >= 1
@@ -102,8 +102,8 @@ UNION
 SELECT     c.id as contact_id, c.display_name as display_name, sout.class as course_name, v.grade as grade,
            -1 as sout_id, 0 as signout_time, e.location as course_location
 FROM       civicrm_contact c
-INNER JOIN civicrm_value_school_information_1 v ON v.entity_id = c.id
-INNER JOIN civicrm_value_extended_care_signout_3 sout ON sout.entity_id = c.id
+INNER JOIN civicrm_value_school_information v ON v.entity_id = c.id
+INNER JOIN civicrm_value_extended_care_signout sout ON sout.entity_id = c.id
 INNER JOIN sfschool_extended_care_source e ON ( sout.class = e.name )
 WHERE      v.subtype = 'Student'
 AND        v.grade_sis >= 1
@@ -264,7 +264,7 @@ ORDER BY contact_id, sout_id DESC, course_name, display_name, signout_time
         // update the entry if there is one for this contact id on this date
         $sql = "
 SELECT id
-FROM   civicrm_value_extended_care_signout_3
+FROM   civicrm_value_extended_care_signout
 WHERE  entity_id = %1
 AND    DATE( signin_time ) = %2
 AND    is_morning = 0
@@ -302,12 +302,12 @@ AND    is_morning = 0
             if ( $checked != 'false' ) {
                 if ( $signoutTime ) {
                     $sql = "
-INSERT INTO civicrm_value_extended_care_signout_3 ( entity_id, signin_time, class, is_morning, signout_time )
+INSERT INTO civicrm_value_extended_care_signout ( entity_id, signin_time, class, is_morning, signout_time )
 VALUES ( %1, %3, %4, %5, %7 )
 ";
                 } else {
                     $sql = "
-INSERT INTO civicrm_value_extended_care_signout_3 ( entity_id, signin_time, class, is_morning )
+INSERT INTO civicrm_value_extended_care_signout ( entity_id, signin_time, class, is_morning )
 VALUES ( %1, %3, %4, %5 )
 ";
                 }
@@ -317,7 +317,7 @@ VALUES ( %1, %3, %4, %5 )
             $params[6] = array( $dao->id, 'Integer' );
             if ( $checked == 'false' ) {
                 $sql = "
-DELETE FROM civicrm_value_extended_care_signout_3
+DELETE FROM civicrm_value_extended_care_signout
 WHERE  id = %6
 ";
                 echo "{$studentName} has been removed from {$course}";
@@ -325,14 +325,14 @@ WHERE  id = %6
                 if ( $signoutTime ) {
                     // dont update signin time here, should be set when signed in
                     $sql = "
-UPDATE civicrm_value_extended_care_signout_3 
+UPDATE civicrm_value_extended_care_signout
 SET    class = %4,
        signout_time = %7
 WHERE  id = %6
 ";
                 } else {
                     $sql = "
-UPDATE civicrm_value_extended_care_signout_3 
+UPDATE civicrm_value_extended_care_signout
 SET    signin_time = %3,
        class = %4
 WHERE  id = %6

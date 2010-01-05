@@ -37,7 +37,7 @@ class SFS_Utils_Conference {
     const
         ADVISOR_RELATIONSHIP_TYPE_ID = 10,
         CONFERENCE_ACTIVITY_TYPE_ID  = 20,
-        SUBJECT  = 'Fall 2009 Parent Teacher Conference',
+        SUBJECT  = 'Winter 2010 Parent Teacher Conference',
         LOCATION = 'San Francisco School',
         STATUS   = 1;
 

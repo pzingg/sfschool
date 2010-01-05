@@ -38,8 +38,8 @@ require_once 'CRM/Report/Form.php';
 class SFS_Report_Form_Schedule extends CRM_Report_Form {
     
     // set custom table name
-    protected $_customTable          = 'civicrm_value_school_information_1';  
-    protected $_customTable_exCare   = 'civicrm_value_extended_care_2';  
+    protected $_customTable          = 'civicrm_value_school_information';
+    protected $_customTable_exCare   = 'civicrm_value_extended_care';
     
     // set colunm_name for grouping
     protected $fieldName   = 'subtype';

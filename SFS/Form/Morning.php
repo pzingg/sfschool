@@ -93,7 +93,7 @@ class SFS_Form_Morning extends CRM_Core_Form {
 
         $sql = "
 SELECT e.id
-FROM   civicrm_value_extended_care_signout_3 e
+FROM   civicrm_value_extended_care_signout e
 WHERE  entity_id = %1
 AND    signin_time LIKE '{$date}%'
 AND    is_morning = 1
@@ -103,7 +103,7 @@ AND    is_morning = 1
         if ( $dao->fetch( ) ) {
             $params[4] = array( $dao->id, 'Integer' );
             $sql = "
-UPDATE civicrm_value_extended_care_signout_3 
+UPDATE civicrm_value_extended_care_signout 
 SET    signin_time        = %2,
        signout_time       = %3,
        pickup_person_name = %5,
@@ -112,7 +112,7 @@ WHERE  id = %4
 ";
         } else {
             $sql = "
-INSERT INTO civicrm_value_extended_care_signout_3
+INSERT INTO civicrm_value_extended_care_signout
 ( entity_id, pickup_person_name, signin_time, signout_time, is_morning, at_school_meeting )
 VALUES
 ( %1, %5, %2, %3, 1, %6 )

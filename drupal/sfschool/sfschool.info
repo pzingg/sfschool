@@ -3,4 +3,4 @@ description = Implement CiviCRM and Drupal hooks for San Francisco School
 dependencies[] = civicrm
 package = CiviCRM
 core = 6.x
-version = 2.2
+version = 3.1

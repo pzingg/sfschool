@@ -1,14 +1,5 @@
 <?php
 
-function sfschool_help( $section = null ) {
-    switch ($section) { 
-    case 'admin/modules#description': 
-        return t('Implements hooks for CiviCRM to customize the SFSchool site');
-    default :
-        return;
-    } 
-}
-
 function _sfschool_initialize( ) {
     static $_initialized = false;
 
@@ -20,7 +11,9 @@ function _sfschool_initialize( ) {
 
     // set the timezone
     date_default_timezone_set('America/Los_Angeles');
+}
 
+function sfschool_civicrm_config( &$config ) {
     $template =& CRM_Core_Smarty::singleton( );
 
     $sfschoolRoot = 
@@ -39,7 +32,6 @@ function _sfschool_initialize( ) {
     // also fix php include path
     $include_path = $sfschoolRoot . PATH_SEPARATOR . get_include_path( );
     set_include_path( $include_path );
-                
 }
 
 function sfschool_civicrm_pageRun( &$page ) {

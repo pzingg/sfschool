@@ -38,7 +38,7 @@ require_once 'CRM/Report/Form.php';
 class SFS_Report_Form_ParentTeacherConference extends CRM_Report_Form {
     
     // set custom table name
-    protected $_customTable = 'civicrm_value_school_information_1';  
+    protected $_customTable = 'civicrm_value_school_information';  
     
     protected $_typeField   = array( 'column_name'  => 'subtype',
                                      'value'        => 'Student' );
@@ -383,7 +383,7 @@ class SFS_Report_Form_ParentTeacherConference extends CRM_Report_Form {
                         // hide columns for student
                         $rows[$rowNum]['civicrm_contact_student_display_name']     = "";
                         $rows[$rowNum]['civicrm_activity_activity_date_time']      = "";
-                        $rows[$rowNum]['civicrm_value_school_information_1_grade'] = "";
+                        $rows[$rowNum]['civicrm_value_school_information_grade']   = "";
                         $rows[$rowNum]['civicrm_activity_subject']                 = "";
 
                     } else {

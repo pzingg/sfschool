@@ -41,7 +41,7 @@ class SFS_Utils_Relationship {
 SELECT     c.id, c.display_name, r.is_permission_b_a, sis.subtype, sis.grade
 FROM       civicrm_contact c
 INNER JOIN civicrm_relationship r ON r.contact_id_a = c.id
-LEFT JOIN  civicrm_value_school_information_1 sis ON sis.entity_id = c.id
+LEFT JOIN  civicrm_value_school_information sis ON sis.entity_id = c.id
 WHERE      r.relationship_type_id = 1
 AND        r.is_active    = 1
 AND        r.contact_id_b = %1

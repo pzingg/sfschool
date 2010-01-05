@@ -211,7 +211,7 @@ class SFS_Form_Class extends CRM_Core_Form
                  
                  //update student Data
                  $curentDate = date('Y-m-d');
-                 $query = "UPDATE civicrm_value_extended_care_2 {$student_class} 
+                 $query = "UPDATE civicrm_value_extended_care {$student_class} 
                            INNER JOIN sfschool_extended_care_source {$class_source} ON  ( {$addQuery} )
                            SET {$student_class}.end_date='{$curentDate}' , {$student_class}.has_cancelled=1
                            ";
@@ -225,7 +225,7 @@ class SFS_Form_Class extends CRM_Core_Form
                  CRM_Core_Session::setStatus( ts('Class has been has been Enabled.') );
 
                  //update student Data
-                 $query = "UPDATE civicrm_value_extended_care_2 {$student_class} 
+                 $query = "UPDATE civicrm_value_extended_care {$student_class} 
                            INNER JOIN sfschool_extended_care_source {$class_source} ON ( {$addQuery} )
                            SET {$student_class}.end_date=NULL , {$student_class}.has_cancelled=0
                            ";

@@ -61,7 +61,7 @@ AND    u.created != u.access
     $sql = "
 SELECT      c.id as c_id, c.display_name as c_name, s.grade_sis as c_grade, p.id as p_id, p.display_name as p_name, ep.email as p_email
 FROM        civicrm_contact c
-INNER JOIN  civicrm_value_school_information_1 s ON s.entity_id = c.id
+INNER JOIN  civicrm_value_school_information s ON s.entity_id = c.id
 INNER JOIN  civicrm_relationship r ON r.contact_id_a = c.id
 INNER JOIN  civicrm_contact p      ON r.contact_id_b = p.id
 LEFT  JOIN  civicrm_email   ep     ON ep.contact_id  = p.id

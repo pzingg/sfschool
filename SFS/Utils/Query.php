@@ -58,7 +58,7 @@ class SFS_Utils_Query {
         if ( ! array_key_exists( $id, $_cache ) ) {
             $sql = "
 SELECT subtype
-FROM   civicrm_value_school_information_1
+FROM   civicrm_value_school_information
 WHERE  entity_id = %1
 ";
             $params = array( 1 => array( $id, 'Integer' ) );
@@ -73,7 +73,7 @@ WHERE  entity_id = %1
         if ( ! array_key_exists( $id, $_cache ) ) {
             $sql = "
 SELECT grade
-FROM   civicrm_value_school_information_1
+FROM   civicrm_value_school_information
 WHERE  entity_id = %1
 ";
             $params = array( 1 => array( $id, 'Integer' ) );
@@ -86,7 +86,7 @@ WHERE  entity_id = %1
         $sql = "
 SELECT     c.id, c.sort_name, c.display_name, sis.grade 
 FROM       civicrm_contact c
-INNER JOIN civicrm_value_school_information_1 sis ON sis.entity_id = c.id
+INNER JOIN civicrm_value_school_information sis ON sis.entity_id = c.id
 ";
 
         if ( $extendedCareOnly ) {
@@ -182,7 +182,7 @@ AND    term = %1
         $sql = "
 SELECT c.id, c.display_name, s.grade
 FROM   civicrm_contact c,
-       civicrm_value_school_information_1 s
+       civicrm_value_school_information s
 WHERE  s.entity_id = c.id
 AND    s.grade_sis >= 1
 AND    s.subtype = 'Student'

@@ -38,7 +38,7 @@ require_once 'CRM/Report/Form.php';
 class SFS_Report_Form_Attendance extends CRM_Report_Form {
 
     // set custom table name
-    protected $_customTable   = 'civicrm_value_extended_care_2';  
+    protected $_customTable   = 'civicrm_value_extended_care';
     
     // col mapper
     protected $_colMapper = array ( 'dayOfWeek'    => 'day_of_week',
@@ -144,12 +144,12 @@ ORDER BY session, name, additional_rows
             $sql  = "
 SELECT contact_civireport.id as contact_civireport_id, 
        contact_civireport.display_name as contact_civireport_display_name, '' as SignIn, '' as SignOut, '' as parent_initial
-FROM   civicrm_value_extended_care_2 value_extended_care_2_civireport
-INNER  JOIN civicrm_contact as contact_civireport ON value_extended_care_2_civireport.entity_id = contact_civireport.id
-WHERE  value_extended_care_2_civireport.{$this->_colMapper['sessionName']} = '{$sname->session_name}' AND 
-       value_extended_care_2_civireport.{$this->_colMapper['sessionOrder']} = '{$sname->session_order}' AND
-       value_extended_care_2_civireport.{$this->_colMapper['dayOfWeek']} = '{$this->_params['weekday_value']}' AND
-       value_extended_care_2_civireport.{$this->_colMapper['isCancelled']} != 1 AND
+FROM   civicrm_value_extended_care value_extended_care_civireport
+INNER  JOIN civicrm_contact as contact_civireport ON value_extended_care_civireport.entity_id = contact_civireport.id
+WHERE  value_extended_care_civireport.{$this->_colMapper['sessionName']} = '{$sname->session_name}' AND 
+       value_extended_care_civireport.{$this->_colMapper['sessionOrder']} = '{$sname->session_order}' AND
+       value_extended_care_civireport.{$this->_colMapper['dayOfWeek']} = '{$this->_params['weekday_value']}' AND
+       value_extended_care_civireport.{$this->_colMapper['isCancelled']} != 1 AND
        term = %1
 GROUP BY contact_civireport.id;
 ";

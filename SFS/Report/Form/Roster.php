@@ -38,7 +38,7 @@ require_once 'CRM/Report/Form.php';
 class SFS_Report_Form_Roster extends CRM_Report_Form {
     
     // set custom table name
-    protected $_schoolInfo          = 'civicrm_value_school_information_1';  
+    protected $_schoolInfo          = 'civicrm_value_school_information';
     
     function __construct( ) {
         
@@ -250,7 +250,7 @@ class SFS_Report_Form_Roster extends CRM_Report_Form {
         $this->_from = "FROM 
                          civicrm_contact {$this->_aliases['civicrm_contact']}
 
-                         INNER JOIN civicrm_value_school_information_1 $alias ON 
+                         INNER JOIN civicrm_value_school_information $alias ON 
                                 {$this->_aliases['civicrm_contact']}.id = $alias.entity_id
 
                          INNER JOIN civicrm_relationship r1 ON 
@@ -377,8 +377,8 @@ class SFS_Report_Form_Roster extends CRM_Report_Form {
                                                        'title' => 'ADDRESS' );
         $this->_columnHeaders['parent_phone'] = array( 'type'  => 2 ,
                                                        'title' => 'PHONE' );
-        $this->_columnHeaders['civicrm_value_school_information_1_grade'] = array( 'type'  => 2 ,
-                                                                                   'title' => 'GRADE' );
+        $this->_columnHeaders['civicrm_value_school_information_grade'] = array( 'type'  => 2 ,
+                                                                                 'title' => 'GRADE' );
         $this->setPager( );
         $this->alterDisplay( $rows );
 

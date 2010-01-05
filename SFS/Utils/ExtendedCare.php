@@ -118,7 +118,7 @@ class SFS_Utils_ExtendedCare {
                                  $term ) {
         $sql = "
 SELECT entity_id, term, day_of_week, session, name, description, instructor, fee_block, start_date, end_date
-FROM   civicrm_value_extended_care_2
+FROM   civicrm_value_extended_care
 WHERE  entity_id = %1 AND has_cancelled = 0 AND term = %2
 ";
         $params = array( 1 => array( $childID, 'Integer' ),
@@ -414,7 +414,7 @@ AND    %2 <= max_grade
 
         if ( $operation == 'Added' ) {
             $query = "
-INSERT INTO civicrm_value_extended_care_2
+INSERT INTO civicrm_value_extended_care
 ( entity_id, term, name, description, instructor, day_of_week, session, fee_block, start_date, end_date, has_cancelled )
 VALUES
 ( %1, %2, %3, %4, %5, %6, %7, %8, %9, %10, 0 )
@@ -446,7 +446,7 @@ VALUES
             if ( $startDate > $rightNow ) {
                 $query = "
 DELETE 
-FROM   civicrm_value_extended_care_2
+FROM   civicrm_value_extended_care
 WHERE  entity_id   = %1
 AND    term        = %2
 AND    name        = %3
@@ -455,7 +455,7 @@ AND    session     = %5
 ";
             } else {
                 $query = "
-UPDATE civicrm_value_extended_care_2
+UPDATE civicrm_value_extended_care
 SET    end_date = %6, has_cancelled = 1
 WHERE  entity_id     = %1
 AND    term          = %2
@@ -496,8 +496,8 @@ SELECT    c.id as contact_id, e.term, e.name, e.description,
           e.instructor, e.day_of_week, e.session, e.fee_block,
           e.start_date, e.end_date, s.grade
 FROM      civicrm_contact c
-LEFT JOIN civicrm_value_extended_care_2 e ON ( c.id = e.entity_id AND term = %1 AND has_cancelled = 0 )
-LEFT JOIN civicrm_value_school_information_1 s ON c.id = s.entity_id
+LEFT JOIN civicrm_value_extended_care e ON ( c.id = e.entity_id AND term = %1 AND has_cancelled = 0 )
+LEFT JOIN civicrm_value_school_information s ON c.id = s.entity_id
 WHERE     c.id IN ($childrenIDString)
 AND       s.subtype = %2
 ORDER BY  c.id, e.day_of_week, e.session
@@ -568,7 +568,7 @@ ORDER BY  c.id, e.day_of_week, e.session
 
         $sql = "
 SELECT     count(entity_id) as current, s.max_participants as max, s.term, s.day_of_week, s.session, s.name
-FROM       civicrm_value_extended_care_2 e
+FROM       civicrm_value_extended_care e
 INNER JOIN sfschool_extended_care_source s ON ( s.term = e.term AND s.day_of_week = e.day_of_week AND s.session = e.session AND s.name = e.name ) 
 WHERE      e.has_cancelled = 0
 AND        s.term = %1
@@ -604,7 +604,7 @@ AND %2 <= s.max_grade
         
         $sql = "
 SELECT entity_id, term, day_of_week, session, name
-FROM   civicrm_value_extended_care_2
+FROM   civicrm_value_extended_care
 WHERE  entity_id = %1 AND has_cancelled = 0 AND term = %2
 ";
         $params = array( 1 => array( $childID, 'Integer' ),
@@ -704,7 +704,7 @@ WHERE  entity_id = %1 AND has_cancelled = 0 AND term = %2
 
         $sql = "
 SELECT e.id, e.class, s.location
-FROM   civicrm_value_extended_care_signout_3 e
+FROM   civicrm_value_extended_care_signout e
 INNER JOIN sfschool_extended_care_source s ON ( e.class = s.name )
 WHERE  entity_id = %1
 AND    signin_time LIKE '{$_date}%'
@@ -728,7 +728,7 @@ AND    s.day_of_week = DAYNAME( '{$_date}' )
             }
 
             $sql = "
-UPDATE civicrm_value_extended_care_signout_3 
+UPDATE civicrm_value_extended_care_signout
 SET    pickup_person_name = %2,
        signout_time       = %3,
        at_school_meeting  = %4
@@ -737,7 +737,7 @@ WHERE  id = %5
             $params[5] = array( $dao->id, 'Integer' );
         } else {
             $sql = "
-INSERT INTO civicrm_value_extended_care_signout_3
+INSERT INTO civicrm_value_extended_care_signout
 ( entity_id, pickup_person_name, signin_time, signout_time, at_school_meeting, is_morning )
 VALUES
 ( %1, %2, %3, %3, %4, 0 )
@@ -779,9 +779,9 @@ SELECT     c.id, c.display_name,
            s.class, s.pickup_person_name,
            s.is_morning, s.at_school_meeting,
            v.extended_care_status
-FROM       civicrm_value_extended_care_signout_3 s
+FROM       civicrm_value_extended_care_signout s
 INNER JOIN civicrm_contact c ON c.id = s.entity_id
-INNER JOIN civicrm_value_school_information_1 v ON c.id = v.entity_id
+INNER JOIN civicrm_value_school_information v ON c.id = v.entity_id
 WHERE      ( DATE(s.signout_time) >= $startDate OR DATE(s.signin_time) >= $startDate )
 AND        ( DATE(s.signout_time) <= $endDate   OR DATE(s.signin_time) <= $endDate   )
            $clause
@@ -789,8 +789,6 @@ ORDER BY   c.sort_name, signin_time DESC
 ";
 
         $dao = CRM_Core_DAO::executeQuery( $sql );
-
-        require_once 'SFS/Page/SignIn.php';
 
         $freeClasses = array( 'Volleyball', 'Cross Country', 'Amnesty International',
                               'SMART', 'Yearbook',
@@ -823,7 +821,7 @@ ORDER BY   c.sort_name, signin_time DESC
                 $blockMessage = 'Free Class - No Charge';
             } else {
                     if ( $dao->signout_time ) {
-                        $blockCode = SFS_Page_SignIn::signoutBlock( $dao->signout_time );
+                        $blockCode = self::signoutBlock( $dao->signout_time );
                         switch ( $blockCode ) {
                         case 1:
                             break;
@@ -908,7 +906,7 @@ ORDER BY   c.sort_name, signin_time DESC
 
         $sql = "
 SELECT entity_id, signin_time
-FROM   civicrm_value_extended_care_signout_3
+FROM   civicrm_value_extended_care_signout
 WHERE  signout_time IS NULL
 AND    DATE(signin_time ) >= %1
 AND    DATE(signin_time ) <= %2
@@ -942,6 +940,37 @@ ORDER BY entity_id
             $days[] = CRM_Utils_Date::customFormat( $dao->signin_time, "%b %E%f" );
         }
 
+    }
+
+    static function signoutBlock( $time ) {
+        if ( empty( $time ) ) {
+            return null;
+        }
+
+        $dateParts = array( );
+        list($dateParts['H'], $dateParts['i']) = explode( "-", date( "H-i", $time ) );
+        
+        if ( $dateParts['H'] < 15 ||
+             ( $dateParts['H'] == 15 && $dateParts['i'] <= 35 ) ) {
+            return 1;
+        }
+        
+        if ( $dateParts['H'] == 15 ||
+             ( $dateParts['H'] == 16 && $dateParts['i'] <= 35 ) ) {
+            return 2;
+        }
+
+        if ( $dateParts['H'] == 16 ||
+             ( $dateParts['H'] == 17 && $dateParts['i'] <= 20 ) ) {
+            return 3;
+        }
+
+        if ( $dateParts['H'] == 17 ||
+             ( $dateParts['H'] == 18 && $dateParts['i'] <= 15 ) ) {
+            return 4;
+        }
+
+        return 5;
     }
 
 }
