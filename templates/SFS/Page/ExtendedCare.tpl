@@ -8,6 +8,9 @@
      <th>Class</th>
      <th>Time</th>
      <th>Message</th>
+     {if $enableActions}
+     <th>&nbsp;#</th>
+     {/if}
   </tr>
 {foreach from=$detail.details item=detail}
 <tr>
@@ -15,6 +18,9 @@
        <td>{$detail.class}</td>
        <td>{$detail.signout}{if $detail.pickup} by {$detail.pickup}{/if}</td>
        <td>{$detail.message}</td>
+       {if $enableActions}
+       <td>{$detail.action}</td>
+       {/if}
 </tr>
 {/foreach}
 </table>

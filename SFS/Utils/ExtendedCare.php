@@ -778,7 +778,7 @@ SELECT     c.id, c.display_name,
            s.signout_time, s.signin_time,
            s.class, s.pickup_person_name,
            s.is_morning, s.at_school_meeting,
-           v.extended_care_status
+           v.extended_care_status , s.id as signout_id
 FROM       civicrm_value_extended_care_signout s
 INNER JOIN civicrm_contact c ON c.id = s.entity_id
 INNER JOIN civicrm_value_school_information v ON c.id = v.entity_id
@@ -852,12 +852,12 @@ ORDER BY   c.sort_name, signin_time DESC
             }
 
             if ( $includeDetails ) {
-                $summary[$studentID]['details'][] = array( 'charge'  => $blockCharge,
-                                                           'message' => $blockMessage,
-                                                           'class'   => $dao->class,
-                                                           'pickup'  => $dao->pickup_person_name,
-                                                           'signout' => strftime( "%l:%M %p on %a, %b %d",
-                                                                                  CRM_Utils_Date::unixTime( $dao->signout_time ) ) );
+                $summary[$studentID]['details'][$dao->signout_id] = array( 'charge'  => $blockCharge,
+                                                                           'message' => $blockMessage,
+                                                                           'class'   => $dao->class,
+                                                                           'pickup'  => $dao->pickup_person_name,
+                                                                           'signout' => strftime( "%l:%M %p on %a, %b %d",
+                                                                                                  CRM_Utils_Date::unixTime( $dao->signout_time ) ) );
             }
         }
 

@@ -37,13 +37,41 @@ require_once 'CRM/Core/Page.php';
 
 class SFS_Page_ExtendedCare extends CRM_Core_Page {
 
+    private static $_actionLinks;
+
+    function &actionLinks()
+    {
+        // check if variable _actionsLinks is populated
+        if (!isset(self::$_actionLinks)) {
+           
+            self::$_actionLinks = array(
+                                        CRM_Core_Action::UPDATE  => array(
+                                                                          'name'  => ts('Edit'),
+                                                                          'url'   => CRM_Utils_System::currentPath( ),
+                                                                          'qs'    => 'reset=1&action=update&signoutid=%%signoutId%%&id=%%id%%',
+                                                                          'title' => ts('Update') 
+                                                                          ),
+                                        
+                                        CRM_Core_Action::DELETE => array(
+                                                                          'name'  => ts('Delete'),
+                                                                          'url'   => CRM_Utils_System::currentPath( ),
+                                                                          'qs'    => 'reset=1&action=delete&signoutid=%%signoutId%%&id=%%id%%',
+                                                                          'title' => ts('Delete'),
+                                                                          ),
+                                        );
+        }
+        return self::$_actionLinks;
+    }
     function run( ) {
         $id = CRM_Utils_Request::retrieve( 'id',
                                            'Integer',
                                            $this,
                                            true );
 
-        
+        $action = CRM_Utils_Request::retrieve('action', 'String',
+                                              $this, false, 'browse' ); 
+        $this->assign('action', $action);
+
         $currentYear  = date( 'Y' );
         $currentMonth = date( 'm' );
         if ( $currentMonth < 9 ) {
@@ -64,20 +92,63 @@ class SFS_Page_ExtendedCare extends CRM_Core_Page {
                                                 false,
                                                 date( 'Ymd' ) );
 
-        require_once 'SFS/Utils/ExtendedCare.php';
-        $details = SFS_Utils_ExtendedCare::signoutDetails( $startDate,
+
+        $this->assign( 'displayName',
+                       CRM_Core_DAO::getFieldValue( 'CRM_Contact_DAO_Contact',
+                                                    $id,
+                                                    'display_name' ) );
+        if ( $action  &&  array_key_exists( $action, self::actionLinks( ) ) )  {
+            
+            $addcurrentPath = "reset=1&id={$id}";
+            isset( $startDate )? $addcurrentPath .= "&startDate={$startDate}" : null;
+            isset( $endDate )? $addcurrentPath .= "&endDate={$endDate}" : null;
+
+            // set breadcrumb
+            $breadCrumb = array( array('title' => ts('Browse Activities'),
+                                       'url'   => CRM_Utils_System::url( CRM_Utils_System::currentPath( ), $addcurrentPath )) );
+            
+            CRM_Utils_System::appendBreadCrumb( $breadCrumb );
+            CRM_Utils_System::setTitle( ts('Edit Activity block') );
+            $session =& CRM_Core_Session::singleton();
+            $session->pushUserContext( CRM_Utils_System::url( CRM_Utils_System::currentPath( ), $addcurrentPath ) );
+            $controller =& new CRM_Core_Controller_Simple( 'SFS_Form_ExtendedCare' ,'Edit Activity block');
+            $controller->process( );
+            return $controller->run( );
+        } else {
+            require_once 'SFS/Utils/ExtendedCare.php';
+            $details = SFS_Utils_ExtendedCare::signoutDetails( $startDate,
                                                            $endDate,
                                                            true,
                                                            true,
                                                            false,
                                                            $id );
-        $this->assign( 'detail', array_pop( $details ) );
-        $this->assign( 'displayName',
-                       CRM_Core_DAO::getFieldValue( 'CRM_Contact_DAO_Contact',
-                                                    $id,
-                                                    'display_name' ) );
+            
+            $signoutDetails = array_pop( $details );
+            
+            $actionPermission = false;
+            
+            if( CRM_Core_Permission::check( 'access CiviCRM' ) && CRM_Core_Permission::check( 'administer CiviCRM' ) ) {
+                $actionPermission = true;
+            }
+           
+            $this->assign( 'enableActions', $actionPermission );
 
+            if ( !empty( $signoutDetails ) && $actionPermission ) {
+                
+                foreach( $signoutDetails['details'] as $key => $value ) {
+                    $signoutDetails['details'][$key]['action'] = CRM_Core_Action::formLink( self::actionLinks(),
+                                                                                            null, 
+                                                                                            array( 'signoutId' => $key, 'id' => $id ) );
+                }
+            }
+            
+            $this->assign( 'detail', $signoutDetails );
+           
+        }
+        
         parent::run( );
     }
 
+
+   
 }
