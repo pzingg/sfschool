@@ -9,7 +9,7 @@
      <th>Time</th>
      <th>Message</th>
      {if $enableActions}
-     <th>&nbsp;#</th>
+     <th>&nbsp;</th>
      {/if}
   </tr>
 {foreach from=$detail.details item=detail}
