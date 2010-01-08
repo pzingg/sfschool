@@ -46,11 +46,17 @@ class SFS_Form_ExtendedCare extends CRM_Core_Form
             CRM_Utils_System::permissionDenied( );
             exit();
         }
+        
+        $this->_action = CRM_Utils_Request::retrieve( 'action','String',$this, false );
+       
+        $isSignoutId = true;
+        if( ( $this->_action & CRM_Core_Action::ADD ) ) {
+            $isSignoutId = false;  
+        }
+
         $this->_signoutId  = CRM_Utils_Request::retrieve( 'signoutid',
                                                           'Integer',
-                                                          $this, true );
-
-        $this->_action = CRM_Utils_Request::retrieve( 'action','String',$this, false );
+                                                          $this, $isSignoutId );
 
         $this->_customFields = array( 'entity_id', 'pickup_person_name', 'signin_time' , 'signout_time' , 'class', 'is_morning'	,'at_school_meeting');
            	
@@ -62,17 +68,16 @@ class SFS_Form_ExtendedCare extends CRM_Core_Form
      public  function setDefaultValues( $freez =1 ) {
          
          $defaults = array();
-         $sql = "SELECT * FROM civicrm_value_extended_care_signout WHERE id={$this->_signoutId}";
-         $dao = CRM_Core_DAO::executeQuery( $sql );
-         
-         if ( $this->_action & CRM_Core_Action::DELETE ) { 
-             while( $dao->fetch() ) {
-                 $this->assign( 'class' , $dao->class );
+         if ( $this->_signoutId ) {
+             $sql = "SELECT * FROM civicrm_value_extended_care_signout WHERE id={$this->_signoutId}";
+             $dao = CRM_Core_DAO::executeQuery( $sql );
+             
+             if ( $this->_action & CRM_Core_Action::DELETE ) { 
+                 while( $dao->fetch() ) {
+                     $this->assign( 'class' , $dao->class );
+                 }
+                 return $defaults;
              }
-             return $defaults;
-         }
-         
-         if( $this->_signoutId ) {
              
              while( $dao->fetch() ) {
                  foreach( $this->_customFields as $field ) {
@@ -87,7 +92,10 @@ class SFS_Form_ExtendedCare extends CRM_Core_Form
                      }
                  }
              }
+         }  elseif ( $id =  CRM_Utils_Request::retrieve( 'id', 'Integer', $this, false ) ) {
+             $defaults['entity_id'] = $id;
          }
+
          return $defaults;
      } 
      
@@ -103,6 +111,11 @@ class SFS_Form_ExtendedCare extends CRM_Core_Form
                 $classes  =  SFS_Utils_Query::getClasses();
                     
                 $this->add( 'select', 'entity_id', ts('Student'), array(''=>'--select--') + $students, true );
+                
+                if( $this->_action & CRM_Core_Action::UPDATE ) {
+                    $this->freeze('entity_id');  
+                }
+                    
                 $this->add( 'text', 'pickup_person_name', ts('Pickup Person:') ); 
                 $this->addDateTime('signin_time',  ts('Signin'), CRM_Core_SelectValues::date( 'custom', 10, 2 ) );
                 $this->addDateTime('signout_time',  ts('Signout'), CRM_Core_SelectValues::date( 'custom', 10, 2 ) );
@@ -128,6 +141,7 @@ class SFS_Form_ExtendedCare extends CRM_Core_Form
      { 
          if( $this->_action & CRM_Core_Action::DELETE ) {
              $query  = "DELETE FROM  civicrm_value_extended_care_signout WHERE id =%1";
+             $params = array( 1 => array( $this->_signoutId ,'Integer') );
              $statusMsg = ts("Activity Block has been deleted successfuly");
          } else {
              $params = $this->controller->exportValues( $this->_name );
@@ -153,13 +167,18 @@ class SFS_Form_ExtendedCare extends CRM_Core_Form
                  }            
              }
              
-             $query  = "UPDATE civicrm_value_extended_care_signout SET " . implode( ' , ', $updateData ) ."  WHERE id =%1";
-             $statusMsg = ts("Activity Block has been updated successfuly");
+             if( $this->_action & CRM_Core_Action::UPDATE ) {
+                 $query     = "UPDATE civicrm_value_extended_care_signout SET " . implode( ' , ', $updateData ) ."  WHERE id =%1";
+                 $params    = array( 1 => array( $this->_signoutId ,'Integer') );
+                 $statusMsg = ts("Activity Block has been updated successfuly");
+             } elseif ( $this->_action & CRM_Core_Action::ADD ) {
+                 $query     = "INSERT INTO civicrm_value_extended_care_signout SET " . implode( ' , ', $updateData ) ;
+                 $params    = array( );
+                 $statusMsg = ts("Activity Block has been added successfuly"); 
+             }
          }
 
-         $params = array( 1 => array( $this->_signoutId ,'Integer') );
          CRM_Core_DAO::executeQuery( $query, $params );
-         
          CRM_Core_Session::setStatus( $statusMsg );
 
      }

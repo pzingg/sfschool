@@ -32,3 +32,9 @@ If the above information is incorrect, please send a detailed email to <a href="
 <div>
 No Extended Care Activity recorded for {$displayName}
 {/if}
+{if $enableActions}
+    <div class="action-link">
+        <a href="{$addActivityBlock}" class="button"><span>&raquo; {ts}Add Activity Block{/ts}</span></a>
+    </div>
+    <div class="spacer"></div>
+{/if}

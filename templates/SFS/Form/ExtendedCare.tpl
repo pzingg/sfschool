@@ -11,9 +11,12 @@
 </div> 
 {/if}
 
-{if $action eq 2}
-<legend> Edit Activity Block </legend>
-
+{if $action eq 2 or $action eq 1}
+{if $action eq 2}      
+    <legend> Edit Activity Block </legend>
+{else}
+    <legend> Add Activity Block </legend>
+{/if}
 <dl>
 <dt>{$form.entity_id.label}</dt>
 <dd>{$form.entity_id.html}</dd>
