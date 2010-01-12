@@ -1,27 +1,5 @@
 <?php
 
-function _sfschool_initialize( ) {
-    static $_initialized = false;
-
-    if ( $_initialized ) {
-        return;
-    }
-
-    $_initialized = true;
-
-    // set the timezone
-    date_default_timezone_set('America/Los_Angeles');
-}
-
-function sfschool_help( $path, $arg ) {
-    switch ( $path ) { 
-    case 'admin/modules#description': 
-        return t('Conference signups, extended care activities and signups, online directories of the schools and grades, reports, relationship maintenance ..');
-    default :
-        return;
-    } 
-}
-
 function sfschool_civicrm_config( &$config ) {
     $template =& CRM_Core_Smarty::singleton( );
 
@@ -41,11 +19,12 @@ function sfschool_civicrm_config( &$config ) {
     // also fix php include path
     $include_path = $sfschoolRoot . PATH_SEPARATOR . get_include_path( );
     set_include_path( $include_path );
+
+    // set the timezone
+    date_default_timezone_set('America/Los_Angeles');
 }
 
 function sfschool_civicrm_pageRun( &$page ) {
-    _sfschool_initialize( );
-
     $name = $page->getVar( '_name' );
     if ( $name == 'CRM_Profile_Page_Dynamic' ) {
         $gid = $page->getVar( '_gid' );
@@ -137,8 +116,6 @@ function _sfschool_civicrm_pageRun_Profile_Page_Dynamic_4( &$page, $gid ) {
 }
 
 function sfschool_civicrm_buildForm( $formName, &$form ) {
-    _sfschool_initialize( );
-
     if ( $formName == 'CRM_Profile_Form_Edit' ) {
         $gid = $form->getVar( '_gid' );
         switch ( $gid ) {
@@ -162,8 +139,6 @@ function sfschool_civicrm_validate( $formName, &$fields, &$files, &$form ) {
 }
 	
 function sfschool_civicrm_postProcess( $class, &$form ) {
-    _sfschool_initialize( );
-
     if ( is_a( $form, 'CRM_Profile_Form_Edit' ) ) {
         $gid = $form->getVar( '_gid' );
         switch ( $gid ) {
@@ -224,8 +199,6 @@ function sfschool_civicrm_postProcess_CRM_Profile_Form_Edit_4( $class, &$form, $
 }
 
 function sfschool_civicrm_tabs( &$tabs, $contactID ) {
-    _sfschool_initialize( );
-
     require_once 'SFS/Utils/Query.php';
     $subType = SFS_Utils_Query::getSubType( $contactID );
 
@@ -257,8 +230,6 @@ function sfschool_user( $op, &$edit, &$account, $category = null ) {
     return;
     switch ( $op ) {
     case 'login':
-        _sfschool_initialize( );
-        
         // get the contact id and then the subtype
         require_once 'api/v2/UFGroup.php';
         $cid     = civicrm_uf_match_id_get( $account->uid );
