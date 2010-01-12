@@ -236,6 +236,7 @@ AND    %2 <= max_grade
                        'instructor'       => $dao->instructor,
                        'max_participants' => $dao->max_participants,
                        'fee_block'        => $dao->fee_block,
+                       'total_fee_block'  => $dao->total_fee_block,
                        'start_date'       => $dao->start_date,
                        'end_date'         => $dao->end_date,
                        'min_grade'        => $dao->min_grade,

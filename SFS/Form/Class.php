@@ -57,7 +57,21 @@ class SFS_Form_Class extends CRM_Core_Form
             return;
         } 
   
-        $this->_customFields =  array('term','session','name','day_of_week','min_grade','max_grade','start_date','end_date','instructor','fee_block','max_participants','location','url','additional_rows' );
+        $this->_customFields =  array( 'term',
+                                       'session',
+                                       'name',
+                                       'day_of_week',
+                                       'min_grade',
+                                       'max_grade',
+                                       'start_date',
+                                       'end_date',
+                                       'instructor',
+                                       'fee_block',
+                                       'total_fee_block',
+                                       'max_participants',
+                                       'location',
+                                       'url',
+                                       'additional_rows' );
         
         if( $this->_action & CRM_Core_Action::ADD ) {
             $this->_customFields[] = 'is_active';
@@ -165,6 +179,7 @@ class SFS_Form_Class extends CRM_Core_Form
         $this->addDate('end_date',  ts('End Date'),     CRM_Core_SelectValues::date( 'custom', 10, 2 ) );
         $this->add('text', 'instructor', ts( 'Instructor:' ) );
         $this->add('text', 'fee_block', ts( 'Fee Block:' ) );
+        $this->add('text', 'total_fee_block', ts( 'Session Fees:' ) );
         $this->add('text', 'max_participants', ts( 'Max Participant:' ) );
         $this->add('text', 'location', ts( 'Location:' ) );
         $this->add('text', 'url', ts( 'Url:' ));
@@ -276,7 +291,8 @@ class SFS_Form_Class extends CRM_Core_Form
                  } else {
                      if ( $field == 'additional_rows'  ||
                           $field == 'max_participants' ||
-                          $field == 'fee_block' ) {
+                          $field == 'fee_block'        ||
+                          $field == 'total_fee_block'  ) {
                          $updateValues[] =  "{$field} = 0 ";
                      } else {
                          $updateValues[] =  "{$field} = null ";

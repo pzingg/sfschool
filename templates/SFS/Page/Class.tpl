@@ -7,6 +7,7 @@
      <th style="width: 15%">Time</th>
      <th style="width: 15%">Instructor</th>
      <th style="width: 5%">Fees</th>
+     <th style="width: 5%">Session Fees</th>
      <th style="width: 15%">Grade(s)</th>
      <th style="width: 20%">Location</th>
      <th style="width: 10%">&nbsp;</th>
@@ -20,8 +21,13 @@
     <td>{$class.name}</td>
     <td>{$class.session}</td>
     <td>{$class.instructor}</td>
-{if $class.fee_block gte 0}
+{if $class.fee_block gt 0}
     <td>{$class.fee_block}</td>
+{else}
+    <td>&nbsp;</td>
+{/if}
+{if $class.total_fee_block gt 0}
+    <td>{$class.total_fee_block}</td>
 {else}
     <td>&nbsp;</td>
 {/if}
