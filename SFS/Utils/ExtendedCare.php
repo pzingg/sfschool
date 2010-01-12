@@ -947,8 +947,8 @@ ORDER BY entity_id
             return null;
         }
 
-        $dateParts = array( );
-        list($dateParts['H'], $dateParts['i']) = explode( "-", date( "H-i", $time ) );
+        require_once 'SFS/Utils/Date.php';
+        $dateParts = SFS_Utils_Date::unformat( $time );
         
         if ( $dateParts['H'] < 15 ||
              ( $dateParts['H'] == 15 && $dateParts['i'] <= 35 ) ) {
