@@ -14,7 +14,7 @@ function _sfschool_initialize( ) {
 }
 
 function sfschool_help( $path, $arg ) {
-    switch ($section) { 
+    switch ( $path ) { 
     case 'admin/modules#description': 
         return t('Conference signups, extended care activities and signups, online directories of the schools and grades, reports, relationship maintenance ..');
     default :
