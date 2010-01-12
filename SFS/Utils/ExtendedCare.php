@@ -812,7 +812,9 @@ ORDER BY   c.sort_name, signin_time DESC
             $blockCharge  = 0;
             $blockMessage = null;
             if ( $dao->is_morning ) {
-                $blockCharge  = 0.5;
+                if ( self::chargeMorningBlock( $dao->signin_time ) ) {
+                    $blockCharge  = 0.5;
+                }
                 $blockMessage = 'Morning extended care';
                 $dao->signout_time = $dao->signin_time;
             } else if ( $dao->at_school_meeting ) {
@@ -940,6 +942,21 @@ ORDER BY entity_id
             $days[] = CRM_Utils_Date::customFormat( $dao->signin_time, "%b %E%f" );
         }
 
+    }
+
+    static function chargeMorningBlock( $time ) {
+        if ( empty( $time ) ) {
+            return false;
+        }
+
+        require_once 'SFS/Utils/Date.php';
+        $dateParts = SFS_Utils_Date::unformat( $time );
+        
+        if ( (int ) $dateParts['H'] <= 7 && (int ) $dateParts['i'] <= 55 ) {
+            return true;
+        }
+
+        return false;
     }
 
     static function signoutBlock( $time ) {
