@@ -1123,3 +1123,10 @@
     background-color: #dfd;
     border-color: #beb;
   }
+
+/*
+ * helpicon civicrm.
+ */
+  #crm-container .helpicon {
+      padding: 0px;
+  }

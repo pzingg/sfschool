@@ -1,8 +1,10 @@
 {* Displays Activities. *}
+
 <div>
+  {if !$noFieldSet}	
   <fieldset>
   <legend>{ts}Activities{/ts}</legend>
-
+  {/if}
 {if $rows}
   <form title="activity_pager" action="{crmURL}" method="post">
   {include file="CRM/common/pager.tpl" location="top"}
@@ -11,7 +13,7 @@
     <table class="selector">
       <tr class="columnheader">
       {foreach from=$columnHeaders item=header}
-        {if $header.name ne "Added By" and $header.name ne "Status"}
+      {if $header.name ne "Added By" and $header.name ne "Status"}
         <th scope="col">
         {if $header.sort}
           {assign var='key' value=$header.sort}
@@ -20,7 +22,7 @@
           {$header.name}
         {/if}
         </th>
-        {/if}
+      {/if}
       {/foreach}
       </tr>
 
@@ -31,30 +33,44 @@
         <td>{$row.activity_type}</td>
        
     	<td>{$row.subject}</td>
-	
+
         <td>
-        {if !$row.target_contact_name}
+        {if $row.mailingId}
+          <a href="{$row.mailingId}" title="{ts}View Mailing Report{/ts}">{$row.recipients}</a>
+        {elseif $row.recipients}
+          {$row.recipients}
+        {elseif !$row.target_contact_name}
           <em>n/a</em>
-        {elseif $contactId NEQ $row.target_contact_id}
-          <a href="{crmURL p='civicrm/contact/view' q="reset=1&cid=`$row.target_contact_id`"}" title="{ts}View contact{/ts}">{$row.target_contact_name}</a>
-        {else}
-          {$row.target_contact_name}
+        {elseif $row.target_contact_name}
+            {assign var="showTarget" value=0}
+            {foreach from=$row.target_contact_name item=targetName key=targetID}
+                {if $showTarget < 5}
+                    {if $showTarget};&nbsp;{/if}<a href="{crmURL p='civicrm/contact/view' q="reset=1&cid=`$targetID`"}" title="{ts}View contact{/ts}">{$targetName}</a>
+                    {assign var="showTarget" value=$showTarget+1}
+                {/if}
+            {/foreach}
+            {if count($row.target_contact_name) > 5}({ts}more{/ts}){/if}
         {/if}
         </td>
 
         <td>
         {if !$row.assignee_contact_name}
             <em>n/a</em>
-        {elseif $contactId NEQ $row.assignee_contact_id}
-          <a href="{crmURL p='civicrm/contact/view' q="reset=1&cid=`$row.assignee_contact_id`"}" title="{ts}View contact{/ts}">{$row.assignee_contact_name}</a>
-        {else}
-            {$row.assignee_contact_name}
+        {elseif $row.assignee_contact_name}
+            {assign var="showAssignee" value=0}
+            {foreach from=$row.assignee_contact_name item=assigneeName key=assigneeID}
+                {if $showAssignee < 5}
+                    {if $showAssignee};&nbsp;{/if}<a href="{crmURL p='civicrm/contact/view' q="reset=1&cid=`$assigneeID`"}" title="{ts}View contact{/ts}">{$assigneeName}</a>
+                    {assign var="showAssignee" value=$showAssignee+1}
+                {/if}
+            {/foreach}
+            {if count($row.assignee_contact_name) > 5}({ts}more{/ts}){/if}
         {/if}	
         </td>
 
         <td>{$row.activity_date_time|crmDate}</td>
 
-        <td>{$row.action}</td>    
+        <td>{$row.action|replace:'xx':$row.id}</td>
       </tr>
       {/foreach}
 
@@ -77,7 +93,8 @@
   </div>
 
 {/if}
-
+{if !$noFieldSet}
 </fieldset>
+{/if}
 </div>
 
