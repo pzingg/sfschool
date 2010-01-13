@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+<CustomData>
+  <CustomGroups>
+    <CustomGroup>
+      <name>Extended_Care_Fee_Tracker</name>
+      <title>Extended Care Fee Tracker</title>
+      <extends>Individual</extends>
+      <style>Tab</style>
+      <collapse_display>0</collapse_display>
+      <help_pre></help_pre>
+      <help_post></help_post>
+      <weight>4</weight>
+      <is_active>1</is_active>
+      <table_name>civicrm_value_extended_care_fee_tracker</table_name>
+      <is_multiple>1</is_multiple>
+      <max_multiple>0</max_multiple>
+      <collapse_adv_display>0</collapse_adv_display>
+      <created_date>2010-01-12 11:14:55</created_date>
+    </CustomGroup>
+  </CustomGroups>
+  <CustomFields>
+    <CustomField>
+      <label>Fee Type</label>
+      <data_type>String</data_type>
+      <html_type>Select</html_type>
+      <is_required>1</is_required>
+      <is_searchable>1</is_searchable>
+      <is_search_range>0</is_search_range>
+      <weight>2</weight>
+      <is_active>1</is_active>
+      <is_view>0</is_view>
+      <text_length>16</text_length>
+      <note_columns>60</note_columns>
+      <note_rows>4</note_rows>
+      <column_name>fee_type</column_name>
+      <option_group_name>fee_type_20100112111703</option_group_name>
+      <custom_group_name>Extended_Care_Fee_Tracker</custom_group_name>
+    </CustomField>
+    <CustomField>
+      <label>Description</label>
+      <data_type>String</data_type>
+      <html_type>Text</html_type>
+      <is_required>1</is_required>
+      <is_searchable>1</is_searchable>
+      <is_search_range>0</is_search_range>
+      <weight>7</weight>
+      <is_active>1</is_active>
+      <is_view>0</is_view>
+      <text_length>255</text_length>
+      <note_columns>60</note_columns>
+      <note_rows>4</note_rows>
+      <column_name>description</column_name>
+      <custom_group_name>Extended_Care_Fee_Tracker</custom_group_name>
+    </CustomField>
+    <CustomField>
+      <label>Fee Date</label>
+      <data_type>Date</data_type>
+      <html_type>Select Date</html_type>
+      <is_required>1</is_required>
+      <is_searchable>0</is_searchable>
+      <is_search_range>0</is_search_range>
+      <weight>10</weight>
+      <is_active>1</is_active>
+      <is_view>0</is_view>
+      <text_length>255</text_length>
+      <start_date_years>1</start_date_years>
+      <end_date_years>1</end_date_years>
+      <date_format>mm/dd/yy</date_format>
+      <note_columns>60</note_columns>
+      <note_rows>4</note_rows>
+      <column_name>fee_date</column_name>
+      <custom_group_name>Extended_Care_Fee_Tracker</custom_group_name>
+    </CustomField>
+    <CustomField>
+      <label>Total Blocks</label>
+      <data_type>Float</data_type>
+      <html_type>Text</html_type>
+      <is_required>1</is_required>
+      <is_searchable>0</is_searchable>
+      <is_search_range>0</is_search_range>
+      <weight>13</weight>
+      <is_active>1</is_active>
+      <is_view>0</is_view>
+      <text_length>255</text_length>
+      <note_columns>60</note_columns>
+      <note_rows>4</note_rows>
+      <column_name>total_blocks</column_name>
+      <custom_group_name>Extended_Care_Fee_Tracker</custom_group_name>
+    </CustomField>
+    <CustomField>
+      <label>Category</label>
+      <data_type>String</data_type>
+      <html_type>Select</html_type>
+      <default_value>Standard Fee</default_value>
+      <is_required>1</is_required>
+      <is_searchable>1</is_searchable>
+      <is_search_range>0</is_search_range>
+      <weight>4</weight>
+      <is_active>1</is_active>
+      <is_view>0</is_view>
+      <text_length>16</text_length>
+      <note_columns>60</note_columns>
+      <note_rows>4</note_rows>
+      <column_name>category</column_name>
+      <option_group_name>category_20100113090942</option_group_name>
+      <custom_group_name>Extended_Care_Fee_Tracker</custom_group_name>
+    </CustomField>
+  </CustomFields>
+  <OptionGroups>
+    <OptionGroup>
+      <name>fee_type_20100112111703</name>
+      <label>Fee Type</label>
+      <is_active>1</is_active>
+    </OptionGroup>
+    <OptionGroup>
+      <name>category_20100113090942</name>
+      <label>Category</label>
+      <is_active>1</is_active>
+    </OptionGroup>
+  </OptionGroups>
+  <OptionValues>
+    <OptionValue>
+      <label>Charge</label>
+      <value>Charge</value>
+      <name>Charge</name>
+      <is_default>0</is_default>
+      <weight>2</weight>
+      <is_optgroup>0</is_optgroup>
+      <is_reserved>0</is_reserved>
+      <is_active>1</is_active>
+      <option_group_name>fee_type_20100112111703</option_group_name>
+    </OptionValue>
+    <OptionValue>
+      <label>Charge Back</label>
+      <value>Charge Back</value>
+      <name>Charge_Back</name>
+      <is_default>0</is_default>
+      <weight>3</weight>
+      <is_optgroup>0</is_optgroup>
+      <is_reserved>0</is_reserved>
+      <is_active>1</is_active>
+      <option_group_name>fee_type_20100112111703</option_group_name>
+    </OptionValue>
+    <OptionValue>
+      <label>Payment</label>
+      <value>Payment</value>
+      <name>Payment</name>
+      <is_default>0</is_default>
+      <weight>1</weight>
+      <is_optgroup>0</is_optgroup>
+      <is_reserved>0</is_reserved>
+      <is_active>1</is_active>
+      <option_group_name>fee_type_20100112111703</option_group_name>
+    </OptionValue>
+    <OptionValue>
+      <label>Activity Fee</label>
+      <value>Activity Fee</value>
+      <name>Activity_Fee</name>
+      <is_default>0</is_default>
+      <weight>2</weight>
+      <is_optgroup>0</is_optgroup>
+      <is_reserved>0</is_reserved>
+      <is_active>1</is_active>
+      <option_group_name>category_20100113090942</option_group_name>
+    </OptionValue>
+    <OptionValue>
+      <label>Other</label>
+      <value>Other</value>
+      <name>Other</name>
+      <is_default>0</is_default>
+      <weight>3</weight>
+      <is_optgroup>0</is_optgroup>
+      <is_reserved>0</is_reserved>
+      <is_active>1</is_active>
+      <option_group_name>category_20100113090942</option_group_name>
+    </OptionValue>
+    <OptionValue>
+      <label>Standard Fee</label>
+      <value>Standard Fee</value>
+      <name>Standard_Fee</name>
+      <is_default>0</is_default>
+      <weight>1</weight>
+      <is_optgroup>0</is_optgroup>
+      <is_reserved>0</is_reserved>
+      <is_active>1</is_active>
+      <option_group_name>category_20100113090942</option_group_name>
+    </OptionValue>
+  </OptionValues>
+</CustomData>

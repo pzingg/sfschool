@@ -9,6 +9,7 @@ CREATE TABLE sfschool_extended_care_source (
   description varchar(255) collate utf8_unicode_ci default NULL,
   instructor varchar(64) collate utf8_unicode_ci default NULL,
   fee_block double default '1',
+  total_fee_block double default '0',
   max_participants int(10) unsigned default 0,
   start_date datetime default NULL,
   end_date datetime default NULL,
