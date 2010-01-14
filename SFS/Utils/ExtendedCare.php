@@ -769,7 +769,8 @@ VALUES
             $studentID = CRM_Utils_Type::escape( $studentID, 'Integer' );
             $clauses[] = "c.id = $studentID";
         }
-    
+
+        $clause = null;
         if ( $clauses ) {
             $clause = ' AND ' . implode( ' AND ', $clauses );
         }

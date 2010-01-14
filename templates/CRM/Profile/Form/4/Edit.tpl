@@ -188,7 +188,7 @@
         </div>
     {/if}
 
-{if $mode eq 4}
+{if $mode eq 4 OR $mode eq 8}
 <div class="crm-submit-buttons"> 
      {$form.buttons.html}
 </div>

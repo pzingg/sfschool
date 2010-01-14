@@ -188,7 +188,7 @@
     <th>Contact</th>
   </tr>
   <tr>
-     <td>{$form.slot_date.html}</td>
+     <td>{$form.slot_date.html}&nbsp;{include file="CRM/common/jcalendar.tpl" elementName=slot_date}</td>
      <td>{$form.slot_duration.html}</td>
      <td>{$form.slot_contact_id.html}</td>
   </tr>
@@ -219,9 +219,9 @@
         </div>
     {/if}
 
-{if $mode eq 4}
+{if $mode eq 4 OR $mode eq 8}
 <div class="crm-submit-buttons"> 
-     {$form.buttons.html}
+     {$form.buttons.html}{if $isDuplicate}&nbsp;&nbsp;{$form._qf_Edit_upload_duplicate.html}{/if}
 </div>
 {/if}
      {if $help_post && $action neq 4}<br /><div class="messages help">{$help_post}</div>{/if}

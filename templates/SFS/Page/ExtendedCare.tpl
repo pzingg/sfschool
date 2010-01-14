@@ -1,6 +1,6 @@
-{if $detail}
+{if $signoutDetail}
 <div>
-<h2>Total Extended Care Activity Blocks for {$detail.name}: {if $detail.doNotCharge}0 ({$detail.doNotCharge}, {$detail.blockCharge}){else}{$detail.blockCharge}{/if}</h2>
+<h2>Total Extended Care Activity Blocks for {$signoutDetail.name}: {if $signoutDetail.doNotCharge}0 ({$signoutDetail.doNotCharge}, {$signoutDetail.blockCharge}){else}{$signoutDetail.blockCharge}{/if}</h2>
 <br/>
 <table class="selector">
   <tr class="columnheader">
@@ -12,7 +12,7 @@
      <th>&nbsp;</th>
      {/if}
   </tr>
-{foreach from=$detail.details item=detail}
+{foreach from=$signoutDetail.details item=detail}
 <tr>
        <td>{$detail.charge}</td>
        <td>{$detail.class}</td>
@@ -25,16 +25,53 @@
 {/foreach}
 </table>
 </div>
+
+{if $enableActions}
+    <div class="action-link">
+        <a href="{$addActivityBlock}" class="button"><span>&raquo; {ts}Add Activity Block{/ts}</span></a>
+    </div>
+    <div class="spacer"></div>
+{/if}
+
+{/if}
+
+{if $feeDetail}
+<br/>
+<br/>
+<div>
+<h2>Total Extended Care Fee Details for {$feeDetail.name}</h2>
+<br/>
+<table class="selector">
+  <tr class="columnheader">
+     <th>Category</th>
+     <th>Description</th>
+     <th>Date</th>
+     <th>Total Blocks</th>
+     {if $enableActions}
+     <th>&nbsp;</th>
+     {/if}
+  </tr>
+{foreach from=$feeDetail.details item=detail}
+<tr>
+       <td>{$detail.category}</td>
+       <td>{$detail.description}</td>
+       <td>{$detail.fee_date}</td>
+       <td>{$detail.total_blocks}</td>
+       {if $enableActions}
+       <td>{$detail.action}</td>
+       {/if}
+</tr>
+{/foreach}
+</table>
+</div>
+{/if}
+
+{if $signoutDetail OR $feeDetail}
 <div class="footer" id="civicrm-footer">
 If the above information is incorrect, please send a detailed email to <a href="mailto:rbrown@sfschool.org">Rahna Hassett</a>
 </div>
 {else}
 <div>
 No Extended Care Activity recorded for {$displayName}
-{/if}
-{if $enableActions}
-    <div class="action-link">
-        <a href="{$addActivityBlock}" class="button"><span>&raquo; {ts}Add Activity Block{/ts}</span></a>
-    </div>
-    <div class="spacer"></div>
+</div>
 {/if}

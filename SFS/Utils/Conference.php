@@ -613,6 +613,7 @@ SELECT     c.id, c.display_name
 FROM       civicrm_contact c
 INNER JOIN civicrm_relationship r
 WHERE      c.id = r.contact_id_b
+AND        r.is_active = 1
 AND        r.contact_id_a = %1
 AND        r.relationship_type_id = %2
 ";
@@ -673,15 +674,13 @@ ORDER BY c.display_name
 
         // also expose elements to allow the staff to create a conference
         // we need a date time and duration
-        $form->add( 'date'    , "slot_date", ts( 'Date' ),
-                    CRM_Core_SelectValues::date('datetime') );
+        $form->addDate( "slot_date", ts( 'Date' ) );
         $form->add( 'text', "slot_duration" , ts( 'Duration' ),
                     array( 'size'=> 4,'maxlength' => 8 ) );
         $form->add( 'select', 'slot_contact_id', null, $needToScheduleIDs );
 
         $form->addRule('slot_duration', 
                        ts('Please enter the duration as number of minutes (integers only).'), 'positiveInteger');  
-        $form->addRule('slot_date', ts('Select a valid date.'), 'qfDate');
     }
 
     static function validatePTCForm( &$form, &$fields ) {

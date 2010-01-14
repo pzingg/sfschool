@@ -82,15 +82,15 @@ class SFS_Utils_Mail {
 
         require_once 'CRM/Utils/Mail.php';
         require_once 'CRM/Utils/String.php';
-        CRM_Utils_Mail::send( self::SFS_FROM_EMAIL,
-                              $toDisplayName,
-                              $toEmail,
-                              $template->fetch( $subjectTPL ),
-                              $template->fetch( $messageTPL ),
-                              $cc,
-                              self::SFS_BCC_EMAIL
-                              );
         
+        $params = array( 'from'    => self::SFS_FROM_EMAIL,
+                         'toName'  => $toDisplayName,
+                         'toEmail' => $toEmail,
+                         'subject' => $template->fetch( $subjectTPL ),
+                         'text'    => $template->fetch( $messageTPL ),
+                         'cc'      => $cc,
+                         'bcc'     => self::SFS_BCC_EMAIL );
+        CRM_Utils_Mail::send( $params );
     }
 
 }

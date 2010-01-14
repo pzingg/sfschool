@@ -48,20 +48,21 @@ class SFS_Page_ExtendedCare extends CRM_Core_Page {
                                         CRM_Core_Action::UPDATE  => array(
                                                                           'name'  => ts('Edit'),
                                                                           'url'   => CRM_Utils_System::currentPath( ),
-                                                                          'qs'    => 'reset=1&action=update&signoutid=%%signoutId%%&id=%%id%%',
+                                                                          'qs'    => 'reset=1&action=update&objectID=%%objectID%%&id=%%id%%&object=%%object%%',
                                                                           'title' => ts('Update') 
                                                                           ),
                                         
                                         CRM_Core_Action::DELETE => array(
                                                                           'name'  => ts('Delete'),
                                                                           'url'   => CRM_Utils_System::currentPath( ),
-                                                                          'qs'    => 'reset=1&action=delete&signoutid=%%signoutId%%&id=%%id%%',
+                                                                          'qs'    => 'reset=1&action=delete&objectID=%%objectID%%&id=%%id%%&object=%%object%%',
                                                                           'title' => ts('Delete'),
                                                                           ),
                                         );
         }
         return self::$_actionLinks;
     }
+
     function run( ) {
         $id = CRM_Utils_Request::retrieve( 'id',
                                            'Integer',
@@ -97,6 +98,7 @@ class SFS_Page_ExtendedCare extends CRM_Core_Page {
                        CRM_Core_DAO::getFieldValue( 'CRM_Contact_DAO_Contact',
                                                     $id,
                                                     'display_name' ) );
+
         if ( ( $action && array_key_exists( $action, self::actionLinks( ) ) ) || 
              ( $action & CRM_Core_Action::ADD ) ) {
             
@@ -118,14 +120,22 @@ class SFS_Page_ExtendedCare extends CRM_Core_Page {
         } else {
             require_once 'SFS/Utils/ExtendedCare.php';
             $details = SFS_Utils_ExtendedCare::signoutDetails( $startDate,
-                                                           $endDate,
-                                                           true,
-                                                           true,
-                                                           false,
-                                                           $id );
+                                                               $endDate,
+                                                               true,
+                                                               true,
+                                                               false,
+                                                               $id );
             
             $signoutDetails = array_pop( $details );
-            
+
+            require_once 'SFS/Utils/ExtendedCareFees.php';
+            $details = SFS_Utils_ExtendedCareFees::feeDetails( $startDate,
+                                                               $endDate,
+                                                               null,
+                                                               false,
+                                                               $id );
+            $feeDetails = array_pop( $details );
+
             $actionPermission = false;
             
             if( CRM_Core_Permission::check( 'access CiviCRM' ) && CRM_Core_Permission::check( 'administer CiviCRM' ) ) {
@@ -133,23 +143,34 @@ class SFS_Page_ExtendedCare extends CRM_Core_Page {
             }
            
             $this->assign( 'enableActions', $actionPermission );
-
-            if ( !empty( $signoutDetails ) && $actionPermission ) {
-                
+            
+            if ( ! empty( $signoutDetails ) && $actionPermission ) {
                 foreach( $signoutDetails['details'] as $key => $value ) {
                     $signoutDetails['details'][$key]['action'] = CRM_Core_Action::formLink( self::actionLinks(),
                                                                                             null, 
-                                                                                            array( 'signoutId' => $key, 'id' => $id ) );
+                                                                                            array( 'objectID' => $key,
+                                                                                                   'id'       => $id ,
+                                                                                                   'object'   => 'signout' ) );
                 }
             }
-            
-            $this->assign( 'detail', $signoutDetails );
-            
+            $this->assign_by_ref( 'signoutDetail', $signoutDetails );
+
+            if ( ! empty( $feeDetails ) && $actionPermission ) {
+                foreach( $feeDetails['details'] as $key => $value ) {
+                    $feeDetails['details'][$key]['action'] = CRM_Core_Action::formLink( self::actionLinks(),
+                                                                                        null, 
+                                                                                        array( 'objectID' => $key,
+                                                                                               'id'       => $id ,
+                                                                                               'object'   => 'fee' ) );
+                }
+            }
+            $this->assign_by_ref( 'feeDetail', $feeDetails );
+
             if( $actionPermission ) {
                 $addBlockUrl = CRM_Utils_System::url( CRM_Utils_System::currentPath( ),"reset=1&id={$id}&action=add");
                 $this->assign( 'addActivityBlock', $addBlockUrl);
             }
-           
+            
         }
         
         parent::run( );
