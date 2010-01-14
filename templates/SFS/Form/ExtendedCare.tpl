@@ -2,48 +2,42 @@
 <fieldset>
 
 {if $action eq 8}
-<legend>Delete Acivity Block</legend>
+   {if $object eq 'fee'}
+       <legend>Delete Fee Entry </legend>
+   {else}	      
+      <legend>Delete Acivity Block </legend>
+   {/if}
 <div class="messages status"> 
         <dl> 
             <dt><img src="{$config->resourceBase}i/Inform.gif" alt="{ts}status{/ts}" /></dt> 
-            <dd>{ts}Do you want to Delete Activity block of student  '{$displayName}' for class  '{$class}' ?{/ts}</dd>
+	    {if $object eq 'fee'}
+                <dd>{ts}Do you want to Delete Fee Entity of student '{$displayName}' ? {/ts}</dd>
+            {else}
+	        <dd>{ts}Do you want to Delete Activity block of student '{$displayName}' for class  '{$class}' ?{/ts}</dd>
+	    {/if}
         </dl> 
 </div> 
 {/if}
 
 {if $action eq 2 or $action eq 1}
-{if $action eq 2}      
-    <legend> Edit Activity Block </legend>
+{if $action eq 2}    
+     {if $object eq 'fee'} 
+        <legend> Edit Fee Entry </legend>
+     {else}
+	<legend> Edit Activity Block </legend>
+     {/if}
 {else}
-    <legend> Add Activity Block </legend>
+    {if $object eq 'fee'} 
+       <legend> Add Fee Entry </legend>	
+    {else}
+      <legend> Add Activity Block </legend>
+    {/if}
 {/if}
 <dl>
-<dt>{$form.entity_id.label}</dt>
-<dd>{$form.entity_id.html}</dd>
-</dl>
-<dl>
-<dt>{$form.pickup_person_name.label}</dt>
-<dd>{$form.pickup_person_name.html}</dd>
-</dl>
-<dl>
-<dt>{$form.signin_time.label}</dt>
-<dd>{include file="CRM/common/jcalendar.tpl" elementName=signin_time}</dd>
-</dl>
-<dl>
-<dt>{$form.signout_time.label}</dt>
-<dd>{include file="CRM/common/jcalendar.tpl" elementName=signout_time}</dd>
-</dl>
-<dl>
-<dt>{$form.class.label}</dt>
-<dd>{$form.class.html}</dd>
-</dl>	 	
-<dl>
-<dt>{$form.is_morning.label}</dt>
-<dd>{$form.is_morning.html}</dd>
-</dl>
-<dl>
-<dt>{$form.at_school_meeting.label}</dt>
-<dd>{$form.at_school_meeting.html}</dd>
+{foreach from=$fields item=field}  
+    <dt>{$form.$field.label}</dt>
+    <dd>{if $field eq 'signin_time' or $field eq 'signout_time' or $field eq 'fee_date'}{include file="CRM/common/jcalendar.tpl" elementName=$field}{else}{$form.$field.html}{/if}</dd>	 	 	      	 
+{/foreach}
 </dl>
 {/if}
 <dl>

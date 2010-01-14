@@ -48,18 +48,30 @@ class SFS_Form_ExtendedCare extends CRM_Core_Form
         }
         
         $this->_action = CRM_Utils_Request::retrieve( 'action','String',$this, false );
-       
-        $isSignoutId = true;
+        $this->_object = CRM_Utils_Request::retrieve( 'object','String',$this, true  );
+        $isObjectID = true;
         if( ( $this->_action & CRM_Core_Action::ADD ) ) {
-            $isSignoutId = false;  
+            $isObjectID  = false;  
         }
 
-        $this->_signoutId  = CRM_Utils_Request::retrieve( 'signoutid',
-                                                          'Integer',
-                                                          $this, $isSignoutId );
+        $this->_objectID  = CRM_Utils_Request::retrieve( 'objectID',
+                                                         'Integer',
+                                                         $this, $isObjectID );
+        $this->_customFields = array( );
+        $this->assign( 'object' ,$this->_object );
 
-        $this->_customFields = array( 'entity_id', 'pickup_person_name', 'signin_time' , 'signout_time' , 'class', 'is_morning'	,'at_school_meeting');
-           	
+        if( $this->_object == 'fee' ) {
+            $this->_tableName = 'civicrm_value_extended_care_fee_tracker';
+            CRM_Utils_System::setTitle( ts('Configure Fee Entry') );
+
+            $this->_customFields = array( 'entity_id', 'fee_type', 'category', 'description', 'fee_date', 'total_blocks' );
+        } else {
+            $this->_tableName = 'civicrm_value_extended_care_signout';
+            CRM_Utils_System::setTitle( ts('Configure Activity block') );
+
+            $this->_customFields = array( 'entity_id', 'pickup_person_name', 'signin_time' , 'signout_time' , 'class', 'is_morning'	,'at_school_meeting');
+        }  	
+        $this->assign( 'fields', $this->_customFields );
         parent::preProcess();
         
         
@@ -68,13 +80,15 @@ class SFS_Form_ExtendedCare extends CRM_Core_Form
      public  function setDefaultValues( $freez =1 ) {
          
          $defaults = array();
-         if ( $this->_signoutId ) {
-             $sql = "SELECT * FROM civicrm_value_extended_care_signout WHERE id={$this->_signoutId}";
+         if ( $this->_objectID ) {
+             $sql = "SELECT * FROM  {$this->_tableName} WHERE id={$this->_objectID}"; 
              $dao = CRM_Core_DAO::executeQuery( $sql );
              
              if ( $this->_action & CRM_Core_Action::DELETE ) { 
-                 while( $dao->fetch() ) {
-                     $this->assign( 'class' , $dao->class );
+                 if(  $this->_object != 'fee' ) {
+                     while( $dao->fetch() ) {
+                         $this->assign( 'class' , $dao->class );
+                     }
                  }
                  return $defaults;
              }
@@ -82,7 +96,7 @@ class SFS_Form_ExtendedCare extends CRM_Core_Form
              while( $dao->fetch() ) {
                  foreach( $this->_customFields as $field ) {
                      if( property_exists( $dao, $field ) ) { 
-                         if ( in_array($field, array('signin_time', 'signout_time')) ) {
+                         if ( in_array($field, array('signin_time', 'signout_time', 'fee_date')) ) {
                              list( $defaults[$field], 
                                    $defaults[$field . '_time'] ) = 
                                  CRM_Utils_Date::setDateDefaults($dao->$field);
@@ -100,49 +114,78 @@ class SFS_Form_ExtendedCare extends CRM_Core_Form
      } 
      
      public function buildQuickForm( ) 
-    {
-            if( $this->_action & CRM_Core_Action::DELETE ) {
-                $buttonLabel = ts('Delete');
-            } else {
-                require_once 'SFS/Utils/Query.php';
-
-                $buttonLabel = ts('Save');
-                $students =  SFS_Utils_Query::getStudentsByGrade( true, false, true , '' );
-                $classes  =  SFS_Utils_Query::getClasses();
-                    
-                $this->add( 'select', 'entity_id', ts('Student'), array(''=>'--select--') + $students, true );
-                
-                if( $this->_action & CRM_Core_Action::UPDATE ) {
-                    $this->freeze('entity_id');  
-                }
-                    
-                $this->add( 'text', 'pickup_person_name', ts('Pickup Person:') ); 
-                $this->addDateTime('signin_time',  ts('Signin'), CRM_Core_SelectValues::date( 'custom', 10, 2 ) );
-                $this->addDateTime('signout_time',  ts('Signout'), CRM_Core_SelectValues::date( 'custom', 10, 2 ) );
-                $this->add( 'select', 'class', ts('Class'), array(''=>'--select--') + $classes, true);
-                $this->add('checkbox', 'is_morning', ts('Is morning?'));
-                $this->add('checkbox', 'at_school_meeting', ts('At School Meeting?'));
-            }
-            
-            $this->addButtons(array( 
-                                    array ( 'type'      => 'next', 
-                                            'name'      => $buttonLabel, 
-                                            'spacing'   => '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;', 
-                                            'isDefault' => true   ), 
-                                    array ( 'type'      => 'cancel', 
-                                            'name'      => ts('Cancel') ), 
-                                     ) 
-                              );
-            
-    }
+     {
+         
+         if( $this->_action & CRM_Core_Action::DELETE ) {
+             $buttonLabel = ts('Delete');
+         } else {
+             require_once 'SFS/Utils/Query.php';
+             $buttonLabel = ts('Save'); 
+             $students    =  SFS_Utils_Query::getStudentsByGrade( true, false, true , '' );
+             $this->add( 'select', 'entity_id', ts('Student'), array(''=>'--select--') + $students, true );
+             
+             if( $this->_action & CRM_Core_Action::UPDATE ) {
+                 $this->freeze('entity_id');  
+             }
+             
+             if( $this->_object == 'fee' ) { 
+                 $sql = "SELECT cf.column_name as column_name, cf.option_group_id as option_group_id
+                         FROM civicrm_custom_field cf
+                         INNER JOIN  civicrm_custom_group cg ON cf.custom_group_id = cg.id
+                         WHERE cg.table_name = %1";
+                 $params = array( 1 => array( $this->_tableName, 'String' ) );
+                 $dao = CRM_Core_DAO::executeQuery( $sql , $params);
+                 $options = array( );
+                 while( $dao->fetch( ) ) {
+                     if( $dao->option_group_id ) {
+                         $options[$dao->column_name] = CRM_Core_OptionGroup::valuesByID($dao->option_group_id);
+                     }
+                 }
+                 
+                 $this->add( 'select', 'fee_type', ts('Fee Type'), array(''=>'--select--') + $options['fee_type'], true );
+                 $this->add( 'select', 'category', ts('Category'), array(''=>'--select--') + $options['category'], true );
+                 $this->add( 'text', 'description', ts('Description'), null , true );
+                 $this->addDate('fee_date', ts('Fee Date'), CRM_Core_SelectValues::date( 'custom', 1, 1 ));
+                 $this->add('text', 'total_blocks', ts('Total Blocks'), null , true);
+                 $this->addRule( 'total_blocks', ts('Please enter valid Total Blocks'), 'positiveInteger' );
+             } else {
+                 $classes  =  SFS_Utils_Query::getClasses();
+                 
+                 $this->add( 'text', 'pickup_person_name', ts('Pickup Person:') ); 
+                 $this->addDateTime('signin_time',  ts('Signin'), CRM_Core_SelectValues::date( 'custom', 10, 2 ) );
+                 $this->addDateTime('signout_time',  ts('Signout'), CRM_Core_SelectValues::date( 'custom', 10, 2 ) );
+                 $this->add( 'select', 'class', ts('Class'), array(''=>'--select--') + $classes, true);
+                 $this->add('checkbox', 'is_morning', ts('Is morning?'));
+                 $this->add('checkbox', 'at_school_meeting', ts('At School Meeting?'));
+             }
+         }
+         
+         $this->addButtons(array( 
+                                 array ( 'type'      => 'next', 
+                                         'name'      => $buttonLabel, 
+                                         'spacing'   => '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;', 
+                                         'isDefault' => true   ), 
+                                 array ( 'type'      => 'cancel', 
+                                         'name'      => ts('Cancel') ), 
+                                  ) 
+                           );
+         
+     }
      
      
      public  function postProcess() 
      { 
+         if( $this->_object == 'fee' ) {
+             $statusRef = 'Fee Entry ';
+         } else {
+             $statusRef = 'Activity Block ';
+         }
+         
          if( $this->_action & CRM_Core_Action::DELETE ) {
-             $query  = "DELETE FROM  civicrm_value_extended_care_signout WHERE id =%1";
-             $params = array( 1 => array( $this->_signoutId ,'Integer') );
-             $statusMsg = ts("Activity Block has been deleted successfuly");
+                 $query  = "DELETE FROM {$this->_tableName} WHERE id =%1";
+                 $params = array( 1 => array( $this->_objectID, 'Integer') );
+                 $statusMsg = ts(" %1 has been deleted successfuly." , array( 1 => $statusRef) );
+                 
          } else {
              $params = $this->controller->exportValues( $this->_name );
              $updateData = array( );
@@ -158,6 +201,8 @@ class SFS_Form_ExtendedCare extends CRM_Core_Form
                  
                  if( in_array( $field , array( 'signin_time', 'signout_time' ) ) ) {
                      $value =  CRM_Utils_Array::value( $field , $params)? CRM_Utils_Date::processDate( $params[$field], $params[$field . '_time'] ): null;
+                 } elseif ( $field == 'fee_date' ) {
+                     $value =  CRM_Utils_Array::value( $field , $params)? CRM_Utils_Date::processDate( $params[$field] ): null;
                  }
                  
                  if( $value ) {
@@ -168,18 +213,17 @@ class SFS_Form_ExtendedCare extends CRM_Core_Form
              }
              
              if( $this->_action & CRM_Core_Action::UPDATE ) {
-                 $query     = "UPDATE civicrm_value_extended_care_signout SET " . implode( ' , ', $updateData ) ."  WHERE id =%1";
-                 $params    = array( 1 => array( $this->_signoutId ,'Integer') );
-                 $statusMsg = ts("Activity Block has been updated successfuly");
+                 $query     = "UPDATE {$this->_tableName} SET " . implode( ' , ', $updateData ) ."  WHERE id =%1";
+                 $params    = array( 1 => array( $this->_objectID ,'Integer') );
+                 $statusMsg = ts(" %1 has been updated successfuly.", array( 1 => $statusRef));
              } elseif ( $this->_action & CRM_Core_Action::ADD ) {
-                 $query     = "INSERT INTO civicrm_value_extended_care_signout SET " . implode( ' , ', $updateData ) ;
+                 $query     = "INSERT INTO {$this->_tableName} SET " . implode( ' , ', $updateData ) ;
                  $params    = array( );
-                 $statusMsg = ts("Activity Block has been added successfuly"); 
+                 $statusMsg = ts(" %1 has been added successfuly.", array( 1 => $statusRef) ); 
              }
          }
-
+  
          CRM_Core_DAO::executeQuery( $query, $params );
          CRM_Core_Session::setStatus( $statusMsg );
-
-     }
-}   
+     }      
+}

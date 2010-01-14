@@ -111,7 +111,6 @@ class SFS_Page_ExtendedCare extends CRM_Core_Page {
                                        'url'   => CRM_Utils_System::url( CRM_Utils_System::currentPath( ), $addcurrentPath )) );
             
             CRM_Utils_System::appendBreadCrumb( $breadCrumb );
-            CRM_Utils_System::setTitle( ts('Configure Activity block') );
             $session =& CRM_Core_Session::singleton();
             $session->pushUserContext( CRM_Utils_System::url( CRM_Utils_System::currentPath( ), $addcurrentPath ) );
             $controller =& new CRM_Core_Controller_Simple( 'SFS_Form_ExtendedCare' ,'Edit Activity block');
@@ -167,8 +166,10 @@ class SFS_Page_ExtendedCare extends CRM_Core_Page {
             $this->assign_by_ref( 'feeDetail', $feeDetails );
 
             if( $actionPermission ) {
-                $addBlockUrl = CRM_Utils_System::url( CRM_Utils_System::currentPath( ),"reset=1&id={$id}&action=add");
-                $this->assign( 'addActivityBlock', $addBlockUrl);
+                $addBlockUrl = CRM_Utils_System::url( CRM_Utils_System::currentPath( ),"reset=1&id={$id}&action=add&object=signout");
+                $addFeeUrl   = CRM_Utils_System::url( CRM_Utils_System::currentPath( ),"reset=1&id={$id}&action=add&object=fee");
+                $this->assign( 'addActivityBlock', $addBlockUrl );
+                $this->assign( 'addFeeEntity', $addFeeUrl );
             }
             
         }

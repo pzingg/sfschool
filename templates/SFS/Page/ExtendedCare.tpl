@@ -66,6 +66,13 @@
 </div>
 {/if}
 
+{if $enableActions}
+    <div class="action-link">
+        <a href="{$addFeeEntity}" class="button"><span>&raquo; {ts}Add Fee Entry{/ts}</span></a>
+    </div>
+    <div class="spacer"></div>
+{/if}
+
 {if $signoutDetail OR $feeDetail}
 <div class="footer" id="civicrm-footer">
 If the above information is incorrect, please send a detailed email to <a href="mailto:rbrown@sfschool.org">Rahna Hassett</a>
