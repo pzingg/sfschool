@@ -70,8 +70,8 @@ FROM       civicrm_value_extended_care_fee_tracker f
 INNER JOIN civicrm_contact c ON c.id = f.entity_id
 WHERE      DATE( f.fee_date ) >= %{$count}
 AND        DATE( f.fee_date ) <= %{$countPlusOne}
-AND        f.fee_type = 'Charge'
            $clause
+ORDER BY   f.fee_type, f.fee_date
 ";
         
         $params[$count]        = array( $startDate, 'Date' );

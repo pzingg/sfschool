@@ -52,7 +52,11 @@
      {/if}
   </tr>
 {foreach from=$feeDetail.details item=detail}
+{if $detail.fee_type eq 'Payment'}
+<tr class="row-selected">
+{else}
 <tr>
+{/if}
        <td>{$detail.category}</td>
        <td>{$detail.description}</td>
        <td>{$detail.fee_date}</td>

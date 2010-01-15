@@ -137,7 +137,7 @@ class SFS_Page_ExtendedCare extends CRM_Core_Page {
 
             $actionPermission = false;
             
-            if( CRM_Core_Permission::check( 'access CiviCRM' ) && CRM_Core_Permission::check( 'administer CiviCRM' ) ) {
+            if ( CRM_Core_Permission::check( 'access CiviCRM' ) && CRM_Core_Permission::check( 'administer CiviCRM' ) ) {
                 $actionPermission = true;
             }
            

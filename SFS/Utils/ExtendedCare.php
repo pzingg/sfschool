@@ -794,7 +794,8 @@ ORDER BY   c.sort_name, signin_time DESC
 
         $freeClasses = array( 'Volleyball', 'Cross Country', 'Amnesty International',
                               'SMART', 'Yearbook',
-                              'Basketball Team 3:30-5:00 p.m.' );
+                              'Basketball Team 3:30-5:00 p.m.',
+                              'Middle School Basketball' );
         $freeStatus  = array( 'SMART', 'Staff', 'Unlimited');
 
         $summary = array( );
