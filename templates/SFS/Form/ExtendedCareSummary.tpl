@@ -8,6 +8,7 @@
 <dt>&nbsp;</dt><dd>{$form.include_morning.html}&nbsp;{$form.include_morning.label}</dd>
 <dt>&nbsp;</dt><dd>{$form.show_details.html}&nbsp;{$form.show_details.label}</dd>
 <dt>&nbsp;</dt><dd>{$form.not_signed_out.html}&nbsp;{$form.not_signed_out.label}</dd>
+<dt>&nbsp;</dt><dd>{$form.show_balances.html}&nbsp;{$form.show_balances.label}</dd>
 </dl>	 	
 <dl>
     <dt></dt>
@@ -21,12 +22,28 @@
 <table class="selector">
   <tr class="columnheader">
      <th>Name</th>
+{if $showBalances}
+     <th>Total Charges</th>
+     <th>Total Payments</th>
+     <th>Balance Due</th>
+     <th>Balance Credit</th>
+{else}
      <th>Total Blocks</th>
 {if $showDetails}
      <th>Details</th>
 {/if}
+{/if}
   </tr>
 {foreach from=$summary item=row}
+{if $showBalances}
+  <tr class="{cycle values="odd-row,even-row"}">
+    <td>{$row.name}</td>
+    <td>{$row.totalCharges}</td>
+    <td>{$row.totalPayments}</td>
+    <td>{if $row.balanceDue}{$row.balanceDue}{else}&nbsp;{/if}</td>
+    <td>{if $row.balanceCredit}{$row.balanceCredit}{else}&nbsp;{/if}</td>
+  </tr>
+{else}
 {if $row.blockCharge > 0 OR $showDetails}
   <tr class="{cycle values="odd-row,even-row"}">
     <td>{$row.name}</td>
@@ -46,7 +63,8 @@
     </td>
 {/if}
   </tr>
-{/if}
+{/if} {*  showDetails *}
+{/if} {*  showBalances *}
 {/foreach}
 </table>
 </div>

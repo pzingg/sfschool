@@ -63,6 +63,7 @@ class SFS_Form_ExtendedCareSummary extends CRM_Core_Form {
         $this->add('checkbox', 'include_morning', ts( 'Include Morning Blocks?' ) );
         $this->add('checkbox', 'show_details'   , ts( 'Show Detailed breakdown for each student?' ) );
         $this->add('checkbox', 'not_signed_out' , ts( 'Show ONLY signed In but not signed out?' ) );
+        $this->add('checkbox', 'show_balances'  , ts( 'Show Charges and Payments (all other options are ignored)' ) );
 
         require_once 'SFS/Utils/Query.php';
         $students = array( '' => '- Select Student -' ) + SFS_Utils_Query::getStudentsByGrade( true, false );
@@ -98,18 +99,31 @@ class SFS_Form_ExtendedCareSummary extends CRM_Core_Form {
     function postProcess( ) {
         $params = $this->controller->exportValues( $this->_name );
 
+        $startDate      = CRM_Utils_Date::processDate( $params['start_date'],
+                                                       null, false, 'Ymd' );
+        $endDate        = CRM_Utils_Date::processDate( $params['end_date'  ],
+                                                       null, false, 'Ymd' );
+        $includeMorning = CRM_Utils_Array::value( 'include_morning', $params, false );
+        $showDetails    = CRM_Utils_Array::value( 'show_details'   , $params, false );
+        $notSignedOut   = CRM_Utils_Array::value( 'not_signed_out' , $params, false );
+        $showBalances   = CRM_Utils_Array::value( 'show_balances', $params, false   );
+         
         require_once 'SFS/Utils/ExtendedCare.php';
-        $summary =& SFS_Utils_ExtendedCare::signoutDetails( CRM_Utils_Date::processDate( $params['start_date'],
-                                                                                         null, false, 'Ymd' ),
-                                                            CRM_Utils_Date::processDate( $params['end_date'  ],
-                                                                                         null, false, 'Ymd' ),
-                                                            CRM_Utils_Array::value( 'include_morning', $params, false ),
-                                                            CRM_Utils_Array::value( 'show_details'   , $params, false ),
-                                                            CRM_Utils_Array::value( 'not_signed_out' , $params, false ),
-                                                            $params['student_id'] );
-        
-        $this->assign( 'summary'    , $summary );
-        $this->assign( 'showDetails', CRM_Utils_Array::value( 'show_details', $params ) );
+        if ( $showBalances ) {
+            $showDetails = false;
+            $summary =& SFS_Utils_ExtendedCare::balanceDetails( );
+        } else {
+            $summary =& SFS_Utils_ExtendedCare::signoutDetails( $startDate     ,
+                                                                $endDate       ,
+                                                                $includeMorning,
+                                                                $showDetails   ,
+                                                                $notSignedOut  ,
+                                                                $params['student_id'] );
+        }
+
+        $this->assign( 'summary'     , $summary      );
+        $this->assign( 'showBalances', $showBalances );
+        $this->assign( 'showDetails' , $showDetails  );
     }
 
 }

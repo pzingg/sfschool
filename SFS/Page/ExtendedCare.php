@@ -80,7 +80,7 @@ class SFS_Page_ExtendedCare extends CRM_Core_Page {
         }
         
         // for this year ONLY lets start from december
-        $currentMonth = ( $currentYear == 2009 ) ? '12' : '09';
+        $currentMonth = '09';
         $startDate = CRM_Utils_Request::retrieve( 'startDate',
                                                   'String',
                                                   $this,
@@ -92,7 +92,6 @@ class SFS_Page_ExtendedCare extends CRM_Core_Page {
                                                 $this,
                                                 false,
                                                 date( 'Ymd' ) );
-
 
         $this->assign( 'displayName',
                        CRM_Core_DAO::getFieldValue( 'CRM_Contact_DAO_Contact',
@@ -132,6 +131,7 @@ class SFS_Page_ExtendedCare extends CRM_Core_Page {
                                                                $endDate,
                                                                null,
                                                                false,
+                                                               true,
                                                                $id );
             $feeDetails = array_pop( $details );
 

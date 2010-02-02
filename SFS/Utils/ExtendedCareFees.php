@@ -39,6 +39,7 @@ class SFS_Utils_ExtendedCareFees {
                                  $endDate,
                                  $feeType           = null,
                                  $onlyIndexedTution = false,
+                                 $includeDetails    = true,
                                  $studentID         = null ) {
 
         $clauses = array( );
@@ -87,16 +88,21 @@ ORDER BY   f.fee_type, f.fee_date
                                               'payments' => 0,
                                               'charges'  => 0,
                                               'refunds'  => 0 );
-                $summary[$studentID]['details'] = array( );
+                if ( $includeDetails ) {
+                    $summary[$studentID]['details'] = array( );
+                }
             }
 
-            $summary[$studentID]['details'][$dao->id] = array( 'fee_type'     => $dao->fee_type,
-                                                               'description'  => $dao->description,
-                                                               'category'     => $dao->category,
-                                                               'fee_date'     => strftime( "%a, %b %d",
-                                                                                           CRM_Utils_Date::unixTime( $dao->fee_date ) ),
-                                                               'total_blocks' => $dao->total_blocks,
-                                                               'eligible_it'  => $dao->eligible_for_indexed_tuition );
+            if ( $includeDetails ) {
+                $summary[$studentID]['details'][$dao->id] = array( 'fee_type'     => $dao->fee_type,
+                                                                   'description'  => $dao->description,
+                                                                   'category'     => $dao->category,
+                                                                   'fee_date'     => strftime( "%a, %b %d",
+                                                                                               CRM_Utils_Date::unixTime( $dao->fee_date ) ),
+                                                                   'total_blocks' => $dao->total_blocks,
+                                                                   'eligible_it'  => $dao->eligible_for_indexed_tuition );
+            }
+
             switch ( $dao->fee_type ) {
             case 'Payment':
                 $summary[$studentID]['payments'] += $dao->total_blocks;

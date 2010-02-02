@@ -995,4 +995,64 @@ ORDER BY entity_id
         return 5;
     }
 
+    static function &balanceDetails( ) {
+        // always do per academic year
+        // which goes from Sept (09) - June (06)
+        $currentYear  = date( 'Y' );
+
+        $startYear = $endYear = $currentYear;
+        $startMonth = '09';
+
+        if ( $m < 9 ) {
+            $startYear--;
+        }
+        
+        $startDate = "{$startYear}{$startMonth}01";
+        $endDate   = date( 'Ymd' );
+        // first get all the dynamic charges
+        $dynamicDetails =& self::signoutDetails( $startDate,
+                                                 $endDate,
+                                                 true,
+                                                 false,
+                                                 false,
+                                                 null );
+
+        require_once 'SFS/Utils/ExtendedCareFees.php';
+        $feeDetails = SFS_Utils_ExtendedCareFees::feeDetails( $startDate,
+                                                              $endDate  ,
+                                                              null      ,
+                                                              false     ,
+                                                              false     ,
+                                                              null );
+
+        $completeDetails = CRM_Utils_Array::crmArrayMerge( $dynamicDetails, $feeDetails );
+        foreach ( $completeDetails as $id =>& $value ) {
+            if ( ! empty( $value['doNotCharge'] ) ) {
+                $value['blockCharge'] = 0;
+            }
+
+            $value['totalCharges']  = 
+                CRM_Utils_Array::value( 'blockCharge', $value, 0 ) + CRM_Utils_Array::value( 'charges', $value, 0 );
+            $value['totalPayments'] =
+                CRM_Utils_Array::value( 'payments', $value, 0 ) + CRM_Utils_Array::value( 'refunds', $value, 0 );
+
+            if ( $value['totalCharges']  == 0 &&
+                 $value['totalPayments'] == 0 ) {
+                unset( $completeDetails[$id] );
+                continue;
+            }
+
+            if ( $value['totalCharges'] >= $value['totalPayments'] ) {
+                $value['balanceDue'   ] = $value['totalCharges'] - $value['totalPayments'];
+                $value['balanceCredit'] = 0;
+            } else {
+                $value['balanceCredit'] = 0;
+                $value['balanceCredit'] = $value['totalPayments'] - $value['totalCharges'];
+            }
+        }
+
+        return $completeDetails;
+    }
+
+
 }
