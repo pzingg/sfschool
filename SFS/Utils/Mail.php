@@ -42,7 +42,8 @@ class SFS_Utils_Mail {
     static function sendMailToParents( $childID,
                                        $subjectTPL,
                                        $messageTPL,
-                                       $templateVars ) {
+                                       $templateVars,
+                                       $additionalCC = null ) {
 
         require_once 'SFS/Utils/Relationship.php';
         $parentInfo = array( );
@@ -62,10 +63,20 @@ class SFS_Utils_Mail {
                     $toDisplayName = $parent['name'];
                     $toEmail       = $parent['email'];
                 } else {
-                    $cc .= "{$parent['name']} <{$parent['email']}>";
+                    if ( ! empty( $cc ) ) {
+                        $cc .= ", ";
+                    }
+                    $cc .= $parent['email'];
                 }
             }
             $count++;
+        }
+
+        if ( $additionalCC ) {
+            if ( ! empty( $cc ) ) {
+                $cc .= ", ";
+            }
+            $cc .= $additionalCC;
         }
 
         // return if we dont have a toEmail

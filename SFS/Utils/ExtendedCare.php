@@ -403,7 +403,8 @@ AND    %2 <= max_grade
         SFS_Utils_Mail::sendMailToParents( $childID,
                                            'SFS/Mail/ExtendedCare/Subject.tpl',
                                            'SFS/Mail/ExtendedCare/Message.tpl',
-                                           $templateVars );
+                                           $templateVars,
+                                           self::COORDINATOR_EMAIL );
     }
 
     static function postProcessClass( $childID,
@@ -937,7 +938,8 @@ ORDER BY entity_id
                 SFS_Utils_Mail::sendMailToParents( $currentEntityID,
                                                    'SFS/Mail/ExtendedCare/NotSignedOutSubject.tpl',
                                                    'SFS/Mail/ExtendedCare/NotSignedOutMessage.tpl',
-                                                   $templateVars ); 
+                                                   $templateVars,
+                                                   self::COORDINATOR_EMAIL );
                 $days = array( );
             }
 
