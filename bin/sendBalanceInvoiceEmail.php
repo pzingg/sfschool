@@ -2,7 +2,7 @@
 
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 2.2                                                |
+ | CiviCRM version 3.1                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2009                                |
  +--------------------------------------------------------------------+
@@ -33,21 +33,19 @@
  *
  */
 
-global $civicrm_root;
-$civicrm_root = '/Users/lobo/svn/crm_v3.1/';
-# $civicrm_root = '/var/www/sfschool.civicrm.org/public/sites/sfschool.civicrm.org/modules/civicrm/';
-# $civicrm_root = '/home/sfschool/www/drupal/sites/all/modules/civicrm/';
+define( 'SFS_BALANCE_OVERDUE', 20 );
+require_once 'Utils.php';
 
-function sfs_bin_Utils_auth( ) {
-    session_start( );                               
-                                            
-    global $civicrm_root;
+function run( ) {
+    SFS_bin_Utils_auth( );
 
-    require_once "$civicrm_root/civicrm.config.php";
-    require_once 'CRM/Core/Config.php'; 
-    
-    $config =& CRM_Core_Config::singleton(); 
+    $config =& CRM_Core_Config::singleton( );
 
-    // this does not return on failure
-    CRM_Utils_System::authenticateScript( true );
+    require_once '../drupal/sfschool/sfschool.module';
+    sfschool_civicrm_config( $config );
+
+    require_once 'SFS/Utils/ExtendedCare.php';
+    SFS_Utils_ExtendedCare::sendBalanceInvoiceEmail( SFS_BALANCE_OVERDUE );
 }
+
+run( );

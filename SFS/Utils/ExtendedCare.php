@@ -1054,5 +1054,23 @@ ORDER BY entity_id
         return $completeDetails;
     }
 
+    static function sendBalanceInvoiceEmail( $cutoff = 20 ) {
+        $details = self::balanceDetails( );
+
+        require_once 'SFS/Utils/Mail.php';
+        foreach ( $details as $id =>& $value ) {
+            if ( $value['balanceDue'] < $cutoff ) {
+                continue;
+            }
+
+            // now send a message to the parents about what they did
+            SFS_Utils_Mail::sendMailToParents( $id,
+                                               'SFS/Mail/ExtendedCare/InvoiceSubject.tpl',
+                                               'SFS/Mail/ExtendedCare/InvoiceMessage.tpl',
+                                               $value,
+                                               null );
+            
+        }
+    }
 
 }
