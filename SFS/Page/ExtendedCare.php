@@ -97,86 +97,130 @@ class SFS_Page_ExtendedCare extends CRM_Core_Page {
                        CRM_Core_DAO::getFieldValue( 'CRM_Contact_DAO_Contact',
                                                     $id,
                                                     'display_name' ) );
-
-        if ( ( $action && array_key_exists( $action, self::actionLinks( ) ) ) || 
-             ( $action & CRM_Core_Action::ADD ) ) {
-            
-            $addcurrentPath = "reset=1&id={$id}";
-            isset( $startDate )? $addcurrentPath .= "&startDate={$startDate}" : null;
-            isset( $endDate )? $addcurrentPath .= "&endDate={$endDate}" : null;
-
-            // set breadcrumb
-            $breadCrumb = array( array('title' => ts('Browse Activities'),
-                                       'url'   => CRM_Utils_System::url( CRM_Utils_System::currentPath( ), $addcurrentPath )) );
-            
-            CRM_Utils_System::appendBreadCrumb( $breadCrumb );
-            $session =& CRM_Core_Session::singleton();
-            $session->pushUserContext( CRM_Utils_System::url( CRM_Utils_System::currentPath( ), $addcurrentPath ) );
-            $controller =& new CRM_Core_Controller_Simple( 'SFS_Form_ExtendedCare' ,'Edit Activity block');
-            $controller->process( );
-            return $controller->run( );
+        
+        $actionPermission = false;
+        if ( CRM_Core_Permission::check( 'access CiviCRM' ) && CRM_Core_Permission::check( 'administer CiviCRM' ) ) {
+            $actionPermission = true;
+        }
+        $this->assign( 'enableActions', $actionPermission );
+        
+        if ( $action & CRM_Core_Action::VIEW ) {
+            $this->view( $id, $startDate, $endDate, $actionPermission );
+        } elseif ( $action & ( CRM_Core_Action::ADD | CRM_Core_Action::UPDATE | CRM_Core_Action::DELETE ) ) {
+            $this->edit( $id, $startDate, $endDate );
+            return;
         } else {
-            require_once 'SFS/Utils/ExtendedCare.php';
-            $details = SFS_Utils_ExtendedCare::signoutDetails( $startDate,
-                                                               $endDate,
-                                                               true,
-                                                               true,
-                                                               false,
-                                                               $id );
-            
-            $signoutDetails = array_pop( $details );
-
-            require_once 'SFS/Utils/ExtendedCareFees.php';
-            $details = SFS_Utils_ExtendedCareFees::feeDetails( $startDate,
-                                                               $endDate,
-                                                               null,
-                                                               false,
-                                                               true,
-                                                               $id );
-            $feeDetails = array_pop( $details );
-
-            $actionPermission = false;
-            
-            if ( CRM_Core_Permission::check( 'access CiviCRM' ) && CRM_Core_Permission::check( 'administer CiviCRM' ) ) {
-                $actionPermission = true;
-            }
-           
-            $this->assign( 'enableActions', $actionPermission );
-            
-            if ( ! empty( $signoutDetails ) && $actionPermission ) {
-                foreach( $signoutDetails['details'] as $key => $value ) {
-                    $signoutDetails['details'][$key]['action'] = CRM_Core_Action::formLink( self::actionLinks(),
-                                                                                            null, 
-                                                                                            array( 'objectID' => $key,
-                                                                                                   'id'       => $id ,
-                                                                                                   'object'   => 'signout' ) );
-                }
-            }
-            $this->assign_by_ref( 'signoutDetail', $signoutDetails );
-
-            if ( ! empty( $feeDetails ) && $actionPermission ) {
-                foreach( $feeDetails['details'] as $key => $value ) {
-                    $feeDetails['details'][$key]['action'] = CRM_Core_Action::formLink( self::actionLinks(),
-                                                                                        null, 
-                                                                                        array( 'objectID' => $key,
-                                                                                               'id'       => $id ,
-                                                                                               'object'   => 'fee' ) );
-                }
-            }
-            $this->assign_by_ref( 'feeDetail', $feeDetails );
-
-            if( $actionPermission ) {
-                $addBlockUrl = CRM_Utils_System::url( CRM_Utils_System::currentPath( ),"reset=1&id={$id}&action=add&object=signout");
-                $addFeeUrl   = CRM_Utils_System::url( CRM_Utils_System::currentPath( ),"reset=1&id={$id}&action=add&object=fee");
-                $this->assign( 'addActivityBlock', $addBlockUrl );
-                $this->assign( 'addFeeEntity', $addFeeUrl );
-            }
-            
+            $this->browse( $id, $startDate, $endDate, $actionPermission );
         }
         
         parent::run( );
     }
 
+    function edit( $id, $startDate, $endDate ) {
+        $addcurrentPath = "reset=1&id={$id}";
+        isset( $startDate )? $addcurrentPath .= "&startDate={$startDate}" : null;
+        isset( $endDate )? $addcurrentPath .= "&endDate={$endDate}" : null;
+        
+        // set breadcrumb
+        $breadCrumb = array( array('title' => ts('Browse Activities'),
+                                   'url'   => CRM_Utils_System::url( CRM_Utils_System::currentPath( ), $addcurrentPath )) );
+        
+        CRM_Utils_System::appendBreadCrumb( $breadCrumb );
+        $session =& CRM_Core_Session::singleton();
+        $session->pushUserContext( CRM_Utils_System::url( CRM_Utils_System::currentPath( ), $addcurrentPath ) );
+        $controller =& new CRM_Core_Controller_Simple( 'SFS_Form_ExtendedCare' ,'Edit Activity block');
+        $controller->process( );
+        $controller->run( ); 
+    }
+    
+    function view( $id, $startDate, $endDate, $actionPermission ) {
+        require_once 'SFS/Utils/ExtendedCare.php';
 
-   
+        $showSignoutDetails = true;
+        $month = CRM_Utils_Request::retrieve( 'month','String',$this, false, date('m') );
+        
+        $year  = CRM_Utils_Request::retrieve( 'year','String',$this, false, date('Y') );
+        $detailStartDate = "{$year}{$month}01";
+        $detailEndDate   = "{$year}{$month}".date("t", strtotime( $year . "-" . $month . "-01"));
+        
+        $backButtonUrl= CRM_Utils_System::url( CRM_Utils_System::currentPath( ), "reset=1&id={$id}&startDate={$startDate}&endDate={$endDate}" );
+        $this->assign( 'backButtonUrl', $backButtonUrl );
+
+        $details = SFS_Utils_ExtendedCare::signoutDetails( $detailStartDate,
+                                                           $detailEndDate,
+                                                           true,
+                                                           true,
+                                                           false,
+                                                           $id );
+            
+        $signoutDetails = array_pop( $details );
+                
+        if ( ! empty( $signoutDetails ) && $actionPermission ) {
+            foreach( $signoutDetails['details'] as $key => $value ) {
+                $signoutDetails['details'][$key]['action'] = CRM_Core_Action::formLink( self::actionLinks(),
+                                                                                        null, 
+                                                                                        array( 'objectID' => $key,
+                                                                                               'id'       => $id ,
+                                                                                               'object'   => 'signout' ) );
+            }
+        }
+        $this->assign_by_ref( 'signoutDetail', $signoutDetails );
+        
+    }
+    
+    function browse( $id, $startDate, $endDate, $actionPermission ) {
+        require_once 'SFS/Utils/ExtendedCare.php';
+        require_once 'SFS/Utils/ExtendedCareFees.php';
+        
+        $details = SFS_Utils_ExtendedCareFees::feeDetails( $startDate,
+                                                           $endDate,
+                                                           null,
+                                                           false,
+                                                           true,
+                                                           $id,
+                                                           10);
+        $feeDetails = array_pop( $details );
+        
+        $details = SFS_Utils_ExtendedCare::getMonthlySignoutCount( $startDate,
+                                                                   $endDate,
+                                                                   $id
+                                                                   );
+        $monthlySignout =  array_pop( $details );
+        
+        if ( ! empty( $feeDetails ) && $actionPermission ) {
+            foreach( $feeDetails['details'] as $key => $value ) {
+                $feeDetails['details'][$key]['action'] = CRM_Core_Action::formLink( self::actionLinks(),
+                                                                                    null, 
+                                                                                    array( 'objectID' => $key,
+                                                                                           'id'       => $id ,
+                                                                                           'object'   => 'fee' ) );
+            }
+        }
+        $this->assign_by_ref( 'feeDetail', $feeDetails );
+        
+        if( ! empty( $monthlySignout ) ) {
+            $detailLink = array( CRM_Core_Action::VIEW  => array('name'  => ts('View Details'),
+                                                                 'url'   => CRM_Utils_System::currentPath( ),
+                                                                 'qs'    => 'reset=1&action=view&id=%%id%%&year=%%year%%&month=%%month%%',
+                                                                 'title' => ts('View Details') 
+                                                                 ) );
+            foreach( $monthlySignout as $month => $detail ) {
+                $monthlySignout[$month]['action'] = CRM_Core_Action::formLink( $detailLink,
+                                                                               null, 
+                                                                               array( 'id'       => $id ,
+                                                                                      'year'     => $detail['year'],
+                                                                                      'month'    => $detail['month'] ));
+                
+            }
+        }
+        $this->assign_by_ref( 'monthlySignout', $monthlySignout );
+        
+        if( $actionPermission ) {
+            $addBlockUrl = CRM_Utils_System::url( CRM_Utils_System::currentPath( ),"reset=1&id={$id}&action=add&object=signout");
+            $addFeeUrl   = CRM_Utils_System::url( CRM_Utils_System::currentPath( ),"reset=1&id={$id}&action=add&object=fee");
+            $this->assign( 'addActivityBlock', $addBlockUrl );
+            $this->assign( 'addFeeEntity', $addFeeUrl );
+        }
+    }
+
 }

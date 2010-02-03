@@ -40,7 +40,8 @@ class SFS_Utils_ExtendedCareFees {
                                  $feeType           = null,
                                  $onlyIndexedTution = false,
                                  $includeDetails    = true,
-                                 $studentID         = null ) {
+                                 $studentID         = null,
+                                 $limit             = null ) {
 
         $clauses = array( );
         $params  = array( );
@@ -72,9 +73,12 @@ INNER JOIN civicrm_contact c ON c.id = f.entity_id
 WHERE      DATE( f.fee_date ) >= %{$count}
 AND        DATE( f.fee_date ) <= %{$countPlusOne}
            $clause
-ORDER BY   f.fee_type, f.fee_date
+ORDER BY   f.fee_date, f.fee_type
 ";
         
+        if( $limit ) {
+            $sql .= " LIMIT 0, {$limit}";
+        }
         $params[$count]        = array( $startDate, 'Date' );
         $params[$countPlusOne] = array( $endDate  , 'Date' );
         $dao = CRM_Core_DAO::executeQuery( $sql, $params );

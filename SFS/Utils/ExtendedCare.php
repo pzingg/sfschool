@@ -870,6 +870,32 @@ ORDER BY   c.sort_name, signin_time DESC
         return $summary;
     }
 
+    static function getMonthlySignoutCount( $startDate, $endDate, $studentID = null ) {
+        $addClause = "";
+        if( $studentID ) {
+           $addClause = " AND  c.id={$studentID}";
+        }
+        $signoutActivites = array( );
+        $sql = "SELECT  COUNT(s.signin_time) as count, c.id as contactId , DATE_FORMAT(s.signin_time ,'%b- %Y') as monthName,DATE_FORMAT(s.signin_time, '%Y') as year, DATE_FORMAT(s.signin_time, '%m') as month
+FROM       civicrm_value_extended_care_signout s
+INNER JOIN civicrm_contact c ON c.id = s.entity_id
+INNER JOIN civicrm_value_school_information v ON c.id = v.entity_id
+WHERE      ( DATE(s.signout_time) >= $startDate OR DATE(s.signin_time) >= $startDate )
+AND        ( DATE(s.signout_time) <= $endDate   OR DATE(s.signin_time) <= $endDate   )
+           $addClause 
+GROUP BY  YEAR(s.signin_time), MONTH(s.signin_time) ORDER BY s.signin_time DESC";
+        
+        $dao = CRM_Core_DAO::executeQuery( $sql );
+        while ( $dao->fetch() ) {
+            $signoutActivites[$dao->contactId][$dao->monthName] = array( 'count'      => $dao->count,
+                                                                         'year'       => $dao->year,
+                                                                         'month'      => $dao->month
+                                                                         );
+            
+        }
+        return $signoutActivites; 
+    }
+
     static function signoutDetailsPerMonth( ) {
         // always do per academic year
         // which goes from Sept (09) - June (06)
