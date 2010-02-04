@@ -750,14 +750,22 @@ VALUES
         return $class;
     }
 
-    static function &signoutDetails( $startDate,
-                                     $endDate,
+    static function &signoutDetails( $startDate        = null,
+                                     $endDate          = null,
                                      $isMorning        = true,
                                      $includeDetails   = false,
                                      $onlyNotSignedOut = false,
-                                     $studentID = null ) {
+                                     $studentID        = null,
+                                     $limit            = null
+                                     ) {
         
         $clauses = array( );
+        
+        if( $startDate && $endDate ) {
+             $clauses[] = "( DATE(s.signout_time) >= $startDate OR DATE(s.signin_time) >= $startDate ) AND
+                           ( DATE(s.signout_time) <= $endDate   OR DATE(s.signin_time) <= $endDate   ) ";
+        }
+        
         if ( ! $isMorning ) {
             $clauses[] = "( is_morning = 0 OR is_morning IS NULL )";
         }
@@ -773,7 +781,9 @@ VALUES
 
         $clause = null;
         if ( $clauses ) {
-            $clause = ' AND ' . implode( ' AND ', $clauses );
+            $clause = implode( ' AND ', $clauses );
+        } else {
+            $clause = "( 1 )";
         }
 
         $sql = "
@@ -785,11 +795,12 @@ SELECT     c.id, c.display_name,
 FROM       civicrm_value_extended_care_signout s
 INNER JOIN civicrm_contact c ON c.id = s.entity_id
 INNER JOIN civicrm_value_school_information v ON c.id = v.entity_id
-WHERE      ( DATE(s.signout_time) >= $startDate OR DATE(s.signin_time) >= $startDate )
-AND        ( DATE(s.signout_time) <= $endDate   OR DATE(s.signin_time) <= $endDate   )
-           $clause
+WHERE      $clause
 ORDER BY   c.sort_name, signin_time DESC
 ";
+        if( $limit ) {
+            $sql .= " LIMIT 0, {$limit} ";
+        }
 
         $dao = CRM_Core_DAO::executeQuery( $sql );
 

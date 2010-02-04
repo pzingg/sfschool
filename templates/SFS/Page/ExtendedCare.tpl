@@ -1,41 +1,4 @@
-{if $action eq 4}
-    {if $signoutDetail}
-        <div>
-        <h2>Total Extended Care Activity Blocks for {$signoutDetail.name}: {if $signoutDetail.doNotCharge}0 ({$signoutDetail.doNotCharge}, {$signoutDetail.blockCharge}){else}{$signoutDetail.blockCharge}{/if}</h2>
-        <br/>
-        <table class="selector">
-            <tr class="columnheader">
-                <th>Number of Blocks</th>
-                <th>Class</th>
-                <th>Time</th>
-                <th>Message</th>
-               {if $enableActions}
-                   <th>&nbsp;</th>
-               {/if}
-            </tr>
-            {foreach from=$signoutDetail.details item=detail}
-            <tr>
-                <td>{$detail.charge}</td>
-                <td>{$detail.class}</td>
-                <td>{$detail.signout}{if $detail.pickup} by {$detail.pickup}{/if}</td>
-                <td>{$detail.message}</td>
-                {if $enableActions}
-                    <td>{$detail.action}</td>
-                {/if}
-            </tr>
-            {/foreach}
-        </table>
-        </div>
-    {else}
-        <div>
-        No Extended Care Activity recorded for {$displayName}
-        </div>
-    {/if}
-    <div class="action-link">
-        <a href="{$backButtonUrl}" class="button"><span>&raquo; {ts}Done{/ts}</span></a>
-    </div>
-    <div class="spacer"></div>
-{else}
+{if $action neq 4}
     {if $monthlySignout}
         <table class="selector">
             <tr class="columnheader">
@@ -49,8 +12,6 @@
             </tr>
             {/foreach}
         </table>
-    {else}
-        No Extended Care Activity recorded for {$displayName}
     {/if}
 
     {if $enableActions}
@@ -100,9 +61,59 @@
         <div class="spacer"></div>
     {/if}
 
-    {if $monthlySignout OR $feeDetail}
-        <div class="footer" id="civicrm-footer">
-            If the above information is incorrect, please send a detailed email to <a href="mailto:rbrown@sfschool.org">Rahna Hassett</a>
+{/if}
+
+{if $signoutDetail}
+    {if $action neq 4}
+         <br/><br/>
+    {/if}	 
+    <div>
+    {if $action eq 4}
+        <h2>Total Extended Care Activity Blocks for {$signoutDetail.name}: {if $signoutDetail.doNotCharge}0 ({$signoutDetail.doNotCharge}, {$signoutDetail.blockCharge}){else}{$signoutDetail.blockCharge}{/if}</h2>
+    {else} 
+	<h2>Recent Extended Care Activity for {$signoutDetail.name} </h2>
+    {/if}
+    <br/>
+    <table class="selector">
+        <tr class="columnheader">
+            <th>Number of Blocks</th>
+            <th>Class</th>
+            <th>Time</th>
+            <th>Message</th>
+            {if $enableActions}
+               <th>&nbsp;</th>
+            {/if}
+        </tr>
+        {foreach from=$signoutDetail.details item=detail}
+            <tr>
+                <td>{$detail.charge}</td>
+                <td>{$detail.class}</td>
+                <td>{$detail.signout}{if $detail.pickup} by {$detail.pickup}{/if}</td>
+                <td>{$detail.message}</td>
+                {if $enableActions}
+                    <td>{$detail.action}</td>
+                {/if}
+            </tr>
+        {/foreach}
+        </table>
+        </div>
+{else}
+    {if $action eq 4}
+        <div>
+        No Extended Care Activity recorded for {$displayName}
         </div>
     {/if}
+{/if}
+
+{if $action eq 4}
+    <div class="action-link">
+        <a href="{$backButtonUrl}" class="button"><span>&raquo; {ts}Done{/ts}</span></a>
+    </div>
+    <div class="spacer"></div>
+{/if}
+
+{if ($action neq 4) AND ($monthlySignout OR $feeDetail) }
+    <div class="footer" id="civicrm-footer">
+        If the above information is incorrect, please send a detailed email to <a href="mailto:rbrown@sfschool.org">Rahna Hassett</a>
+    </div>
 {/if}

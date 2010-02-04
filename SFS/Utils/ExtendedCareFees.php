@@ -41,6 +41,7 @@ class SFS_Utils_ExtendedCareFees {
                                  $onlyIndexedTution = false,
                                  $includeDetails    = true,
                                  $studentID         = null,
+                                 $catagory          = null,
                                  $limit             = null ) {
 
         $clauses = array( );
@@ -55,11 +56,17 @@ class SFS_Utils_ExtendedCareFees {
             $clauses[] = "f.fee_type = %{$count}";
             $params[$count++] = array( $feeType, 'String' );
         }
-
+        
+        if( $catagory ) {
+            $clauses[] = "f.category = %{$count}";
+            $params[$count++] = array( $catagory, 'String' );
+            
+        }
+        
         if ( $onlyIndexedTution ) {
             $clauses[] = "( f.eligible_for_indexed_tuition == 1 )";
         }
-
+        
         $clause = null;
         if ( $clauses ) {
             $clause = ' AND ' . implode( ' AND ', $clauses );

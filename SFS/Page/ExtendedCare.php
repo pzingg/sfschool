@@ -105,7 +105,7 @@ class SFS_Page_ExtendedCare extends CRM_Core_Page {
         $this->assign( 'enableActions', $actionPermission );
         
         if ( $action & CRM_Core_Action::VIEW ) {
-            $this->view( $id, $startDate, $endDate, $actionPermission );
+            $this->view( $id, $startDate, $endDate, $actionPermission , false );
         } elseif ( $action & ( CRM_Core_Action::ADD | CRM_Core_Action::UPDATE | CRM_Core_Action::DELETE ) ) {
             $this->edit( $id, $startDate, $endDate );
             return;
@@ -133,25 +133,31 @@ class SFS_Page_ExtendedCare extends CRM_Core_Page {
         $controller->run( ); 
     }
     
-    function view( $id, $startDate, $endDate, $actionPermission ) {
+    function view( $id, $startDate, $endDate, $actionPermission , $calledByBrowse = false ) {
         require_once 'SFS/Utils/ExtendedCare.php';
 
         $showSignoutDetails = true;
-        $month = CRM_Utils_Request::retrieve( 'month','String',$this, false, date('m') );
-        
-        $year  = CRM_Utils_Request::retrieve( 'year','String',$this, false, date('Y') );
-        $detailStartDate = "{$year}{$month}01";
-        $detailEndDate   = "{$year}{$month}".date("t", strtotime( $year . "-" . $month . "-01"));
-        
-        $backButtonUrl= CRM_Utils_System::url( CRM_Utils_System::currentPath( ), "reset=1&id={$id}&startDate={$startDate}&endDate={$endDate}" );
-        $this->assign( 'backButtonUrl', $backButtonUrl );
+        if( $calledByBrowse ) {
+            // show recent 10 activities
+            $details = SFS_Utils_ExtendedCare::signoutDetails( null, null, true, true, false, $id, 10 ); 
 
-        $details = SFS_Utils_ExtendedCare::signoutDetails( $detailStartDate,
-                                                           $detailEndDate,
-                                                           true,
-                                                           true,
-                                                           false,
-                                                           $id );
+        } else { 
+            $month = CRM_Utils_Request::retrieve( 'month','String',$this, false, date('m') );
+            $year  = CRM_Utils_Request::retrieve( 'year','String',$this, false, date('Y') );
+
+            $detailStartDate = "{$year}{$month}01";
+            $detailEndDate   = "{$year}{$month}".date("t", strtotime( $year . "-" . $month . "-01"));
+            
+            $backButtonUrl= CRM_Utils_System::url( CRM_Utils_System::currentPath( ), "reset=1&id={$id}&startDate={$startDate}&endDate={$endDate}" );
+            $this->assign( 'backButtonUrl', $backButtonUrl );
+            
+            $details = SFS_Utils_ExtendedCare::signoutDetails( $detailStartDate,
+                                                               $detailEndDate,
+                                                               true,
+                                                               true,
+                                                               false,
+                                                               $id );
+        }
             
         $signoutDetails = array_pop( $details );
                 
@@ -172,12 +178,24 @@ class SFS_Page_ExtendedCare extends CRM_Core_Page {
         require_once 'SFS/Utils/ExtendedCare.php';
         require_once 'SFS/Utils/ExtendedCareFees.php';
         
+        $this->view( $id, $startDate, $endDate, $actionPermission, true );
+
+        if( date('Ymd') <= date( 'Ymd',strtotime($endDate) ) ) {
+            $endDateNew = date('Ymd');
+        } else {
+            $endDateNew  = date( 'Ymd', mktime(0, 0, 0, date('m',strtotime($endDate)) , date('t',strtotime($endDate)), date('Y',strtotime($endDate))));
+            if( date('Ymd') <= $endDateNew ) {
+                $endDateNew =  date('Ymd');
+            }
+        }
+
         $details = SFS_Utils_ExtendedCareFees::feeDetails( $startDate,
-                                                           $endDate,
+                                                           $endDateNew,
                                                            null,
                                                            false,
                                                            true,
                                                            $id,
+                                                           'Standard Fee',
                                                            10);
         $feeDetails = array_pop( $details );
         
