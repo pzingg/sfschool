@@ -1070,6 +1070,8 @@ ORDER BY entity_id
 
             $value['totalCharges']  = 
                 CRM_Utils_Array::value( 'blockCharge', $value, 0 ) + CRM_Utils_Array::value( 'charges', $value, 0 );
+            $value['blockCharges'] =
+                CRM_Utils_Array::value( 'blockCharge', $value, 0 ) + CRM_Utils_Array::value( 'ecCharges', $value, 0 );
             $value['totalPayments'] =
                 CRM_Utils_Array::value( 'payments', $value, 0 ) + CRM_Utils_Array::value( 'refunds', $value, 0 );
 
@@ -1091,7 +1093,7 @@ ORDER BY entity_id
         return $completeDetails;
     }
 
-    static function sendBalanceInvoiceEmail( $cutoff = 20 ) {
+    static function sendBalanceInvoiceEmail( $cutoff = 10 ) {
         $details = self::balanceDetails( );
 
         require_once 'SFS/Utils/Mail.php';

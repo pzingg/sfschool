@@ -33,7 +33,7 @@
  *
  */
 
-define( 'SFS_BALANCE_OVERDUE', 20 );
+define( 'SFS_BALANCE_OVERDUE', 10 );
 require_once 'Utils.php';
 
 function run( ) {

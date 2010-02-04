@@ -195,8 +195,7 @@ class SFS_Page_ExtendedCare extends CRM_Core_Page {
                                                            false,
                                                            true,
                                                            $id,
-                                                           'Standard Fee',
-                                                           10);
+                                                           null );
         $feeDetails = array_pop( $details );
         
         $details = SFS_Utils_ExtendedCare::getMonthlySignoutCount( $startDate,

@@ -37,7 +37,7 @@
             {/if}
   	</tr>
 	{foreach from=$feeDetail.details item=detail}
-	    {if $detail.fee_type eq 'Payment'}
+	    {if $detail.fee_type eq 'Payment' OR $detail.fee_type eq 'Credit'}
                 <tr class="row-selected">
 	    {else}
 	        <tr>

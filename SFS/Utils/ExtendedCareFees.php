@@ -41,8 +41,7 @@ class SFS_Utils_ExtendedCareFees {
                                  $onlyIndexedTution = false,
                                  $includeDetails    = true,
                                  $studentID         = null,
-                                 $catagory          = null,
-                                 $limit             = null ) {
+                                 $category          = null ) {
 
         $clauses = array( );
         $params  = array( );
@@ -57,9 +56,9 @@ class SFS_Utils_ExtendedCareFees {
             $params[$count++] = array( $feeType, 'String' );
         }
         
-        if( $catagory ) {
+        if( $category ) {
             $clauses[] = "f.category = %{$count}";
-            $params[$count++] = array( $catagory, 'String' );
+            $params[$count++] = array( $category, 'String' );
             
         }
         
@@ -83,9 +82,6 @@ AND        DATE( f.fee_date ) <= %{$countPlusOne}
 ORDER BY   f.fee_date, f.fee_type
 ";
         
-        if( $limit ) {
-            $sql .= " LIMIT 0, {$limit}";
-        }
         $params[$count]        = array( $startDate, 'Date' );
         $params[$countPlusOne] = array( $endDate  , 'Date' );
         $dao = CRM_Core_DAO::executeQuery( $sql, $params );
@@ -96,9 +92,11 @@ ORDER BY   f.fee_date, f.fee_type
             if ( ! array_key_exists( $studentID, $summary ) ) {
                 $summary[$studentID] = array( 'id'             => $studentID,
                                               'name'           => $dao->display_name,
-                                              'payments' => 0,
-                                              'charges'  => 0,
-                                              'refunds'  => 0 );
+                                              'payments'     => 0,
+                                              'charges'      => 0,
+                                              'ecCharges'    => 0,
+                                              'classCharges' => 0,
+                                              'refunds'      => 0 );
                 if ( $includeDetails ) {
                     $summary[$studentID]['details'] = array( );
                 }
@@ -120,6 +118,11 @@ ORDER BY   f.fee_date, f.fee_type
                 break;
             case 'Charge':
                 $summary[$studentID]['charges']  += $dao->total_blocks;
+                if ( $dao->category =='Standard Fee' ) {
+                    $summary[$studentID]['ecCharges'] += $dao->total_blocks;
+                } else {
+                    $summary[$studentID]['classCharges'] += $dao->total_blocks;
+                }
                 break;
             case 'Charge Back':
                 $summary[$studentID]['refunds']  += $dao->total_blocks;

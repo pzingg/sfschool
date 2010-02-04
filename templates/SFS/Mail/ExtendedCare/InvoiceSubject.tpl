@@ -1,1 +1,1 @@
-Reminder: Extended Care Usage Charged for {$childName}
+Reminder: Extended Day Usage charges for {$childName}
