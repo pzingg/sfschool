@@ -125,6 +125,7 @@ ORDER BY   f.fee_date, f.fee_type
                 }
                 break;
             case 'Charge Back':
+            case 'Credit':
                 $summary[$studentID]['refunds']  += $dao->total_blocks;
                 break;
             }

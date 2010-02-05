@@ -131,9 +131,9 @@
       <option_group_name>fee_type_20100112111703</option_group_name>
     </OptionValue>
     <OptionValue>
-      <label>Charge Back</label>
-      <value>Charge Back</value>
-      <name>Charge_Back</name>
+      <label>Credit</label>
+      <value>Credit</value>
+      <name>Credit</name>
       <is_default>0</is_default>
       <weight>3</weight>
       <is_optgroup>0</is_optgroup>

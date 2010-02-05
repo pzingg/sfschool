@@ -36,8 +36,8 @@
 class SFS_Utils_Mail {
     
     const
-        SFS_FROM_EMAIL = "SFS Parent Portal <info@sfschool.org>",
-        SFS_BCC_EMAIL  = "SFS Parent Archival <archive.civicrm@sfschool.org>";
+        SFS_FROM_EMAIL = "SFS Parent Portal <info.portal@sfschool.org>",
+        SFS_BCC_EMAIL  = "SFS Parent Archival <archive.portal@sfschool.org>";
     
     static function sendMailToParents( $childID,
                                        $subjectTPL,
