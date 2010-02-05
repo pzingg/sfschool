@@ -35,7 +35,7 @@
 <legend> Add Class</legend>
 {/if}
 <dl>
-{foreach from=$elements item=field}
+{foreach from=$elements key=field item=type}
 <dt>{$form.$field.label}</dt><dd>{if $field eq 'start_date' or $field eq 'end_date'}{include file="CRM/common/jcalendar.tpl" elementName=$field}{else}{$form.$field.html}{/if}</dd>
 {/foreach}
 </dl>	 	
