@@ -1,28 +1,5 @@
 {if $action neq 4}
-    {if $monthlySignout}
-        <table class="selector">
-            <tr class="columnheader">
-                <th>Month</th>
-                <th>Activity Count</th>
-                <th>&nbsp;</th>
-            </tr>
-            {foreach from=$monthlySignout key=month item=detail}
-            <tr>
-                <td>{$month}</td><td>{$detail.count}</td><td>{$detail.action}</td>
-            </tr>
-            {/foreach}
-        </table>
-    {/if}
-
-    {if $enableActions}
-        <div class="action-link">
-            <a href="{$addActivityBlock}" class="button"><span>&raquo; {ts}Add Activity Block{/ts}</span></a>
-        </div>
-        <div class="spacer"></div>
-    {/if}
-
-    {if $feeDetail}
-    <br/><br/>
+    {if $monthlySignout OR $feeDetail}
     <div>
     <h2>Total Extended Care Fee Details for {$feeDetail.name}</h2>
     <br/>
@@ -32,10 +9,17 @@
      	    <th>Description</th>
      	    <th>Date</th>
      	    <th>Total Blocks</th>
-     	    {if $enableActions}
-     	        <th>&nbsp;</th>
-            {/if}
+            <th>&nbsp;</th>
   	</tr>
+        {foreach from=$monthlySignout key=month item=detail}
+          <tr>
+       	    <td>{ts}Standard Fee{/ts}</td>
+	    <td>Extended Care - {$month}</td>
+       	    <td>{$month}</td>
+      	    <td>{$detail.count}</td>
+            <td>{$detail.action}</td>
+          </tr>
+        {/foreach}
 	{foreach from=$feeDetail.details item=detail}
 	    {if $detail.fee_type eq 'Payment' OR $detail.fee_type eq 'Credit'}
                 <tr class="row-selected">
@@ -46,21 +30,23 @@
 	    <td>{$detail.description}</td>
        	    <td>{$detail.fee_date}</td>
        	    <td>{$detail.total_blocks}</td>
-       	    {if $enableActions}
-       	        <td>{$detail.action}</td>
-       	    {/if}
+            <td>
+       	    {if $enableActions}{$detail.action}{else}&nbsp;{/if}
+            </td>
 	    </tr>
 	{/foreach}
     </table>
     </div>
-    {/if}
-    {if $enableActions}
-        <div class="action-link">
-            <a href="{$addFeeEntity}" class="button"><span>&raquo; {ts}Add Fee Entry{/ts}</span></a>
-        </div>
-        <div class="spacer"></div>
-    {/if}
+  {/if}
+{/if}
 
+{if $enableActions}
+     <div class="action-link">
+         <a href="{$addFeeEntity}" class="button"><span>&raquo; {ts}Add Fee Entry{/ts}</span></a>
+         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+         <a href="{$addActivityBlock}" class="button"><span>&raquo; {ts}Add Activity Block{/ts}</span></a>
+     </div>
+     <div class="spacer"></div>
 {/if}
 
 {if $signoutDetail}
