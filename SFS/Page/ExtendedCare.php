@@ -227,7 +227,16 @@ class SFS_Page_ExtendedCare extends CRM_Core_Page {
             }
         }
         $this->assign_by_ref( 'monthlySignout', $monthlySignout );
-        
+
+        // get remaining balance
+        $balanceDetails = SFS_Utils_ExtendedCare::balanceDetails( $id );
+        if ( ! empty( $balanceDetails ) ) {
+            $balanceDetails = array_pop( $balanceDetails );
+            $this->assign_by_ref( 'balanceDetails', $balanceDetails );
+        } else {
+            $this->assign( 'balanceDetails', null );
+        }
+
         if( $actionPermission ) {
             $addBlockUrl = CRM_Utils_System::url( CRM_Utils_System::currentPath( ),"reset=1&id={$id}&action=add&object=signout");
             $addFeeUrl   = CRM_Utils_System::url( CRM_Utils_System::currentPath( ),"reset=1&id={$id}&action=add&object=fee");

@@ -1081,7 +1081,7 @@ ORDER BY entity_id
         return 5;
     }
 
-    static function &balanceDetails( ) {
+    static function &balanceDetails( $studentID = null ) {
         // always do per academic year
         // which goes from Sept (09) - June (06)
         $currentYear  = date( 'Y' );
@@ -1101,7 +1101,7 @@ ORDER BY entity_id
                                                  true,
                                                  false,
                                                  false,
-                                                 null );
+                                                 $studentID );
 
         require_once 'SFS/Utils/ExtendedCareFees.php';
         $feeDetails = SFS_Utils_ExtendedCareFees::feeDetails( $startDate,
@@ -1109,7 +1109,7 @@ ORDER BY entity_id
                                                               null      ,
                                                               false     ,
                                                               false     ,
-                                                              null );
+                                                              $studentID );
 
         $completeDetails = CRM_Utils_Array::crmArrayMerge( $dynamicDetails, $feeDetails );
         foreach ( $completeDetails as $id =>& $value ) {
