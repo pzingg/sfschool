@@ -197,13 +197,9 @@ class SFS_Page_ExtendedCare extends CRM_Core_Page {
                                                            $id,
                                                            null );
         $feeDetails = array_pop( $details );
-        
-        $details = SFS_Utils_ExtendedCare::getMonthlySignoutCount( $startDate,
-                                                                   $endDate,
-                                                                   $id
-                                                                   );
-        $monthlySignout =  array_pop( $details );
-        
+
+        $monthlySignout = SFS_Utils_ExtendedCare::signoutDetailsPerMonth( $startDate, $endDate, $id );
+
         if ( ! empty( $feeDetails ) && $actionPermission ) {
             foreach( $feeDetails['details'] as $key => $value ) {
                 $feeDetails['details'][$key]['action'] = CRM_Core_Action::formLink( self::actionLinks(),

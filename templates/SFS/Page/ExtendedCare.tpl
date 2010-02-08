@@ -16,7 +16,7 @@
        	    <td>{ts}Standard Fee{/ts}</td>
 	    <td>Extended Care - {$month}</td>
        	    <td>{$month}</td>
-      	    <td>{$detail.count}</td>
+      	    <td>{$detail.blockCharge}</td>
             <td>{$detail.action}</td>
           </tr>
         {/foreach}

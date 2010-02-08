@@ -887,7 +887,12 @@ ORDER BY   c.sort_name, signin_time DESC
            $addClause = " AND  c.id={$studentID}";
         }
         $signoutActivites = array( );
-        $sql = "SELECT  COUNT(s.signin_time) as count, c.id as contactId , DATE_FORMAT(s.signin_time ,'%b- %Y') as monthName,DATE_FORMAT(s.signin_time, '%Y') as year, DATE_FORMAT(s.signin_time, '%m') as month
+        $sql = "
+SELECT     COUNT(s.signin_time) as count,
+           c.id as contactId ,
+           DATE_FORMAT(s.signin_time ,'%b- %Y') as monthName,
+           DATE_FORMAT(s.signin_time, '%Y') as year,
+           DATE_FORMAT(s.signin_time, '%m') as month
 FROM       civicrm_value_extended_care_signout s
 INNER JOIN civicrm_contact c ON c.id = s.entity_id
 INNER JOIN civicrm_value_school_information v ON c.id = v.entity_id
@@ -907,11 +912,11 @@ GROUP BY  YEAR(s.signin_time), MONTH(s.signin_time) ORDER BY s.signin_time DESC"
         return $signoutActivites; 
     }
 
-    static function signoutDetailsPerMonth( ) {
+    static function signoutDetailsPerMonth( $startDate, $endDate, $studentID = null ) {
         // always do per academic year
         // which goes from Sept (09) - June (06)
         $currentYear  = date( 'Y' );
-        $currentMonth = date( 'm' );
+        $m = $currentMonth = date( 'm' );
 
         $dateRange = array( );
         if ( $m >= 9 ) {
@@ -919,27 +924,67 @@ GROUP BY  YEAR(s.signin_time), MONTH(s.signin_time) ORDER BY s.signin_time DESC"
                 $mon = ( $i == 9 ) ? '09' : $m;
                 $end = self::getDaysInMonth( $i, $currentYear );
                 $dateRange[$i] = array( 'start' => "{$currentYear}{$mon}01",
-                                        'end'   => "{$currentYear}{$mon}{$end}" );
+                                        'end'   => "{$currentYear}{$mon}{$end}",
+                                        'year'  => $currentYear,
+                                        'mon'   => $mon );
             }
         } else {
+            $startYear  = $currentYear - 1;
             for ( $i = 9 ; $i <= 12 ; $i++ ) {
-                $mon = ( $i == 9 ) ? '09' : $m;
-                $end = self::getDaysInMonth( $i, $currentYear );
-                $dateRange[$i] = array( 'start' => "{$currentYear}{$mon}01",
-                                        'end'   => "{$currentYear}{$mon}{$end}" );
+                $mon = ( $i == 9 ) ? '09' : $i;
+                $end = self::getDaysInMonth( $i, $startYear );
+                $dateRange[$i] = array( 'start' => "{$startYear}{$mon}01",
+                                        'end'   => "{$startYear}{$mon}{$end}",
+                                        'year'  => $startYear,
+                                        'mon'   => $mon );
             }
             $nextYear = $currentYear + 1;
             for ( $i = 1 ; $i <= $m ; $i++ ) {
                 $mon = "0{$i}";
                 $end = self::getDaysInMonth( $i, $nextYear );
                 $dateRange[$i] = array( 'start' => "{$currentYear}{$mon}01",
-                                        'end'   => "{$currentYear}{$mon}{$end}" );
+                                        'end'   => "{$currentYear}{$mon}{$end}",
+                                        'year'  => $currentYear,
+                                        'mon'   => $mon );
             }
-            $startYear  = $currentYear - 1;
-            $endYear    = $currentYear;
-            $startMonth = '09';
-            $endMonth   = $m;
         }
+
+        $monthNames = CRM_Utils_Date::getAbbrMonthNames( );
+        $result = array( );
+        foreach ( $dateRange as $date ) {
+            $d = self::signoutDetails( $date['start'],
+                                       $date['end'],
+                                       true, false, false, $studentID );
+            if ( ! empty( $d ) &&
+                 isset( $d[$studentID] ) &&
+                 $d[$studentID]['blockCharge'] > 0 &&
+                 empty( $d[$studentID]['doNotCharge'] ) ) {
+                $mon = (int ) $date['mon'];
+                $monYear = "{$monthNames[$mon]} - {$date['year']}";
+                $result[$monYear] = array( 'blockCharge' => $d[$studentID]['blockCharge'],
+                                           'year'        => $date['year'],
+                                           'month'       => $date['mon'],
+                                           );
+            }
+        }
+        
+        return $result;
+    }
+
+    static function getDaysInMonth( $month, $year ) {
+        $daysInMonth = array( 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 );
+
+        if ( $month == 2 ) {
+            return ( $year % 400 == 0 || 
+                     ( $year % 4 == 0 && $year % 100 != 0 ) ) ? 29 : 28;
+        }
+
+        if ( $month < 1 || 
+             $month > 12 ) {
+            CRM_Core_Error::fatal( );
+        }
+
+        return $daysInMonth[$month - 1];
     }
 
     function sendNotSignedOutEmail( $startDate, $endDate ) {
