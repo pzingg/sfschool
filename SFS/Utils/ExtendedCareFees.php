@@ -79,7 +79,7 @@ INNER JOIN civicrm_contact c ON c.id = f.entity_id
 WHERE      DATE( f.fee_date ) >= %{$count}
 AND        DATE( f.fee_date ) <= %{$countPlusOne}
            $clause
-ORDER BY   f.fee_date, f.fee_type
+ORDER BY   f.fee_date desc, f.fee_type
 ";
         
         $params[$count]        = array( $startDate, 'Date' );
@@ -103,10 +103,11 @@ ORDER BY   f.fee_date, f.fee_type
             }
 
             if ( $includeDetails ) {
+                $dateFormat = ( $dao->category == 'Standard Fee' ) ? "%Y - %b" : "%a, %b %d" ;
                 $summary[$studentID]['details'][$dao->id] = array( 'fee_type'     => $dao->fee_type,
                                                                    'description'  => $dao->description,
                                                                    'category'     => $dao->category,
-                                                                   'fee_date'     => strftime( "%a, %b %d",
+                                                                   'fee_date'     => strftime( $dateFormat,
                                                                                                CRM_Utils_Date::unixTime( $dao->fee_date ) ),
                                                                    'total_blocks' => $dao->total_blocks,
                                                                    'eligible_it'  => $dao->eligible_for_indexed_tuition );

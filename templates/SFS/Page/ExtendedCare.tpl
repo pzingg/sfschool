@@ -14,7 +14,7 @@
         {foreach from=$monthlySignout key=month item=detail}
           <tr>
        	    <td>{ts}Standard Fee{/ts}</td>
-	    <td>Extended Care - {$month}</td>
+	    <td>{$detail.description}</td>
        	    <td>{$month}</td>
       	    <td>{$detail.blockCharge}</td>
             <td>{$detail.action}</td>

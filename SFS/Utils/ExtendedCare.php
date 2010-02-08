@@ -923,32 +923,33 @@ GROUP BY  YEAR(s.signin_time), MONTH(s.signin_time) ORDER BY s.signin_time DESC"
             for ( $i = 9 ; $i < $m ; $i++ ) {
                 $mon = ( $i == 9 ) ? '09' : $m;
                 $end = self::getDaysInMonth( $i, $currentYear );
-                $dateRange[$i] = array( 'start' => "{$currentYear}{$mon}01",
-                                        'end'   => "{$currentYear}{$mon}{$end}",
-                                        'year'  => $currentYear,
-                                        'mon'   => $mon );
+                $dateRange[] = array( 'start' => "{$currentYear}{$mon}01",
+                                      'end'   => "{$currentYear}{$mon}{$end}",
+                                      'year'  => $currentYear,
+                                      'mon'   => $mon );
             }
         } else {
             $startYear  = $currentYear - 1;
             for ( $i = 9 ; $i <= 12 ; $i++ ) {
                 $mon = ( $i == 9 ) ? '09' : $i;
                 $end = self::getDaysInMonth( $i, $startYear );
-                $dateRange[$i] = array( 'start' => "{$startYear}{$mon}01",
-                                        'end'   => "{$startYear}{$mon}{$end}",
-                                        'year'  => $startYear,
-                                        'mon'   => $mon );
+                $dateRange[] = array( 'start' => "{$startYear}{$mon}01",
+                                      'end'   => "{$startYear}{$mon}{$end}",
+                                      'year'  => $startYear,
+                                      'mon'   => $mon );
             }
             $nextYear = $currentYear + 1;
             for ( $i = 1 ; $i <= $m ; $i++ ) {
                 $mon = "0{$i}";
                 $end = self::getDaysInMonth( $i, $nextYear );
-                $dateRange[$i] = array( 'start' => "{$currentYear}{$mon}01",
-                                        'end'   => "{$currentYear}{$mon}{$end}",
-                                        'year'  => $currentYear,
-                                        'mon'   => $mon );
+                $dateRange[] = array( 'start' => "{$currentYear}{$mon}01",
+                                      'end'   => "{$currentYear}{$mon}{$end}",
+                                      'year'  => $currentYear,
+                                      'mon'   => $mon );
             }
         }
 
+        $dateRange = array_reverse( $dateRange );
         $monthNames = CRM_Utils_Date::getAbbrMonthNames( );
         $result = array( );
         foreach ( $dateRange as $date ) {
@@ -960,8 +961,11 @@ GROUP BY  YEAR(s.signin_time), MONTH(s.signin_time) ORDER BY s.signin_time DESC"
                  $d[$studentID]['blockCharge'] > 0 &&
                  empty( $d[$studentID]['doNotCharge'] ) ) {
                 $mon = (int ) $date['mon'];
+                $yearMon = "{$date['year']} - {$monthNames[$mon]}";
                 $monYear = "{$monthNames[$mon]} - {$date['year']}";
-                $result[$monYear] = array( 'blockCharge' => $d[$studentID]['blockCharge'],
+                $term = ( $mon > 9 ) ? 'Fall' : 'Spring';
+                $result[$yearMon] = array( 'blockCharge' => $d[$studentID]['blockCharge'],
+                                           'description' => "{$term} {$date['year']} - $monYear",
                                            'year'        => $date['year'],
                                            'month'       => $date['mon'],
                                            );
