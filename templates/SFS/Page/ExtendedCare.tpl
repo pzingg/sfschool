@@ -4,7 +4,7 @@
     <h2>Total Extended Care Fee Details for {$feeDetail.name}</h2>
     <br/>
 {if $balanceDetails}
-    <div class="messages status">
+    <div class="status">
 Extended Day Block charges for {$childName}:  {$balanceDetails.blockCharges}
 <br/>
 Extended Day Extra Fee class block charges (Sept - Dec 2009) for {$childName}:  {$balanceDetails.classCharges} **
