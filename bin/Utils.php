@@ -34,9 +34,11 @@
  */
 
 global $civicrm_root;
-$civicrm_root = '/Users/lobo/svn/crm_v3.1/';
+# $civicrm_root = '/Users/lobo/svn/crm_v3.1/';
 # $civicrm_root = '/var/www/sfschool.civicrm.org/public/sites/sfschool.civicrm.org/modules/civicrm/';
 # $civicrm_root = '/home/sfschool/www/drupal/sites/all/modules/civicrm/';
+$modules_sfschool_bin_directory = substr(__FILE__, 0, strrpos(__FILE__, '/'));
+$civicrm_root = $modules_sfschool_bin_directory . "/../../civicrm";
 
 function sfs_bin_Utils_auth( ) {
     session_start( );                               
