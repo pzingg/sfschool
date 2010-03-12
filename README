@@ -1,0 +1,13 @@
+SFSchool module for CiviCRM (also known as CiviSchool), part of the CiviCRM project.
+
+Original author Donald Lobo (CiviCRM core team).
+
+This repository created using git-svn from svn revision 229.  A few custom php pages added.
+
+For more information about this project see:
+
+http://civicrm.org/taxonomy/term/26 and
+http://wiki.civicrm.org/confluence/display/CRMDOC/CiviSchool
+
+
+
